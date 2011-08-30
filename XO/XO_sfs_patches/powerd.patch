@@ -1,0 +1,133 @@
+--- a/powerd	2011-08-28 17:14:50.000000000 +0000
++++ b/powerd	2011-08-06 19:51:04.000000000 +0000
+@@ -579,8 +534,6 @@
+         set -x
+         debug=1
+         : @ debug begun, $powerd_version
+-        cat /proc/version >&2
+-        cat /boot/olpc_build >&2
+         ;;
+     off)
+         if [ "$tracing" ]
+@@ -623,13 +576,6 @@
+ 
+ read_hwinfo()
+ {
+-    if [ -x /usr/bin/olpc-hwinfo ]
+-    then
+-        hwvendor=OLPC
+-        hwname=XO
+-        hwversion=$(olpc-hwinfo model)
+-        return
+-    fi
+     read hwvendor < /sys/class/dmi/id/sys_vendor ||
+         hwvendor="n/a"
+     read hwname < /sys/class/dmi/id/product_name ||
+@@ -688,8 +634,6 @@
+ exec 1>&2   # capture stdout, too. (prevents console spew)
+ 
+ log powerd $powerd_version startup at $(date), on XO-$XO
+-log $(cat /proc/version)
+-log olpc build: $(cat /boot/olpc_build)
+ 
+ 
+ yes_or_true()
+@@ -791,8 +735,8 @@
+     log shutting down due to $*
+     leavesplash # kill the splasher (leaving splash visible)
+     sleep .05s
+-    /sbin/poweroff &
+-    sleep 9999999
++    /usr/bin/wmpoweroff &
++    sleep 9999999
+ }
+ 
+ #
+@@ -1316,8 +1243,6 @@
+     while :
+     do
+ 
+-        pwrlog_take_reading suspend
+-
+         trace until-sleep_type is $until-$sleep_type 
+ 
+         case $until-$sleep_type in
+@@ -1454,8 +1379,6 @@
+         trace got wakeup: $wakeupsource @ $lastwakeup, \
+                 slept $(( lastwakeup - sleep_started ))
+ 
+-        pwrlog_take_reading resume-$wakeupsource
+-
+         case $wakeupsource in
+         "powerbutton")
+             trace power button during $until
+@@ -1799,11 +1699,6 @@
+ 
+     config_CPU_IDLE_LIMIT=10
+     config_MONITOR_NETWORK_ACTIVITY=yes
+-
+-    config_PWRLOG_INTERVAL=0
+-    config_PWRLOG_DIR=/home/olpc/power-logs
+-    config_PWRLOG_LOGSIZE=50            # Kbytes
+-    config_PWRLOG_LOGDIRSIZE=1000       # Kbytes
+ }
+ 
+ read_config()
+@@ -2144,7 +2029,6 @@
+ 
+ exit_actions()
+ {
+-    pwrlog_take_reading shutdown
+     set_wakeupevents none
+     unsplash
+     dcon thaw
+@@ -2212,8 +2096,6 @@
+             continue
+         fi
+ 
+-        pwrlog_take_reading $event-event $arg2 $arg3 $more
+-
+         case $event in
+ 
+         powerbutton|fake_powerbutton)
+@@ -2409,29 +2269,6 @@
+     done <&6  # from the fifo
+ }
+ 
+-configure_pwrlog()
+-{
+-    if [ $config_PWRLOG_INTERVAL -gt 30 -a \
+-            -s $CONFIGDIR/olpc-pwr-log.sh ]
+-    then
+-        pwrlog_inside_powerd=yes
+-
+-        mkdir -p $config_PWRLOG_DIR
+-        chown olpc:olpc $config_PWRLOG_DIR
+-
+-        . $CONFIGDIR/olpc-pwr-log.sh
+-        pwrlog_init $config_PWRLOG_INTERVAL $config_PWRLOG_DIR \
+-            $config_PWRLOG_LOGSIZE $config_PWRLOG_LOGDIRSIZE
+-
+-    else
+-        # install a null handler
+-        pwrlog_take_reading()
+-        {
+-            trace pwrlog unconfigured, or unavailable
+-        }
+-    fi
+-}
+-
+ netactivity_snapshot()
+ {
+     iptables --list netactivity --verbose --exact --numeric
+@@ -2518,10 +2353,6 @@
+ 
+ init_netactivity_tracking
+ 
+-configure_pwrlog
+-
+-pwrlog_take_reading startup
+-
+ sched_unfreezetimer
+ 
+ trap "exit_actions" 0

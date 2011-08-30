@@ -1,0 +1,69 @@
+#!/bin/ash
+
+# Make sure that needed devices are added
+udevadm trigger  --action=add --subsystem-match="input" --subsystem-match="sound" \
+--subsystem-match="usb" --subsystem-match="sdio" --subsystem-match="net"
+udevadm settle
+
+KERNELSUBVER=`uname -r | cut -f 3 -d '.' | cut -f 1 -d '_'`
+XOVER=`uname -r | cut -f 1 -d '-' | rev | cut -f 1 -d '_'| rev`
+USBVGA=`cat /etc/X11/xorg.conf | grep sisusb`
+
+# Set the proper xorg.conf 
+# Check if we have or had a usb-to-vga dongle first
+if [ -e /dev/sisusbvga0 ]; then
+ 	cp -a /etc/X11/sisusb.conf /etc/X11/xorg.conf
+else
+# Make sure to remove the usb-to-vga config if we have removed the dongle
+# though this will revert any user modifications in XO's xorg.conf
+	if [ "$USBVGA" != "" ] ; then
+		rm -f /etc/X11/xorg.conf
+	fi
+fi
+# Then set the proper xorg.conf for the XO version if not already there 
+if [ ! -f /etc/X11/xorg.conf ] ; then
+	if [ "$XOVER" = "xo1.5" ] ; then
+		cp -a /etc/X11/xorg.conf.XO-1.5 /etc/X11/xorg.conf
+	else  
+		cp -a /etc/X11/xorg.conf.XO-1 /etc/X11/xorg.conf
+	fi
+fi
+
+# for XO-1.5 only
+# start the via camera
+if [ "$XOVER" = "xo1.5" ] ; then
+	modprobe via-camera &>/dev/null &
+fi
+
+# start kbdshim and powerd
+/usr/sbin/olpc-kbdshim-udev -f -l \
+	-b /usr/bin/olpc-brightness \
+	-V /usr/bin/olpc-volume \
+	-r /usr/bin/olpc-rotate \
+	-R /var/run/olpc-kbdshim_command \
+	-A /var/run/powerevents &
+/usr/sbin/olpc-switchd -f -l -p 10 -F /var/run/powerevents &
+/usr/sbin/powerd &
+
+# make sure there is no block of snapmergepuppy after a possible crash
+if [ -f /tmp/sleeping.now ] ; then 
+	rm -f /tmp/sleeping.now
+fi
+
+# Inhibit powerd if we are using a usb-to-vga adaptor because 
+# it powers-off the connector
+if [ -e /dev/sisusbvga0 ]; then
+	touch /var/run/powerd-inhibit-suspend/$$
+	# ..and run fixPuppyPin since it will probably have a different resolution
+	/usr/sbin/fixPuppyPin /root/Choices/ROX-Filer/PuppyPin
+fi
+
+# Check if you are booting the XO-1.5 from USB or SDcard and set fstab accordingly 
+if [ "$XOVER" = "xo1.5" ] ; then
+IntSD=`probepart | grep mmcblk1`
+  if [ "$IntSD" != "" ] ; then
+     sed -i 's/mmcblk0p2/mmcblk1p2/' /etc/fstab 2> /dev/null
+  else
+     sed -i 's/mmcblk1p2/mmcblk0p2/' /etc/fstab 2> /dev/null
+  fi
+fi

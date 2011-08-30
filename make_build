@@ -1,0 +1,48 @@
+#!/bin/sh
+
+if [ ! -f /etc/DISTRO_SPECS ] ; then
+	echo "This program requires to run in Puppylinux"
+	exit 0
+else	
+	. /etc/DISTRO_SPECS
+fi
+
+NOWDIR=`pwd`
+INSIDE=`echo $NOWDIR | grep Pxo_git`
+if [ "$INSIDE" != "" ] ; then
+	echo "Run this script form _1_ level above the Pox_git folder"
+	exit 0
+fi
+if [ ! -d "$NOWDIR"/Pox_git ] ; then
+	echo "Run this script form _1_ level above the Pox_git folder"
+	exit 0
+fi
+
+# Clean and update the Pox_git
+cd $NOWDIR/Pox_git
+git reste --hard HEAD
+git fetch
+cd ../
+
+#Make the working directory and copy files over
+mkdir $NOWDIR/xo_"$DISTRO_FILE_PREFIX"_build
+WDIR="$NOWDIR/xo_"$DISTRO_FILE_PREFIX"_build"
+
+cd $WDIR
+cp -a $NOWDIR/Pox_git/*.sh .
+cp -a $NOWDIR/Pox_git/pkgs_remrc .
+cp -aR $NOWDIR/Pox_git/XO/XO_sfs* .
+cp -aR $NOWDIR/Pox_git/XO/XO_initrd/* .
+cp -aR $NOWDIR/Pox_git/XO/XO_kernel_patches .
+chmod 755 *.sh
+
+# Run the build scripts
+./XOpup_kernel_builder.sh -b
+sync; sync
+sleep 15
+cd ../
+./build_from_OLPC_git.sh -b
+sync; sync
+sleep 15
+cd ../
+./create_xo_puppy.sh -i ../slacko-4.99.1.iso

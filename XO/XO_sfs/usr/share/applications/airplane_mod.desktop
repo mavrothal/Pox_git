@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Airplane mode for the XO
+Icon=pc-2x.xpm
+Comment=turn wifi off and on
+Exec=airplane_xo
+Terminal=false
+Type=Application
+Categories=Network
+GenericName=airplane mod

@@ -1,0 +1,66 @@
+#!/bin/sh
+#olpc rfkill script
+#turns off wifi so you can use in a plane or use a 3G modem
+#20101003 gpl 01mick@gmail.com
+WIFISTATE=`cat /sys/class/rfkill/rfkill0/state`
+killwifi (){
+WIFISTATE=`cat /sys/class/rfkill/rfkill0/state`
+if [[ $WIFISTATE = 1 ]];then
+   ifconfig eth0 down
+   echo 0 > /sys/class/rfkill/rfkill0/state
+#   mv /etc/powerd/postresume.d/reconnect.sh /etc/powerd 
+   Xdialog --timeout 5 --msgbox "Wireless conectivity is off" 0 0 0
+      else Xdialog --timeout 5 --msgbox "Your wireless conectivity is already off"  0 0 0
+fi
+}
+export -f killwifi
+startwifi (){
+WIFISTATE=`cat /sys/class/rfkill/rfkill0/state`
+if [[ $WIFISTATE = 0 ]];then
+   echo 1 > /sys/class/rfkill/rfkill0/state
+#  mv /etc/powerd/reconnect.sh /etc/powerd/postresume.d
+   sleep 1
+   ifconfig eth0 up 2>/dev/null
+   sleep 1
+   /usr/local/apps/Connect/AppRun --connect &
+   Xdialog --timeout 5 --msgbox "Wireless conectivity is on \n If your connection failed \nright click the network tray icon \n and select \"Reconnect to Network\"" 0 0 0
+      else Xdialog --timeout 5 --msgbox "Your wireless conectivity is already on" 0 0 0
+fi
+}
+export -f startwifi
+if [[ $WIFISTATE = 1 ]];then TEXT1="Click the button to turn
+off your wireless device."
+      TEXT2="<text><label>Turn Off</label></text>"
+      BUTTON="<button><input file>/usr/local/lib/X11/mini-icons/networkdead.xpm</input><action>killwifi &</action><action>EXIT:wifioff</action></button>"
+   else TEXT1="Click the button to turn
+on your wireless device."
+         TEXT2="<text><label>Turn On</label></text>"
+         BUTTON="<button><input file>/usr/local/lib/X11/mini-icons/networkboth.xpm</input><action>startwifi &</action><action>EXIT:wifion</action></button>"
+fi
+export TEXT1
+export TEXT2
+export BUTTON
+export RFKILLSCRIPT="
+<window title=\"Toggle Wifi\">
+ <vbox>
+  <frame>
+  <hbox homogeneous=\"true\">
+   <pixmap>
+    <input file>/usr/share/icons/xo.png</input>
+   </pixmap>
+  </hbox>
+  <hbox homogeneous=\"true\">
+  <text use-markup=\"true\"><label>\"<b>$TEXT1</b>\"</label></text>
+  </hbox>
+  <hbox homogeneous=\"true\">
+   $TEXT2
+   $BUTTON
+  </hbox>
+  </frame>
+  <hbox homogeneous=\"true\">
+   <button ok></button>
+  </hbox>
+ </vbox>
+</window>"
+gtkdialog3 -p RFKILLSCRIPT
+unset RFKILLSCRIPT

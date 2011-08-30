@@ -1,0 +1,11 @@
+--- a/kernel/printk.c	2010-02-24 18:52:17.000000000 +0000
++++ b/kernel/printk.cNEW	2010-03-02 17:28:42.000000000 +0000
+@@ -58,7 +58,7 @@
+ 
+ /* We show everything that is MORE important than this.. */
+ #define MINIMUM_CONSOLE_LOGLEVEL 1 /* Minimum loglevel we let people use */
+-#define DEFAULT_CONSOLE_LOGLEVEL 7 /* anything MORE serious than KERN_DEBUG */
++#define DEFAULT_CONSOLE_LOGLEVEL 3 /* anything MORE serious than KERN_DEBUG */
+ 
+ DECLARE_WAIT_QUEUE_HEAD(log_wait);
+ 

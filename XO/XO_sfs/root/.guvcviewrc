@@ -1,0 +1,60 @@
+# guvcview configuration file for /dev/video0
+
+# Thread stack size: default 128 pages of 64k = 8388608 bytes
+stack_size=8388608
+# video loop sleep time in ms: 0,1,2,3,...
+# increased sleep time -> less cpu load, more droped frames
+vid_sleep=5
+# capture method: 1- mmap 2- read
+cap_meth=1
+# video resolution 
+resolution='320x240'
+# control window size: default 480x700
+windowsize='716x700'
+#vertical pane size
+vpane=578
+#spin button behavior: 0-non editable 1-editable
+spinbehave=0
+# mode video format 'yuvy' 'yvyu' 'uyvy' 'yyuv' 'yu12' 'yv12' 'nv12' 'nv21' 'nv16' 'nv61' 'y41p' 'grey' 'y16 ' 's501' 's505' 's508' 'gbrg' 'grbg' 'ba81' 'rggb' 'rgb3' 'bgr3' 'jpeg' 'mjpg'(default)
+mode='yuyv'
+# frames per sec. - hardware supported - default( 25 )
+fps='1/29'
+#Display Fps counter: 1- Yes 0- No
+fps_display=1
+#auto focus (continuous): 1- Yes 0- No
+auto_focus=0
+# bytes per pixel: default (0 - current)
+bpp=32
+# hardware accelaration: 0 1 (default - 1)
+hwaccel=1
+# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24) 3-MPEG1 4-FLV1 5-MPEG2 6-MS MPEG4 V3(DIV3) 7-MPEG4 (DIV5)
+vid_codec=0
+# avi file max size (MAX: 1992294400 bytes)
+avi_max_len=19922944
+# Auto Video naming (ex: filename-n.avi)
+vid_inc=1
+# sound 0 - disable 1 - enable
+sound=1
+# sound API: 0- Portaudio  1- Pulseaudio
+snd_api=0
+# snd_device - sound device id as listed by portaudio (pulse uses default device)
+snd_device=0
+# snd_samprate - sound sample rate
+snd_samprate=0
+# snd_numchan - sound number of channels 0- dev def 1 - mono 2 -stereo
+snd_numchan=0
+#snd_numsec - video audio blocks size in sec: 1,2,3,.. 
+# sound delay in nanosec - delays sound by the specified amount when capturing video
+snd_delay=0
+# Sound Format (PCM=1 (0x0001) MP2=80 (0x0050)
+snd_format=80
+# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)
+frame_flags=0
+# Auto Image naming (filename-n.ext)
+image_inc=0
+# Image capture Full Path
+image_path='/root/Image.jpg'
+# Video capture Full Path
+video_path='/root/capture.avi'
+# control profiles Full Path
+profile_path='/root/default.gpfl'

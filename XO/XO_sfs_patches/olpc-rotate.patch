@@ -1,0 +1,25 @@
+--- a/olpc-rotate	2011-08-28 17:07:01.000000000 +0000
++++ b/olpc-rotate	2011-02-17 17:21:40.000000000 +0000
+@@ -32,6 +32,13 @@
+ 
+ test "$XAUTHORITY" || get_x_credentials
+ 
++#doesn't work properly in jwm so we warn, recommend and exit
++JWMRUNNING=`pidof jwm`
++if [[ "$JWMRUNNING" != "" ]];then gtkdialog-splash -fontsize large -bg hotpink -icon gtk-dialog-error -close box -timeout 7 -text "JWM is not rotation-aware. Switch to Openbox to use screen rotation" &
++wm-switch.sh &
++exit 0
++fi
++
+ # get current screen orientation
+ if ! xrandrout=$(xrandr --query)
+ then
+@@ -88,4 +95,7 @@
+ xrandr --output $output --rotate $scrnew && \
+     test -e $CMD_FIFO && echo $new >$CMD_FIFO
+ 
+-
++#relocate right-side icons to actual right-side of screen...
++/usr/sbin/fixPuppyPin /root/Choices/ROX-Filer/PuppyPin
++#restart rox
++rox -p /root/Choices/ROX-Filer/PuppyPin 

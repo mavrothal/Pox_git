@@ -1,0 +1,129 @@
+#!/bin/sh
+#daemon to avoid RAM crashes, can be turned off, with nag screen, can be turned off too
+#01micko GPL 2010
+#depends 2 small genie execs, freeramwarning, freeramcritical, templates by nikobordx
+#20100906
+#20100907 changed from percentage to 32M RAM left for warning, 8M left for critical
+#20110301 added mkswap-file.sh to gui
+#20110301 GM: swap yesno defaults and edit the dialog texts. Added $PUPMODE 12
+ver=0.3-1
+
+splashgui(){
+	if [[ "`which pprocess`" != "" ]];then PROCESSCHECK='pprocess' #is pprocess installed? if not use top
+		THEDIALOG="\nYou can create a swapfile or kill running \nprocesses with Pprocess. Press 'mkSwap' \nto generate a swapfile or 'KillApps' to start Pprocess \nor just close this window to do none of the two"
+		else PROCESSCHECK='rxvt -e top'
+		THEDIALOG="\nYou can create a swapfile or check processes \nwith 'top'. Press 'mkSwap' to generate a swapfile \nor 'KillApps' to start top and kill apps manually \nor just close this window to do none of the two"
+	fi
+	
+	. /etc/rc.d/PUPSTATE  #test for saveback to cd/dvd or usb install
+	case $PUPMODE in
+	7|12|13|77)
+	SAVEDIALOG="\nWhen done click the 'Save' icon on the Desktop"
+	;;
+	*)
+	SAVEDIALOG=""
+	;;
+	esac
+	Xdialog --title "RAM relief" --help "By clicking 'mkSwap' a swapfile will be created in the \nroot of your boot drive. Puppy will detect this and use it. \n\nClicking 'KillApps' will bring up Pprocess or top \nwhere you can manually stop processes and services,  \nIn this case make sure that you know what you are doing \nsince you may break your system!" --ok-label "mkSwap" --cancel-label "KillApps" --yesno "You are running low in free memory (RAM) \nShut down any applications \nsuch as browsers and wordprocessors \nand save your work ${SAVEDIALOG} \nOR ${THEDIALOG} " 0 0 0
+		case $? in 
+		0) rxvt -bg yellow -e mkswap-file.sh & ;;
+		1) exec $PROCESSCHECK & ;;
+		255) exit ;;
+		esac		
+	
+} 
+export -f splashgui
+
+case $1 in 
+-v)echo $ver
+	exit
+	;;
+-h|--help)
+	echo "freeramdaemon, by 01micko, GPL 2010"
+	echo "Options"
+	echo "-v, prints version"
+	echo "-h, --help, prints this help" 
+	echo "-g, displays configuration gui"
+	echo "with no options the daemon runs"
+	echo "No Warranty"
+	exit
+	;;
+-g) . $HOME/.freeramdaemon.rc
+	export MAIN_GUI="
+	<window title=\"setup\">
+	 <vbox>
+	   <checkbox>
+	    <label>Turn off freeramdaemon</label>
+	    <variable>CB0</variable>
+	    <action>if true sed -i 's/CB0=[a-z]*[a-z]/CB0=true/' $HOME/.freeramdaemon.rc</action>
+	    <action>if false sed -i 's/CB0=[a-z]*[a-z]/CB0=false/' $HOME/.freeramdaemon.rc</action>
+	    <default>$CB0</default>
+	   </checkbox>
+	   <checkbox>
+	    <label>Turn off initial Splash</label>
+	    <variable>CB1</variable>
+	    <action>if true sed -i 's/CB1=[a-z]*[a-z]/CB1=true/' $HOME/.freeramdaemon.rc</action>
+	    <action>if false sed -i 's/CB1=[a-z]*[a-z]/CB1=false/' $HOME/.freeramdaemon.rc</action>
+	    <default>$CB1</default>
+	   </checkbox>
+	  <hbox>
+	   <button ok></button>
+	  </hbox> 
+	 </vbox>
+	</window>
+	"
+	gtkdialog3 -p MAIN_GUI
+	unset MAIN_GUI
+	;;
+*)
+. $HOME/.freeramdaemon.rc
+if [[ "$CB0" = "true" ]];then exit
+fi
+while true;do
+#setup vars
+TOTALAVAILRAM=`free|grep -w 'Total'|awk '{print $2}'` #includes swap if existing
+USEDAVAILRAM=`free|grep -w 'Total'|awk '{print $3}'` 
+FREEAVAILRAM=`free|grep -w 'Total'|awk '{print $4}'` 
+
+#FACTOR=`echo $(($FREEAVAILRAM * 100))`
+#FREEAVAILRAMPERCENT=`echo $(($FACTOR/$TOTALAVAILRAM))`
+FREEAVAILRAMMEG=`echo $(($FREEAVAILRAM/1024))`
+
+# echo $FREEAVAILRAMMEG # Mick said to coment out
+
+if [[ $FREEAVAILRAMMEG -le 32 && $FREEAVAILRAMMEG -gt 8 ]];then MISSION="warning"
+	elif [[ $FREEAVAILRAMMEG -le 8 ]];then MISSION="critical"
+	else MISSION="coolbananas"
+fi
+
+# echo $MISSION # Mick said to coment out
+
+sleep 10
+
+	case $MISSION in
+	#60)my test
+	warning)	FREERAMWARNINGRUNNING=`pidof freeramwarning`
+	        if [ [ "$FREERAMWARNINGRUNNING" = "" ]];then 
+	        killall freeramcritical 2>/dev/null
+	        freeramwarning &
+	        fi
+	        ;;
+	#59|58|57|56|55) my test
+	critical) FREERAMCRITICALRUNNING=`pidof freeramcritical`
+        	if [[ "${FREERAMCRITICALRUNNING}" = "" ]];then
+            killall freeramwarning 2>/dev/null
+          	freeramcritical &
+          	splashgui &
+        	fi 
+        	;;
+	*)	killall freeramwarning 2>/dev/null
+		killall freeramcritical 2>/dev/null
+		continue
+			;;
+	esac
+       
+done
+	;;
+esac
+
+#END

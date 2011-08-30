@@ -1,0 +1,16 @@
+#PACKAGES AND SCRPTS to remove for XO
+#PACKAGES_REM (must log these and fix $HOME/.packages/builtin_files)
+PACKAGES_REM="grub grub4dos 915resolution flsynclient floppy_format makebootfat powerapplet_tray xserver_xvesa_t2"
+
+
+#WOOF Scripts
+#/usr/sbin/
+WOOFSCRIPTS="puppyinstaller bootflash wakepup2"
+
+#WOOF desktops
+#/usr/share/applications/
+WOOFDESK="Puppy-universal-installer.desktop BootFlash-usb-installer.desktop WakePup2.desktop video-upgrade-wizard.desktop"
+
+#xtra
+#/usr/lib or /usr/X11R7/lib
+XTRA="libIntelXvMC.* libI810XvMC.* libdrm_* dri/*" 

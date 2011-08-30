@@ -1,0 +1,39 @@
+--- a/powerd.conf.dist	2011-08-28 17:14:50.000000000 +0000
++++ b/powerd.conf.dist	2011-08-28 18:29:24.000000000 +0000
+@@ -90,17 +84,17 @@
+ #  Refer to the notes in the powerd script itself for descriptions
+ #  of how these control powerd's optional power logging.
+ #
+-config_CPU_IDLE_LIMIT="85"
+-config_BATTERY_TIME_DIM="180"
+-config_BATTERY_TIME_SLEEP="15"
+-config_BATTERY_TIME_BLANK="420"
+-config_EBOOK_TIME_DIM="180"
+-config_EBOOK_TIME_SLEEP="15"
+-config_EBOOK_TIME_BLANK="420"
+-config_PLUGGED_TIME_DIM="180"
+-config_PLUGGED_TIME_SLEEP="15"
+-config_PLUGGED_TIME_BLANK="420"
+-config_INITIAL_BRIGHT_LEVEL="12"
++config_CPU_IDLE_LIMIT="20"
++config_BATTERY_TIME_DIM="120"
++config_BATTERY_TIME_BLANK="540"
++config_BATTERY_TIME_SLEEP="600"
++config_EBOOK_TIME_DIM="870"
++config_EBOOK_TIME_BLANK="900"
++config_EBOOK_TIME_SLEEP="930"
++config_PLUGGED_TIME_DIM="120"
++config_PLUGGED_TIME_BLANK="1200"
++config_PLUGGED_TIME_SLEEP="36000"
++config_INITIAL_BRIGHT_LEVEL="15"
+ config_IDLE_DIM_LEVEL="5"
+ config_MESH_DURING_SUSPEND="no"
+ config_WAKE_ON_WLAN="yes"
+@@ -111,5 +105,5 @@
+ config_SLEEP_WHEN_LID_CLOSED="yes"
+ config_WAKE_WHEN_LID_OPENED="no"
+ config_CONFIRM_SECONDS="7"
+-config_UNFREEZE_SECONDS="30"
+-config_PWRLOG_INTERVAL="300"
++config_UNFREEZE_SECONDS="5"
++# config_PWRLOG_INTERVAL="300"
