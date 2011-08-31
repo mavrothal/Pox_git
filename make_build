@@ -69,7 +69,7 @@ if [ "$INSIDE" != "" ] ; then
 	sleep 5
 	usagefunc
 fi
-if [ ! -d "$NOWDIR"/Pox_git ] ; then
+if [ ! -d "$NOWDIR"/*Pox_git* ] ; then
 	echo -e "\\0033[1;31m"
 	echo "Run this script form _1_ level above the Pox_git folder"
 	echo -en "\\0033[0;39m"
@@ -95,11 +95,11 @@ fi
 
 # Copy files from Pox_git into the work directory
 cd $WDIR
-cp -a $NOWDIR/Pox_git/*.sh .
-cp -a $NOWDIR/Pox_git/pkgs_remrc .
-cp -aR $NOWDIR/Pox_git/XO/XO_sfs* .
-cp -aR $NOWDIR/Pox_git/XO/XO_initrd/* .
-cp -aR $NOWDIR/Pox_git/XO/XO_kernel_patches .
+cp -a $NOWDIR/*Pox_git*/*.sh .
+cp -a $NOWDIR/*Pox_git*/pkgs_remrc .
+cp -aR $NOWDIR/*Pox_git*/XO/XO_sfs* .
+cp -aR $NOWDIR/*Pox_git*/XO/XO_initrd/* .
+cp -aR $NOWDIR/*Pox_git*/XO/XO_kernel_patches .
 chmod 755 *.sh
 }
 export -f prepare
