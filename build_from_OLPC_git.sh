@@ -341,7 +341,7 @@ bld_chrome()
 		echo -en "\\0033[0;39m"
 		read CONTINUE
 		if [ "$CONTINUE" = "c" ];then 
-			echo "Chrome driver may have not beed compiled in a compatible distro" >> $CWD/build.log
+			echo "Chrome driver may have not been compiled in a compatible distro" >> $CWD/build.log
 		else
 			echo "User did not build the XO-1.5 chrome video driver" >> $CWD/build.log
 			fix_mod
@@ -355,7 +355,14 @@ bld_chrome()
 	make clean
 	chmod 755 autogen.sh
 	./autogen.sh
+	if [ $? -ne 0 ]; then
+		echo "Chrome compilation failed. Looks like you miss some dependencies" >> $CWD/build.log
+	fi
 	make
+	if [ $? -ne 0 ]; then
+		echo "Chrome compilation failed. Try co compile from within the " >> $CWD/build.log
+		echo ".../XO_sfs_sources/xf86-video-chrome directory to check" >> $CWD/build.log
+	fi
 	strip -s src/.libs/chrome_drv.so	
 	sync
 	cp -a src/.libs/chrome_drv.so $BASEDIR/$DISTRO_FILE_PREFIX/usr/lib/xorg/modules/drivers
