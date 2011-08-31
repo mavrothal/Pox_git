@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# The master script that will make an OLPC XO compatible puppylinux build.
+# from the content of this git repository, public sources, and a puppylinux 
+# ISO image file.
+#
+# GPL2 (see /usr/share/doc) (c) mavrothal, 01micko
+# NO WARRANTY
+
 #ver
 VER=2
 
