@@ -43,23 +43,6 @@ export -f usagefunc
 
 prepare()
 {
-if [ ! -f /etc/DISTRO_SPECS ] ; then
-	echo -e "\\0033[1;31m"
-	echo "This program may not run properly in other than Puppylinux, distros"
-	echo ""
-	echo "Hit \"c\"  and then  \"enter\" to take your chances "
-	echo "and continue... or just \"enter\" to stop."
-	echo -en "\\0033[0;39m"
-	read CONTINUE
-	if [ "$CONTINUE" = "c" ];then 
-		echo "Building in a non-puppylinux distro" >> $CWD/build.log
-	else
-		exit 0
-	fi
-else	
-	. /etc/DISTRO_SPECS
-fi
-
 NOWDIR=`pwd`
 INSIDE=`echo $NOWDIR | grep Pxo_git`
 if [ "$INSIDE" != "" ] ; then
@@ -85,9 +68,27 @@ WDIR="$NOWDIR/"$BUILDNAME"_XO_build"
 echo `date`, puppy-XO build on > $WDIR/build.log
 echo `cat /etc/issue` >> $WDIR/build.log
 
+if [ ! -f /etc/DISTRO_SPECS ] ; then
+	echo -e "\\0033[1;31m"
+	echo "This program may not run properly in other than Puppylinux, distros"
+	echo ""
+	echo "Hit \"c\"  and then  \"enter\" to take your chances "
+	echo "and continue... or just \"enter\" to stop."
+	echo -en "\\0033[0;39m"
+	read CONTINUE
+	if [ "$CONTINUE" = "c" ];then 
+		echo "Building in a non-puppylinux distro" >> $WDIR/build.log
+	else
+		exit 0
+	fi
+else	
+	. /etc/DISTRO_SPECS
+fi
+
+
 # Clean and update the Pox_git
-cd $NOWDIR/Pox_git
-git reset --hard HEAD # corrected a typo
+cd $NOWDIR/*Pox_git*
+git reset --hard HEAD
 git fetch
 if [ $? -ne 0 ]; then
 	echo "Pox_git git update failed" >> $WDIR/build.log
