@@ -9,21 +9,20 @@
 # NO WARRANTY
 
 #ver
-VER=6 
+VER=7 
 
 # fail-safe switch in case someone clicks the script in ROX 
 #echo -e "\\0033[1;34m"
 #read -p "Press ENTER to begin" dummy
 #echo -en "\\0033[0;39m"
 
-basedir=`pwd`
-echo "$basedir"
-CWD="$basedir" 
-mkdir $basedir/kernel_sources
-sources="$basedir/kernel_sources"
+BASEDIR=`pwd`
+CWD="$BASEDIR" 
+mkdir $BASEDIR/kernel_sources
+sources="$BASEDIR/kernel_sources"
 git_clone="$sources/olpc-2.6"
 git_clone_aufs="$sources/aufs2-standalone"
-patches="$basedir/XO_kernel_patches"
+patches="$BASEDIR/XO_kernel_patches"
 
 #bit of fun! (curtesy of 01micko)
 clear
@@ -165,7 +164,7 @@ get_sources()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo ""
+				echo "OLPC-2.6 git update failed" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -197,7 +196,7 @@ get_sources()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo ""
+				echo "Aufs git update failed" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -209,7 +208,7 @@ export -f get_sources
 
 patch_sources() 
 {
-	output="$basedir"
+	output="$BASEDIR"
 	
 	# Point aufs git to kernel version 2.6.35
 	cd $git_clone_aufs
@@ -300,7 +299,8 @@ make_XO1_kernel()
 	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output/XO1kernel/lib/modules/$kernel_ver/modules.dep
 	make clean distclean
 	sync
-	package_source	
+	package_source
+	echo "XO-1 kernel build finished" >> $CWD/build.log	
 }
 export -f make_XO1_kernel
 
@@ -347,7 +347,8 @@ make_XO15_kernel()
 	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output/XO1.5kernel/lib/modules/$kernel_ver/modules.dep
 	make clean distclean
 	sync
-	package_source			
+	package_source
+	echo "XO-1.5 kernel build finished" >> $CWD/build.log			
 }
 export -f make_XO15_kernel
 
@@ -384,12 +385,14 @@ finished()
 		echo "Find kernels in the "$output" folder"
 		echo -en "\\0033[0;39m"
 		xoolpcfunc
+		cd $CWD
 		exit 0
 	else
 		echo -e "\\0033[1;34m"
 		echo " Done! "
 		echo -en "\\0033[0;39m"
 		xoolpcfunc
+		cd $CWD
 		exit 0
 	fi
 }
