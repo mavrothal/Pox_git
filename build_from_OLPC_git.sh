@@ -8,18 +8,18 @@
 # NO WARRANTY
 
 #ver
-VER=3 
+VER=4 
 
-basedir=`pwd`
-CWD="$basedir" 
+BASEDIR=`pwd`
+CWD="$BASEDIR" 
 
-if [ ! -d $basedir/XO_SFS_sources ] ; then 
-	mkdir $basedir/XO_SFS_sources
+if [ ! -d $BASEDIR/XO_SFS_sources ] ; then 
+	mkdir $BASEDIR/XO_SFS_sources
 fi
 
-XO_sources="$basedir/XO_SFS_sources"
-patches="$basedir/XO_sfs_patches"
-output="$basedir/XO_sfs"
+XO_sources="$BASEDIR/XO_SFS_sources"
+patches="$BASEDIR/XO_sfs_patches"
+output="$BASEDIR/XO_sfs"
 
 #bit of fun! (curtesy of 01micko)
 clear
@@ -97,7 +97,7 @@ dnld_kbd()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo ""
+				echo "olpc-kbdshim git update failed" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -135,7 +135,7 @@ dnld_powerd()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo ""
+				echo "powerd git update failed" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -173,7 +173,7 @@ dnld_utils()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo ""
+				echo "olpc-utils git update failed" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -211,7 +211,7 @@ dnld_chrome()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo ""
+				echo "xf86-video-chrome git update failed" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -322,27 +322,34 @@ bld_chrome()
 	# TODO: needs a dependency check before compile.
 	# It fails in lupu-528 for example, but OK in slacko
 	
+	. /etc/DISTRO_SPECS
+	
 	cd $XO_sources/xf86-video-chrome
 	git reset --hard HEAD
 	chmod 755 autogen.sh
-	echo -e "\\0033[1;34m"
-	echo "The chrome driver is NOT compatible with all puppies."
-	echo "You MUST be running the puppy version you want to"
-	echo "adapt for the OLPC XO-1.5, to make a functional driver"
-	echo ""
-	echo "Hit \"c\"  and then  \"enter\" to continue"
-	echo "with compilation or just \"enter\" to quit,"
-	echo "and load the appropriate puppy version."
-	echo -en "\\0033[0;39m"
-	read CONTINUE
-	if [ "$CONTINUE" = "c" ];then
+	CORRECT=`echo $BUILDNAME | grep $DISTRO_FILE_PREFIX`
+	echo $BUILDNAME
+	if [ "$CORRECT" = "" ] ; then
+		echo -e "\\0033[1;34m"
+		echo "The chrome driver is NOT compatible with all puppies."
+		echo "You MUST be running the puppy version you want to"
+		echo "adapt for the OLPC XO-1.5, to make a functional driver"
 		echo ""
-	else
-		finished
+		echo "Hit \"c\"  and then  \"enter\" to continue"
+		echo "with compilation or just \"enter\" to skip chrome,"
+		echo "load the appropriate puppy version and run the script again."
+		echo -en "\\0033[0;39m"
+		read CONTINUE
+		if [ "$CONTINUE" = "c" ];then 
+			echo "Chrome driver may have not beed compiled in a compatible distro" >> $CWD/build.log
+		else
+			echo "User did not build the XO-1.5 chrome video driver" >> $CWD/build.log
+			fix_mod
+			finished
+		fi
 	fi
 
-	. /etc/DISTRO_SPECS
-	mkdir -p $basedir/"$DISTRO_FILE_PREFIX"/usr/lib/xorg/modules/drivers
+	mkdir -p $BASEDIR/"$DISTRO_FILE_PREFIX"/usr/lib/xorg/modules/drivers
 	
 	git reset --hard HEAD
 	make clean
@@ -351,7 +358,7 @@ bld_chrome()
 	make
 	strip -s src/.libs/chrome_drv.so	
 	sync
-	cp -a src/.libs/chrome_drv.so $basedir/$DISTRO_FILE_PREFIX/usr/lib/xorg/modules/drivers
+	cp -a src/.libs/chrome_drv.so $BASEDIR/$DISTRO_FILE_PREFIX/usr/lib/xorg/modules/drivers
 }
 export -f  bld_chrome
 
@@ -364,11 +371,56 @@ get_binaries()
 	# Get wireless firmware
 	rsync -a rsync://updates.laptop.org/build-874/root/lib/firmware/usb8388.bin \
 		"$output"/lib/firmware/
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed to download the XO-1 firmware."
+			echo -e "\\0033[1;34m"
+			echo "Hit \"c\"  and then  \"enter\" to continue"
+			echo "(the XO-1 will have no network)  or just \"enter\" to quit,"
+			echo "check the connection and try latter."
+			echo -en "\\0033[0;39m"
+			read CONTINUE
+			if [ "$CONTINUE" = "c" ];then
+				echo "usb8388.bin download failed" >> $CWD/build.log
+			else
+				exit 0
+			fi
+		fi
 	rsync -a rsync://updates.laptop.org/build-official_xo1.5-874/root/lib/firmware/sd8686* \
 		"$output"/lib/firmware/
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed to download the XO-1.5 firmware."
+			echo -e "\\0033[1;34m"
+			echo "Hit \"c\"  and then  \"enter\" to continue"
+			echo "(the XO-1.5 will have no network)  or just \"enter\" to quit,"
+			echo "check the connection and try latter."
+			echo -en "\\0033[0;39m"
+			read CONTINUE
+			if [ "$CONTINUE" = "c" ];then
+				echo "sd8686* download failed" >> $CWD/build.log
+			else
+				exit 0
+			fi
+		fi
 	# Get the full version of rtcwake
 	rsync -a rsync://updates.laptop.org/build-874/root/usr/sbin/rtcwake \
 		"$output"/usr/sbin/
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed to download rtcwake."
+			echo -e "\\0033[1;34m"
+			echo "Hit \"c\"  and then  \"enter\" to continue"
+			echo "(power management may not work)  or just \"enter\" to quit,"
+			echo "check the connection and try latter."
+			echo -en "\\0033[0;39m"
+			read CONTINUE
+			if [ "$CONTINUE" = "c" ];then
+				echo "rtcwake download failed" >> $CWD/build.log
+			else
+				exit 0
+			fi
+		fi
 	sync; sync
 }
 export -f get_binaries
@@ -379,7 +431,7 @@ get_pets()
 	# Create the output folder if not present 
 	if [ ! -d $XO_sources/XO_sfs ] ; then 
 		mkdir $XO_sources/XO_sfs
-		output="$basedir/XO_sfs"
+		output="$BASEDIR/XO_sfs"
 	fi
 	
 	cd $output
@@ -396,7 +448,7 @@ fix_mod()
 	sync; sync
 	sleep 5
 	chown -R root:root $output/*
-	chown -R root:root $basedir/$DISTRO_FILE_PREFIX/*
+	chown -R root:root $BASEDIR/$DISTRO_FILE_PREFIX/*
 	chmod 755 $output/sbin/*
 	chmod 755 $output/usr/sbin/*
 	chmod 755 $output/usr/bin/*
@@ -417,6 +469,8 @@ finished()
 		echo "They are ready to be copied to the sfs_root of you XO-specific puppy build."
 		echo -en "\\0033[0;39m"
 		xoolpcfunc
+		echo "Finished making SFS files" >> $CWD/build.log
+		cd $CWD
 		exit 0
 
 }
