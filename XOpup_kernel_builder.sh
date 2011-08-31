@@ -174,15 +174,18 @@ get_sources()
 
 	if [ ! -d "$git_clone_aufs" ] ; then
 		cd $sources
-		git clone http://git.c3sl.ufpr.br/pub/scm/aufs/aufs2-standalone.git 2>&1
+		git clone git://aufs.git.sourceforge.net/gitroot/aufs/aufs2-standalone.git 2>&1
 		if [ $? -ne 0 ]; then
-			echo -e "\\0033[1;31m"
-			echo "Error: failed to download the Aufs sources."
-			echo "Check the connection and try again"
-			echo -en "\\0033[0;39m"
-			exit 1
+			git clone git://git.c3sl.ufpr.br/aufs/aufs2-standalone.git
+			if [ $? -ne 0 ]; then
+				echo -e "\\0033[1;31m"
+				echo "Error: failed to download the Aufs sources."
+				echo "Check the connection and try again"
+				echo -en "\\0033[0;39m"
+				exit 1
+			fi
 		fi
-	else 
+	else  
 		cd $git_clone_aufs
 		git reset --hard HEAD
 		git fetch
