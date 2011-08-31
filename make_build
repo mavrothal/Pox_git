@@ -1,8 +1,61 @@
 #!/bin/sh
 
+#ver
+VER=2
+
+xoolpcfunc()
+{
+echo ""
+echo -en "\033[1;33m""\t1""\033[0m" "|" "\033[1;32m" "L""\033[0m" \
+"|""\033[1;36m"" ->""\033[0m" "|""\033[1;35m" "X"; echo -e "\033[0m"
+echo ""
+}
+export -f xoolpcfunc
+xoolpcfunc
+
+#usage
+usagefunc()
+{
+cat <<_USAGE
+Usage:
+	This program will create a puppylinux version bootable on the OLPC
+	XO-1 and XO-1.5 hardware, from a puppy linux iso. 
+	
+	-h|--help	display this usage
+	-v|--version	display script version
+	-b|--build-iso [path/to/iso]	the FULL pathname of the Puppy iso
+	-i|--iso [path/to/iso]	like "-b" nut NO kernel building. Must have one
+	
+	NOTE: This script must be run from one level above the "Pox_git" folder
+	eg:\`exec Pox_git/make_build -b <path>', \`./Pox_git/make_build -i <path>' 
+	
+	(c) Created by mavrothal and 01micko
+	@murga-linux puppy forum
+	GPLv2. See /usr/share/doc/legal/
+	NO WARRANTY
+	While all care is taken NO responsibility is accepted
+_USAGE
+	
+xoolpcfunc
+exit 0
+}
+export -f usagefunc
+
+prepare()
+{
 if [ ! -f /etc/DISTRO_SPECS ] ; then
-	echo "This program requires to run in Puppylinux"
-	exit 0
+	echo -e "\\0033[1;31m"
+	echo "This program may not run properly in other than Puppylinux, distros"
+	echo ""
+	echo "Hit \"c\"  and then  \"enter\" to take your chances "
+	echo "and continue... or just \"enter\" to stop."
+	echo -en "\\0033[0;39m"
+	read CONTINUE
+	if [ "$CONTINUE" = "c" ];then 
+		echo "Building in a non-puppylinux distro" >> $CWD/build.log
+	else
+		exit 0
+	fi
 else	
 	. /etc/DISTRO_SPECS
 fi
@@ -10,24 +63,37 @@ fi
 NOWDIR=`pwd`
 INSIDE=`echo $NOWDIR | grep Pxo_git`
 if [ "$INSIDE" != "" ] ; then
+	echo -e "\\0033[1;31m"
 	echo "Run this script form _1_ level above the Pox_git folder"
-	exit 0
+	echo -en "\\0033[0;39m"
+	sleep 5
+	usagefunc
 fi
 if [ ! -d "$NOWDIR"/Pox_git ] ; then
+	echo -e "\\0033[1;31m"
 	echo "Run this script form _1_ level above the Pox_git folder"
-	exit 0
+	echo -en "\\0033[0;39m"
+	sleep 5
+	usagefunc
 fi
+
+#Make the working directory
+mkdir $NOWDIR/"$BUILDNAME"_XO_build
+WDIR="$NOWDIR/"$BUILDNAME"_XO_build"
+
+# Create a build log
+echo `date`, puppy-XO build on > $WDIR/build.log
+echo `cat /etc/issue` >> $WDIR/build.log
 
 # Clean and update the Pox_git
 cd $NOWDIR/Pox_git
-git reste --hard HEAD
+git reset --hard HEAD # corrected a typo
 git fetch
-cd ../
+if [ $? -ne 0 ]; then
+	echo "Pox_git git update failed" >> $WDIR/build.log
+fi
 
-#Make the working directory and copy files over
-mkdir $NOWDIR/xo_"$DISTRO_FILE_PREFIX"_build
-WDIR="$NOWDIR/xo_"$DISTRO_FILE_PREFIX"_build"
-
+# Copy files from Pox_git into the work directory
 cd $WDIR
 cp -a $NOWDIR/Pox_git/*.sh .
 cp -a $NOWDIR/Pox_git/pkgs_remrc .
@@ -35,14 +101,76 @@ cp -aR $NOWDIR/Pox_git/XO/XO_sfs* .
 cp -aR $NOWDIR/Pox_git/XO/XO_initrd/* .
 cp -aR $NOWDIR/Pox_git/XO/XO_kernel_patches .
 chmod 755 *.sh
+}
+export -f prepare
 
-# Run the build scripts
-./XOpup_kernel_builder.sh -b
-sync; sync
-sleep 15
-cd ../
-./build_from_OLPC_git.sh -b
-sync; sync
-sleep 15
-cd ../
-./create_xo_puppy.sh -i ../slacko-4.99.1.iso
+run_all()
+{
+	# Run the build scripts
+	echo "Starting kernel build" >> $WDIR/build.log
+	./XOpup_kernel_builder.sh -b
+	sync; sync
+	echo "Finished kernel build" >> $WDIR/build.log
+	sleep 5
+	echo "Building XO_sfs files" >> $WDIR/build.log
+	./build_from_OLPC_git.sh -b
+	sync; sync
+	echo "Finished building XO_sfs files" >> $WDIR/build.log
+	sleep 5
+	echo "Building $BUILDNAME-XO" >> $WDIR/build.log
+	./create_xo_puppy.sh -i "$ISOPATH"
+	sync; sync
+	echo "Finished building $BUILDNAME-XO" >> $WDIR/build.log
+}
+export -f run_all
+
+
+no_kernel()
+{
+	# Use an existing kernel
+	if [ ! -f $WDIR/boot10/vmlinuz ] || [ ! -f $WDIR/boot15/vmlinuz ] ; then
+		echo -e "\\0033[1;31m"
+		echo " You do not have the XO kernels in the"
+		echo " $WDIR directory."
+		echo " Copy them over or run this script with the -b option"
+		echo -en "\\0033[0;39m"
+		exit 0
+	fi
+	
+	echo "Building XO_sfs files" >> $WDIR/build.log
+	./build_from_OLPC_git.sh -b
+	sync; sync
+	echo "Finished building XO_sfs files" >> $WDIR/build.log
+	sleep 5
+	echo "Building $BUILDNAME-XO" >> $WDIR/build.log
+	./create_xo_puppy.sh -i "$ISOPATH"
+	sync; sync
+	echo "Finished building $BUILDNAME-XO" >> $WDIR/build.log
+}
+export -f no_kernel
+
+case "$#" in
+0) usagefunc ;;
+[3-9])echo "too many arguments"; usagefunc ;;
+esac
+
+case $1 in 
+-h|--help) usagefunc && exit 0 ;;
+-v|--version) echo "$VER" && exit 0 ;;
+-b|--build-iso)  [ ! $2 ] && usagefunc
+		ISOPATH=$2 
+		ISO="`basename $ISOPATH`"
+		BUILDNAME=`echo $ISO | sed 's/.iso//'`
+		# Need this to check if chrome driver is build correctly
+		export BUILDNAME 
+		prepare
+		run_all;;
+-i|--iso) [ ! $2 ] && usagefunc
+		ISOPATH=$2 
+		ISO="`basename $ISOPATH`"
+		BUILDNAME=`echo $ISO | sed 's/.iso//'`
+		# Need this to check if chrome driver is build correctly
+		export BUILDNAME  
+		prepare
+		no_kernel;;
+esac
