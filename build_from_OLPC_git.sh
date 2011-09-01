@@ -8,7 +8,7 @@
 # NO WARRANTY
 
 #ver
-VER=4 
+VER=5 
 
 BASEDIR=`pwd`
 CWD="$BASEDIR" 
@@ -143,44 +143,6 @@ dnld_powerd()
 	fi	
 }
 export -f dnld_powerd
-
-# Download/update olpc-utilities
-dnld_utils()
-{
-	cd $XO_sources
-	if [ ! -d "olpc-utils" ] ; then
-		git clone git://dev.laptop.org/projects/olpc-utils 2>&1
-		if [ $? -ne 0 ]; then
-			echo -e "\\0033[1;31m"
-			echo "Error: failed to download olpc-utils sources."
-			echo "Check the connection and try again"
-			echo -en "\\0033[0;39m"
-			exit 1
-		fi
-		sync
-	else 
-		cd olpc-utils
-		git reset --hard HEAD
-		git fetch
-		if [ $? -ne 0 ]; then
-			echo -e "\\0033[1;31m"
-			echo "Error: failed to update olpc-utils sources."
-			echo -e "\\0033[1;34m"
-			echo "Hit \"c\"  and then  \"enter\" to continue"
-			echo "with the old sources or just \"enter\" to quit,"
-			echo "check the connection and try latter."
-			echo -en "\\0033[0;39m"
-			read CONTINUE
-			if [ "$CONTINUE" = "c" ];then
-				echo "olpc-utils git update failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-			else
-				exit 0
-			fi
-		fi
-		sync
-	fi	
-}
-export -f dnld_utils 
 
 # Download/update xf86-video-chrome
 dnld_chrome()
