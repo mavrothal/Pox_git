@@ -1,20 +1,37 @@
-Pox_git (PuppylinuxOlpcXo_git) a collection of scripts and files needed to 
-build Pouppy linux for the OLPC XO-1 and XO-1.5 laptops, starting from a 
-puppy ISO image.
+Pox_git (Puppylinux_Olpc_Xo_git), is a collection of scripts and files needed to 
+build Puppy linux for the OLPC XO-1 and XO-1.5 laptops, starting from a 
+puppy ISO image and public sources
 
-There are 3 scripts, to build the kernel, the required SFS files and to 
-modify the original SFS and repackage whole thing, and a master script 
-("make_build") that calls the other 3. 
-The scripts can run also independent of each other, to make a kernel 
-for example, or repackage a build.
+There are 4 build scripts and several modified puppy-scripts.
+  
+`XOpup_kernel_builder.sh' will build the XO-specific kernels from the 
+olpc-2.6 and Aufs2.2 gits, with patched puppy-specific config files.
+ 
+`build_from_OLPC_git.sh' will download sources from the OLPC git patch them
+as needed and make the files relating to the XO power management, fetch the 
+wireless firmware from recent OLPC builds and download and compile the XO-1.5
+chrome video driver.
+
+`create_xo_puppy.sh' will use the kernel and sfs sources to modify a puppy 
+ISO image and make it XO-compatible, ready to be transferred in a USB/SDcard
+and Boot the XO-1 and/or XO-1.5
+
+`make_build' is the master script that calls the other 3 but the previous
+scripts can run also independent of each other, to make a kernel  or repackage
+a build, for example.
 
 The files in XO/XO_sfs folder are either modified puppy scripts or new ones 
-appropriate for OLPC's XOs. 
+appropriate for OLPC's XOs needed to suit XOs special characteristics. 
 
 The build scripts can run in any linux distro to build an XO-puppy, however 
 is highly suggested to use either the puppy version you want to build for 
 the XOs or a binary-compatible distro as building environment. On another 
 distro you may need to run as root to mount the sfs or run mksquashfs.
 
-We welcome patches and addition, either in the scripts or the XO/XO_sfs/* 
-files.
+It is suggested to use a recent puppy build as base, as older ones may not
+have the geode driver and fail to compile the chrome driver.
+It is also advised to add the full udev-151+ package from a compatible 
+distro in the build to get full power management and keyboard functionality.
+
+We welcome patches and addition that will suit the XOs, either in the scripts 
+or the XO/XO_sfs/* files.
