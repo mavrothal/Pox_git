@@ -97,7 +97,7 @@ dnld_kbd()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo "olpc-kbdshim git update failed" >> $CWD/build.log
+				echo "olpc-kbdshim git update failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -135,7 +135,7 @@ dnld_powerd()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo "powerd git update failed" >> $CWD/build.log
+				echo "powerd git update failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -173,7 +173,7 @@ dnld_utils()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo "olpc-utils git update failed" >> $CWD/build.log
+				echo "olpc-utils git update failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -211,7 +211,7 @@ dnld_chrome()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo "xf86-video-chrome git update failed" >> $CWD/build.log
+				echo "xf86-video-chrome git update failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -341,31 +341,31 @@ bld_chrome()
 		echo -en "\\0033[0;39m"
 		read CONTINUE
 		if [ "$CONTINUE" = "c" ];then 
-			echo "Chrome driver may have not been compiled in a compatible distro" >> $CWD/build.log
+			echo "Chrome driver may have not been compiled in a compatible distro. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		else
-			echo "User did not build the XO-1.5 chrome video driver" >> $CWD/build.log
+			echo "User did not build the XO-1.5 chrome video driver. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			fix_mod
 			finished
 		fi
 	fi
 
-	mkdir -p $BASEDIR/"$DISTRO_FILE_PREFIX"/usr/lib/xorg/modules/drivers
+	mkdir -p $BASEDIR/"$DISTRO_FILE_PREFIX"/xorg/modules/drivers
 	
 	git reset --hard HEAD
 	make clean
 	chmod 755 autogen.sh
 	./autogen.sh
 	if [ $? -ne 0 ]; then
-		echo "Chrome compilation failed. Looks like you miss some dependencies" >> $CWD/build.log
+		echo "Chrome compilation failed. Looks like you miss some dependencies. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
 	make
 	if [ $? -ne 0 ]; then
 		echo "Chrome compilation failed. Try co compile from within the " >> $CWD/build.log
-		echo ".../XO_sfs_sources/xf86-video-chrome directory to check" >> $CWD/build.log
+		echo ".../XO_sfs_sources/xf86-video-chrome directory to check. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
 	strip -s src/.libs/chrome_drv.so	
 	sync
-	cp -a src/.libs/chrome_drv.so $BASEDIR/$DISTRO_FILE_PREFIX/usr/lib/xorg/modules/drivers
+	cp -a src/.libs/chrome_drv.so $BASEDIR/$DISTRO_FILE_PREFIX/xorg/modules/drivers
 }
 export -f  bld_chrome
 
@@ -388,7 +388,7 @@ get_binaries()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo "usb8388.bin download failed" >> $CWD/build.log
+				echo "usb8388.bin download failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -405,7 +405,7 @@ get_binaries()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo "sd8686* download failed" >> $CWD/build.log
+				echo "sd8686* download failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -423,7 +423,7 @@ get_binaries()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo "rtcwake download failed" >> $CWD/build.log
+				echo "rtcwake download failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -476,7 +476,7 @@ finished()
 		echo "They are ready to be copied to the sfs_root of you XO-specific puppy build."
 		echo -en "\\0033[0;39m"
 		xoolpcfunc
-		echo "Finished making SFS files" >> $CWD/build.log
+		echo "Finished making SFS files. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		cd $CWD
 		exit 0
 

@@ -84,7 +84,7 @@ if [ ! -f /etc/DISTRO_SPECS ] ; then
 	echo -en "\\0033[0;39m"
 	read CONTINUE
 	if [ "$CONTINUE" = "c" ];then 
-		echo "Building in a non-puppylinux distro" >> $WDIR/build.log
+		echo "Building in a non-puppylinux distro. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	else
 		exit 0
 	fi
@@ -98,7 +98,7 @@ cd $NOWDIR/*Pox_git*
 git reset --hard HEAD
 git fetch
 if [ $? -ne 0 ]; then
-	echo "Pox_git git update failed" >> $WDIR/build.log
+	echo "Pox_git git update failed. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 fi
 
 # Copy files from Pox_git into the work directory
@@ -115,20 +115,20 @@ export -f prepare
 run_all()
 {
 	# Run the build scripts
-	echo "Starting kernel build" >> $WDIR/build.log
+	echo "Starting kernel build. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	./XOpup_kernel_builder.sh -b
 	sync; sync
-	echo "Finished kernel build" >> $WDIR/build.log
+	echo "Finished kernel build. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	sleep 5
-	echo "Building XO_sfs files" >> $WDIR/build.log
+	echo "Building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	./build_from_OLPC_git.sh -b
 	sync; sync
-	echo "Finished building XO_sfs files" >> $WDIR/build.log
+	echo "Finished building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	sleep 5
-	echo "Building $BUILDNAME-XO" >> $WDIR/build.log
+	echo "Building $BUILDNAME-XO . $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	./create_xo_puppy.sh -i "$ISOPATH"
 	sync; sync
-	echo "Finished building $BUILDNAME-XO" >> $WDIR/build.log
+	echo "Finished building $BUILDNAME-XO . $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 }
 export -f run_all
 
@@ -145,15 +145,15 @@ no_kernel()
 		exit 0
 	fi
 	
-	echo "Building XO_sfs files" >> $WDIR/build.log
+	echo "Building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	./build_from_OLPC_git.sh -b
 	sync; sync
-	echo "Finished building XO_sfs files" >> $WDIR/build.log
+	echo "Finished building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	sleep 5
-	echo "Building $BUILDNAME-XO" >> $WDIR/build.log
+	echo "Building $BUILDNAME-XO . $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	./create_xo_puppy.sh -i "$ISOPATH"
 	sync; sync
-	echo "Finished building $BUILDNAME-XO" >> $WDIR/build.log
+	echo "Finished building $BUILDNAME-XO . $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 }
 export -f no_kernel
 

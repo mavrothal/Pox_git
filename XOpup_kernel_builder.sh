@@ -164,7 +164,7 @@ get_sources()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo "OLPC-2.6 git update failed" >> $CWD/build.log
+				echo "OLPC-2.6 git update failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -199,7 +199,7 @@ get_sources()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo "Aufs git update failed" >> $CWD/build.log
+				echo "Aufs git update failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
 				exit 0
 			fi
@@ -303,7 +303,7 @@ make_XO1_kernel()
 	make clean distclean
 	sync
 	package_source
-	echo "XO-1 kernel build finished" >> $CWD/build.log	
+	echo "XO-1 kernel build finished. $(date "+%Y-%m-%d %H:%M") " >> $CWD/build.log	
 }
 export -f make_XO1_kernel
 
@@ -351,7 +351,7 @@ make_XO15_kernel()
 	make clean distclean
 	sync
 	package_source
-	echo "XO-1.5 kernel build finished" >> $CWD/build.log			
+	echo "XO-1.5 kernel build finished. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
 }
 export -f make_XO15_kernel
 
