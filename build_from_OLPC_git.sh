@@ -51,7 +51,6 @@ Usage:
 	-k|--kbdshim 	download and build olpc-kbdshim
 	-p|--powerd 	download and build olpc-powerd
 	-c|--chrome	download and build xf86-video-chrome
-	-u|--utils	download and build olpc-utils
 	
 	(c) Created by mavrothal and 01micko @murga-linux puppy forum	
 	GPLv2. See /usr/share/doc/legal/
@@ -302,20 +301,6 @@ bld_powerd()
 }
 export -f bld_powerd
 
-# Copy olpc-util files
-bld_utils()
-{
-	mkdir -p $output/etc/udev/rules.d
-	mkdir -p $output/lib/
-	
-	cd $XO_sources/olpc-utils
-	git reset --hard HEAD
-	cp -aR --remove-destination lib/udev $output/lib/
-	chmod 755 $output/lib/udev/device-tree-val
-	cp -a --remove-destination lib/udev/rules.d/96-olpckeymap.rules $output/etc/udev/rules.d/	
-}
-export -f  bld_utils
-
 # Build puppy-specific chrome driver
 bld_chrome()
 {
@@ -494,12 +479,11 @@ case $1 in
 -g|--get) get_binaries && finished ;;
 -s|--pets) get_pets && finished ;;
 -b|--build) dnld_kbd && dnld_powerd && dnld_utils && dnld_chrome
-			check_dev && bld_kbd  && bld_powerd && bld_utils 
-			get_binaries  && bld_chrome && fix_mod && finished ;; # && get_pets
+			check_dev && bld_kbd  && bld_powerd && get_binaries
+			bld_chrome && fix_mod && finished ;; # && get_pets
 -k|--kbdshim) dnld_kbd && check_dev && bld_kbd && fix_mod && finished ;;	
 -p|--powerd) dnld_powerd && check_dev && bld_powerd && fix_mod && finished ;;
--c|--chrome) dnld_chrome && check_dev && bld_chrome && fix_mod && finished ;;
--u|--utils)	dnld_utils && check_dev && bld_utils && fix_mod && finished ;; 
+-c|--chrome) dnld_chrome && check_dev && bld_chrome && fix_mod && finished ;; 
 esac
 
 		

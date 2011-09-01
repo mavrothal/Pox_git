@@ -1,0 +1,21 @@
+#!/bin/sh
+
+dtree=/proc/device-tree
+
+usage()
+{
+	echo ${0##*/} key path >&2
+	exit 1
+}
+
+test $# = 2 || usage
+
+key="$1"
+path="$2"
+
+# 2nd arg must exist and be readable
+: < $dtree/$path || exit 1
+
+echo $key=$(cat $dtree/$path)
+
+

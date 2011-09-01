@@ -1,0 +1,26 @@
+# OLPC rules.  overrides what might have happened in the stock udev rules.
+#
+# due to release skew issues, we need to be able to override both the
+# upstream rules (which are in 95-keymap.rules, so this file is
+# 96-olpckeymap.rules), as well as the actual keymap thats loaded (so
+# the rules below refer to olpc-xo.override)
+
+ACTION=="remove", GOTO="olpc_keyboard_end"
+KERNEL!="event*", GOTO="olpc_keyboard_end"
+ENV{ID_INPUT_KEY}=="", GOTO="olpc_keyboard_end"
+SUBSYSTEMS=="bluetooth", GOTO="olpc_keyboard_end"
+SUBSYSTEMS=="usb", GOTO="olpc_keyboard_end"
+
+ENV{DMI_VENDOR}="$attr{[dmi/id]sys_vendor}"
+ENV{DMI_VENDOR}=="", GOTO="olpc_keyboard_nondmi"
+
+ENV{DMI_VENDOR}=="OLPC", ATTR{[dmi/id]product_name}=="XO", RUN+="keymap $name olpc-xo.override"
+
+GOTO="olpc_keyboard_end"
+
+LABEL="olpc_keyboard_nondmi"
+
+IMPORT{command}="device-tree-val DEVTREE_COMPAT compatible"
+ENV{DEVTREE_COMPAT}=="olpc,xo-1*", RUN+="keymap $name olpc-xo.override"
+
+LABEL="olpc_keyboard_end"
