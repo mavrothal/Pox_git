@@ -45,6 +45,14 @@ fi
 /usr/sbin/olpc-switchd -f -l -p 10 -F /var/run/powerevents &
 /usr/sbin/powerd &
 
+# kbdshim key bindings for sound and dimming
+# should not be necessary but can avoid conflicts
+# with other keybindings
+echo F9 > /var/run/olpc-kbdshim_command 
+echo F10 > /var/run/olpc-kbdshim_command 
+echo F11 > /var/run/olpc-kbdshim_command 
+echo F12 > /var/run/olpc-kbdshim_command 
+
 # make sure there is no block of snapmergepuppy after a possible crash
 if [ -f /tmp/sleeping.now ] ; then 
 	rm -f /tmp/sleeping.now
