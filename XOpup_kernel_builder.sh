@@ -9,7 +9,7 @@
 # NO WARRANTY
 
 #ver
-VER=7 
+VER=8 
 
 # fail-safe switch in case someone clicks the script in ROX 
 #echo -e "\\0033[1;34m"
@@ -263,6 +263,7 @@ make_XO1_kernel()
 {
 	# Make output dirs
 	mkdir $output/XO1kernel
+	output_k=$output/XO1kernel
 	mkdir $output/boot10
 	
 	# Check if a build is there
@@ -291,18 +292,22 @@ make_XO1_kernel()
 	sync
 	cp arch/x86/configs/xo_1_defconfig .config
 	make headers_check
-	make INSTALL_HDR_PATH=$output/XO1kernel/kernel-headers-$kernel_ver headers_install
-	find $output/XO1kernel/kernel-headers-$kernel_ver/include \( -name .install -o -name ..install.cmd \) -delete
+	mkdir -p $output_k/kernel-headers-$kernel_ver/usr 
+	make INSTALL_HDR_PATH=$output_k/kernel-headers-$kernel_ver/usr headers_install
+	find $output_k/kernel-headers-$kernel_ver/usr/include \( -name .install -o -name ..install.cmd \) -delete
 	make bzImage modules
 	cp .config $output/boot10/config-$kernel_ver
 	cp arch/x86/boot/bzImage $output/boot10/vmlinuz
-	make INSTALL_MOD_PATH=$output/XO1kernel/ modules_install
-	rm -rf $output/XO1kernel/lib/firmware
+	make INSTALL_MOD_PATH=$output_k/ modules_install
+	rm -rf $output_k/lib/firmware
 	# Fix the modules.dep since without full path do not work in puppy's initrd
-	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output/XO1kernel/lib/modules/$kernel_ver/modules.dep
+	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output_k/lib/modules/$kernel_ver/modules.dep
 	make clean distclean
 	sync
 	package_source
+	cd $output_k/
+	dir_2_pet kernel-headers-$kernel_ver/
+	cd $git_clone
 	echo "XO-1 kernel build finished. $(date "+%Y-%m-%d %H:%M") " >> $CWD/build.log	
 }
 export -f make_XO1_kernel
@@ -311,6 +316,7 @@ make_XO15_kernel()
 {
 	# Make output dirs
 	mkdir $output/XO1.5kernel
+	output_k=$output/XO1.5kernel
 	mkdir $output/boot15
 	
 	# Check if a build is there
@@ -339,18 +345,22 @@ make_XO15_kernel()
 	sync
 	cp arch/x86/configs/xo_1.5_defconfig .config
 	make headers_check
-	make INSTALL_HDR_PATH=$output/XO1.5kernel/kernel-headers-$kernel_ver headers_install
-	find $output/XO1.5kernel/kernel-headers-$kernel_ver/include \( -name .install -o -name ..install.cmd \) -delete
+	mkdir -p $output_k/kernel-headers-$kernel_ver/usr
+	make INSTALL_HDR_PATH=$output_k/kernel-headers-$kernel_ver/usr headers_install
+	find $output_k/kernel-headers-$kernel_ver/usr/include \( -name .install -o -name ..install.cmd \) -delete
 	make bzImage modules
 	cp .config $output/boot15/config-$kernel_ver
 	cp arch/x86/boot/bzImage $output/boot15/vmlinuz
-	make INSTALL_MOD_PATH=$output/XO1.5kernel/ modules_install
-	rm -rf $output/XO1.5kernel/lib/firmware
+	make INSTALL_MOD_PATH=$output_k/ modules_install
+	rm -rf $output_k/lib/firmware
 	# Fix the modules.dep since without full path do not work in puppy's initrd
-	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output/XO1.5kernel/lib/modules/$kernel_ver/modules.dep
+	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output_k/lib/modules/$kernel_ver/modules.dep
 	make clean distclean
 	sync
 	package_source
+	cd $output_k/
+	dir_2_pet kernel-headers-$kernel_ver/
+	cd $git_clone
 	echo "XO-1.5 kernel build finished. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
 }
 export -f make_XO15_kernel
@@ -363,18 +373,66 @@ package_source()
 	rm -rf $output/usr
 	sync
 	mkdir -p $output/usr/src/linux
-	mkdir $output/build_kernels_source
 	tar -X */.gitignore -X */*/.gitignore  -X */*/*/.gitignore \
 	-X */*/*/*/.gitignore -X */*/*/*/*/.gitignore olpc/.tarignore \
 	--exclude=.git -cf - . | tar -xf - -C $output/usr/src/linux
 	sync
 	cd $output 
-	tar cjf build_kernels_source/$kernel_ver.src.tar.bz2 usr/
+	tar cjf $output_k/$kernel_ver.src.tar.bz2 usr/
 	sync
 	rm -rf usr
-	cd $git_clone
 }
 export -f package_source
+
+dir_2_pet()
+{
+	#Barry Kauler's dir2pet modified to work in XOpup_kernel_builder.sh mavrothal
+
+	ADIR=$1
+	MYPID=${$}
+
+	#split ADIR path/filename into components...
+	BASEPKG="`basename $ADIR`"
+	DIRPKG="`dirname $ADIR`"
+	[ "$DIRPKG" = "/" ] && DIRPKG=""
+
+	NAMEONLY="kernel-headers-$kernel_ver"
+	PUPMENUDESCR="kernel-headers for the $kernel_ver kernel"
+	PUPCATEGORY="BuildingBlock"
+
+	rm -f $DIRPKG/${BASEPKG}.tar 2>/dev/null
+	rm -f $DIRPKG/${BASEPKG}.tar.gz 2>/dev/null
+	rm -f $DIRPKG/${BASEPKG}.pet 2>/dev/null
+
+	SIZEK="`du -s -k $DIRPKG/$BASEPKG | cut -f 1`" #w476
+
+	echo ""$NAMEONLY"|"$NAMEONLY"|||"$PUPCATEGORY"|"$SIZEK"||"$NAMEONLY".pet||"$PUPMENUDESCR"||||" > $DIRPKG/$BASEPKG/pet.specs
+
+	# Add pinstall.sh
+	echo '#!/bin/sh' > $DIRPKG/$BASEPKG/pinstall.sh
+	echo "if [ "\`uname -r\`" != "$kernel_ver" ] ; then" >> $DIRPKG/$BASEPKG/pinstall.sh
+	echo "gtkdialog-splash -fontsize large -bg hotpink -icon gtk-dialog-error -close box -timeout 10 -text \"This is the WRONG pet for your running kernel! Please unistall this pet now\" &" >> $DIRPKG/$BASEPKG/pinstall.sh
+	echo "fi" >> $DIRPKG/$BASEPKG/pinstall.sh
+	chmod 755 $DIRPKG/$BASEPKG/pinstall.sh
+
+	echo
+	echo -e "\\0033[1;34m"
+	echo "Packageing kernel headers in a pet..."
+	echo -en "\\0033[0;39m"
+	tar -c -f $DIRPKG/${BASEPKG}.tar $DIRPKG/$BASEPKG/
+	sync
+	gzip $DIRPKG/${BASEPKG}.tar
+	TARBALL="$DIRPKG/${BASEPKG}.tar.gz"
+
+	FULLSIZE="`stat --format=%s ${TARBALL}`"
+	MD5SUM="`md5sum $TARBALL | cut -f 1 -d ' '`"
+	echo -n "$MD5SUM" >> $TARBALL
+	sync
+	mv -f $TARBALL $DIRPKG/${BASEPKG}.pet
+	rm -rf kernel-headers-$kernel_ver
+	sync
+}
+export -f dir_2_pet
 
 finished()
 {
