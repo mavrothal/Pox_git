@@ -32,6 +32,20 @@
  
  
  yes_or_true()
+@@ -713,10 +713,10 @@
+ fi
+ 
+ # pull the (first) wlan interface name from the output of iwconfig
+-# if we find none, wlan may be rfkilled, in which case choose wlan0
++# if we find none, wlan may be rfkilled, in which case choose eth0
+ WLANIFACE=$(iwconfig 2>/dev/null |
+-    sed -n -e 's/^\(wlan[0-9]\+\).*/\1/p' | sed 1q)
+-: ${WLANIFACE:=wlan0}
++    sed -n -e 's/^\(eth[0-9]\+\).*/\1/p' | sed 1q)
++: ${WLANIFACE:=eth0}
+ 
+ 
+ splash()
 @@ -791,8 +735,8 @@
      log shutting down due to $*
      leavesplash # kill the splasher (leaving splash visible)
