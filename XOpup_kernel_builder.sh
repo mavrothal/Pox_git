@@ -436,7 +436,7 @@ export -f dir_2_pet
 
 finished()
 {
-	if [ -f $output/$kernel_ver.src.tar.bz2 ] ; then
+	if [ -f $output_k/kernel-headers-$kernel_ver.pet ] ; then
 		cd $git_clone_aufs
 		git reset --hard HEAD 
 		cd $git_clone
