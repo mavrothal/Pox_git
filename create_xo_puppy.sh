@@ -19,7 +19,7 @@ export -f xoolpcfunc
 xoolpcfunc
 
 #ver
-VER=0.3 #110827
+VER=0.4 #110907-mavrothal
 #workdir
 PWD="`pwd`"
 CWD="$PWD"
@@ -288,6 +288,12 @@ for s in $WOOFSCRIPTS
  do  echo "removing $s"
  rm -f usr/sbin/$s
  done
+ 
+for i in $OTHER
+ do  echo "removing $i"
+ rm root/Startup/$i
+ done
+
 #..and DOT desktops
 echo "unneeded .desktop files..." 
 for desk in $WOOFDESK
