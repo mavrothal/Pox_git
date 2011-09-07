@@ -9,7 +9,7 @@ WOOFSCRIPTS="puppyinstaller bootflash wakepup2"
 
 #WOOF desktops
 #/usr/share/applications/
-WOOFDESK="Puppy-universal-installer.desktop BootFlash-usb-installer.desktop WakePup2.desktop video-upgrade-wizard.desktop"
+WOOFDESK="Puppy-universal-installer.desktop BootFlash-usb-installer.desktop WakePup2.desktop video-upgrade-wizard.desktop flSynclient.desktop flsynclient.desktop"
 
 #xtra
 #/usr/lib or /usr/X11R7/lib
