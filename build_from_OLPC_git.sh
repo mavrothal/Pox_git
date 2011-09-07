@@ -218,7 +218,7 @@ bld_kbd()
 	
 	cd $XO_sources/olpc-kbdshim
 	git reset --hard HEAD
-	# feewzw to version 19 for now
+	# feeze to version 19 for now
 	git checkout cf77c1b19fa002b309cc9ccb8a3dc16ef35ef687
 	make clean
 	make olpc-kbdshim-udev
