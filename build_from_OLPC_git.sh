@@ -218,6 +218,8 @@ bld_kbd()
 	
 	cd $XO_sources/olpc-kbdshim
 	git reset --hard HEAD
+	# feewzw to version 19 for now
+	git checkout cf77c1b19fa002b309cc9ccb8a3dc16ef35ef687
 	make clean
 	make olpc-kbdshim-udev
 	strip -s olpc-kbdshim-udev
@@ -242,6 +244,8 @@ bld_powerd()
 	
 	cd $XO_sources/powerd
 	git reset --hard HEAD
+	# Feeze to v 33 for now
+	git checkout 6a01e60feed4fd7c3ddb5b4d3c33f736eb947e7e
 	make clean
 	make olpc-switchd
 	strip -s olpc-switchd
@@ -249,12 +253,15 @@ bld_powerd()
 	strip -s pnmto565fb
 	patch -p1 < $patches/powerd.patch 
 	patch -p1 < $patches/powerd_conf.patch
+	VERSION=`cat Makefile | grep ^VERSION= | cut -d "=" -f 2` 
+	echo "powerd_version='version "$VERSION"'" > version
 	cp -a --remove-destination powerd $output/usr/sbin
 	cp -a --remove-destination olpc-switchd $output/usr/sbin
 	cp -a --remove-destination pnmto565fb $output/usr/bin
 	cp -a --remove-destination powerd-config $output/usr/bin
 	cp -a --remove-destination olpc-nosleep $output/usr/bin
 	cp -a --remove-destination pleaseconfirm.* $output/etc/powerd
+	cp -a --remove-destination version $output/etc/powerd
 	cp -a --remove-destination shuttingdown.* $output/etc/powerd
 	cp -a --remove-destination usb-inhibits $output/etc/powerd/flags
 	cp -a --remove-destination powerd.conf.dist $output/etc/powerd/powerd.conf
@@ -440,7 +447,7 @@ case $1 in
 -d|--download) dnld_kbd	&& dnld_powerd && dnld_utils && dnld_chrome ;;
 -g|--get) get_binaries && finished ;;
 -s|--pets) get_pets && finished ;;
--b|--build) dnld_kbd && dnld_powerd && dnld_utils && dnld_chrome
+-b|--build) dnld_kbd && dnld_powerd && dnld_chrome
 			check_dev && bld_kbd  && bld_powerd && get_binaries
 			bld_chrome && fix_mod && finished ;; # && get_pets
 -k|--kbdshim) dnld_kbd && check_dev && bld_kbd && fix_mod && finished ;;	

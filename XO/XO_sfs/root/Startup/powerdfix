@@ -1,0 +1,2 @@
+#!/bin/sh
+rm -f /var/run/powerd-inhibit-suspend/.fake_activity
