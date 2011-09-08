@@ -17,4 +17,4 @@ XTRA="libIntelXvMC.* libI810XvMC.* libdrm_* dri/*"
 
 # Other scripts
 # /root/Startup
-OTHER="*touchpad* acpi vattery xbindkeys"
+OTHER="*touchpad* *acpi* vattery* xbindkeys"
