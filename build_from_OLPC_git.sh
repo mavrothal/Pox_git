@@ -222,6 +222,14 @@ bld_kbd()
 	git checkout cf77c1b19fa002b309cc9ccb8a3dc16ef35ef687
 	make clean
 	make olpc-kbdshim-udev
+	if [ $? -ne 0 ]; then
+		echo -e "\\0033[1;31m"
+		echo "Error: failed compile olpc-kbdshim-udev."
+		echo -en "\\0033[0;39m"
+		echo "Error: failed compile olpc-kbdshim-udev. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	else
+		echo "Compiled olpc-kbdshim-udev. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
+	fi
 	strip -s olpc-kbdshim-udev
 	patch -p1 < $patches/olpc-rotate.patch
 	cp -a --remove-destination olpc-kbdshim-udev $output/usr/sbin
@@ -248,8 +256,24 @@ bld_powerd()
 	git checkout 6a01e60feed4fd7c3ddb5b4d3c33f736eb947e7e
 	make clean
 	make olpc-switchd
+	if [ $? -ne 0 ]; then
+		echo -e "\\0033[1;31m"
+		echo "Error: failed compile olpc-switchd."
+		echo -en "\\0033[0;39m"
+		echo "Error: failed compile olpc-switchd. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	else
+		echo "Compiled olpc-switchd. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
+	fi
 	strip -s olpc-switchd
 	make pnmto565fb
+	if [ $? -ne 0 ]; then
+		echo -e "\\0033[1;31m"
+		echo "Error: failed compile pnmto565fb."
+		echo -en "\\0033[0;39m"
+		echo "Error: failed compile pnmto565fb. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	else
+		echo "Compiled pnmto565fb. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
+	fi
 	strip -s pnmto565fb
 	patch -p1 < $patches/powerd.patch 
 	patch -p1 < $patches/powerd_conf.patch
