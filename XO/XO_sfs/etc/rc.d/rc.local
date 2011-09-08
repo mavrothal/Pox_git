@@ -2,8 +2,7 @@
 
 # Make sure that needed devices are added
 udevadm trigger  --action=add --subsystem-match="input" --subsystem-match="sound" \
---subsystem-match="usb" --subsystem-match="sdio" --subsystem-match="net" \
---subsystem-match="mmc" --subsystem-match="mtd" --subsystem-match="rtc"
+--subsystem-match="usb" --subsystem-match="sdio" --subsystem-match="net"
 udevadm settle
 
 KERNELSUBVER=`uname -r | cut -f 3 -d '.' | cut -f 1 -d '_'`
