@@ -346,6 +346,11 @@ echo "removing OLD $MAINSFS"
 sleep 2
 rm -f $MAINSFS
 cd squashfs-root
+
+# Fix permissions for fido
+chmod -R 777 tmp
+chmod 666 dev/*
+
 echo "copying in the XO files"
 cp -rf $XOSFS/* ./
 
