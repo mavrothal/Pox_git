@@ -416,21 +416,21 @@ rm -rf $SQDIR
 rm -rf initramfs
 
 # option to install to a usb drive
+echo -e "\\0033[1;34m"
 echo "Would you like to copy the build files to a USBstick/SDcard?"
-echo ""
 echo "If yes, please insert the USB stick or SDcard *NOW* "
-echo "and then hit \"c\" > enter to continue" 
+echo "...and then hit \"c\" > enter to continue" 
 echo "or just hit enter to finish and transfer the files manually"
 read COPY
 if [ "$COPY" = "c" ];then
 	DEVICE=`df | awk 'END { print $6 }'`
 	echo "The files will be transferred to $DEVICE."
-	echo "of this is OK, hit \"t\" > enter to continue"
-	echo "or just hit enter to finish and transfer the files manually"
+	echo "if this is OK, hit \"t\" > enter to continue"
+	echo "if not, hit enter to finish and transfer the files manually"
 	read TRANSFER
 		if [ "$TRANSFER" = "t" ];then
 			rm -rf $DEVICE/boot*
-			cp -aR build/* $DEVICE
+			cp -aR build/* $DEVICE/
 		else
 			echo "Copy all files in the ./build directory to USB media/SD card"
 			echo " Done!"
@@ -439,8 +439,11 @@ else
 	echo "Copy all files in the ./build directory to USB media/SD card"
 	echo " Done!"
 fi
-
+echo -en "\\0033[0;39m"
 
 unset DISTRO_FILE_PREFIX #just to make sure, maybe the whole lot? Nah not exported
 xoolpcfunc
 statusfunc 0 
+echo -e "\\0033[1;34m"
+echo " Done!"
+echo -en "\\0033[0;39m"
