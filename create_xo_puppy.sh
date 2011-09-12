@@ -415,17 +415,32 @@ echo "removing working dirs"
 rm -rf $SQDIR
 rm -rf initramfs
 
-#option to install to a usb drive #TODO!
-echo "Would you like to copy the build files to a USB drive?"
-echo "hit \"c\" > enter for yes, just enter for no"
+# option to install to a usb drive
+echo "Would you like to copy the build files to a USBstick/SDcard?"
+echo ""
+echo "If yes, please insert the USB stick or SDcard *NOW* "
+echo "and then hit \"c\" > enter to continue" 
+echo "or just hit enter to finish and transfer the files manually"
 read COPY
 if [ "$COPY" = "c" ];then
-	echo "be sure that your drive is formatted and flagged *boot"
-	echo
-	echo "Sorry... COMING SOON, do it manually for now"
+	DEVICE=`df | awk 'END { print $6 }'`
+	echo "The files will be transferred to $DEVICE."
+	echo "of this is OK, hit \"t\" > enter to continue"
+	echo "or just hit enter to finish and transfer the files manually"
+	read TRANSFER
+		if [ "$TRANSFER" = "t" ];then
+			rm -rf $DEVICE/boot*
+			cp -aR build/* $DEVICE
+		else
+			echo "Copy all files in the ./build directory to USB media/SD card"
+			echo " Done!"
+		fi
+else 
+	echo "Copy all files in the ./build directory to USB media/SD card"
+	echo " Done!"
 fi
-echo "Copy all files in the ./build directory to USB media/SD card"
-echo " Done!"
+
+
 unset DISTRO_FILE_PREFIX #just to make sure, maybe the whole lot? Nah not exported
 xoolpcfunc
 statusfunc 0 
