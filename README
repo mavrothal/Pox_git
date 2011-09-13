@@ -13,8 +13,8 @@ wireless firmware from recent OLPC builds and download and compile the XO-1.5
 chrome video driver.
 
 `create_xo_puppy.sh' will use the kernel and sfs sources to modify a puppy 
-ISO image and make it XO-compatible, ready to be transferred in a USB/SDcard
-and Boot the XO-1 and/or XO-1.5
+ISO image and make the XO-compatible files, transfer them in a USB/SDcard
+and make it ready to boot the XO-1 and/or XO-1.5
 
 `make_build' is the master script that calls the other 3 but the previous
 scripts can run also independent of each other, to make a kernel  or repackage

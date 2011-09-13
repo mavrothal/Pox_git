@@ -418,7 +418,7 @@ rm -rf initramfs
 # option to install to a usb drive
 echo -e "\\0033[1;34m"
 echo "Would you like to copy the build files to a USBstick/SDcard?"
-echo "If yes, please insert the USB stick or SDcard *NOW* "
+echo "If yes, please mount the USB stick or SDcard *NOW* "
 echo "...and then hit \"c\" > enter to continue" 
 echo "or just hit enter to finish and transfer the files manually"
 read COPY
