@@ -302,6 +302,11 @@ make_XO1_kernel()
 	rm -rf $output_k/lib/firmware
 	# Fix the modules.dep since without full path do not work in puppy's initrd
 	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output_k/lib/modules/$kernel_ver/modules.dep
+	# Fix symlinks
+	rm $output_k/lib/modules/$kernel_ver/build
+	rm $output_k/lib/modules/$kernel_ver/source 
+	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/build
+	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/source
 	make clean distclean
 	sync
 	package_source
@@ -355,6 +360,11 @@ make_XO15_kernel()
 	rm -rf $output_k/lib/firmware
 	# Fix the modules.dep since without full path do not work in puppy's initrd
 	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output_k/lib/modules/$kernel_ver/modules.dep
+	# Fix symlinks
+	rm $output_k/lib/modules/$kernel_ver/build
+	rm $output_k/lib/modules/$kernel_ver/source 
+	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/build
+	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/source
 	make clean distclean
 	sync
 	package_source
@@ -370,17 +380,17 @@ package_source()
 	echo -e "\\0033[1;34m"
 	echo "Packing the kernel source. May take a little... "
 	echo -en "\\0033[0;39m"
-	rm -rf $output/usr
+	rm -rf $output/"$kernel_ver".source
 	sync
-	mkdir -p $output/usr/src/linux
+	mkdir -p $output/"$kernel_ver".source/usr/src/linux
 	tar -X */.gitignore -X */*/.gitignore  -X */*/*/.gitignore \
 	-X */*/*/*/.gitignore -X */*/*/*/*/.gitignore olpc/.tarignore \
-	--exclude=.git -cf - . | tar -xf - -C $output/usr/src/linux
+	--exclude=.git -cf - . | tar -xf - -C $output/"$kernel_ver".source/usr/src/linux
 	sync
 	cd $output 
-	tar cjf $output_k/$kernel_ver.src.tar.bz2 usr/
+	mksquashfs "$kernel_ver".source/ $output_k/$kernel_ver.source.sfs
 	sync
-	rm -rf usr
+	rm -rf "$kernel_ver".source
 }
 export -f package_source
 
