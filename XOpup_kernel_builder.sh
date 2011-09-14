@@ -9,7 +9,7 @@
 # NO WARRANTY
 
 #ver
-VER=8 
+VER=9 
 
 # fail-safe switch in case someone clicks the script in ROX 
 #echo -e "\\0033[1;34m"
@@ -299,7 +299,9 @@ make_XO1_kernel()
 	cp .config $output/boot10/config-$kernel_ver
 	cp arch/x86/boot/bzImage $output/boot10/vmlinuz
 	make INSTALL_MOD_PATH=$output_k/ modules_install
-	rm -rf $output_k/lib/firmware
+	# Pack kernel firmware with kernel headers
+	mkdir -p $output_k/kernel-headers-$kernel_ver/lib
+	mv $output_k/lib/firmware $output_k/kernel-headers-$kernel_ver/lib/
 	# Fix the modules.dep since without full path do not work in puppy's initrd
 	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output_k/lib/modules/$kernel_ver/modules.dep
 	# Fix symlinks
@@ -357,7 +359,9 @@ make_XO15_kernel()
 	cp .config $output/boot15/config-$kernel_ver
 	cp arch/x86/boot/bzImage $output/boot15/vmlinuz
 	make INSTALL_MOD_PATH=$output_k/ modules_install
-	rm -rf $output_k/lib/firmware
+	# Pack kernel firmware with kernel headers
+	mkdir -p $output_k/kernel-headers-$kernel_ver/lib
+	mv $output_k/lib/firmware $output_k/kernel-headers-$kernel_ver/lib/
 	# Fix the modules.dep since without full path do not work in puppy's initrd
 	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output_k/lib/modules/$kernel_ver/modules.dep
 	# Fix symlinks
