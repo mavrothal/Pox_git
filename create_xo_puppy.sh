@@ -385,6 +385,8 @@ statusfunc $?
 sync
 rm -rf lib/modules/*
 cp -arf ../$DIR/lib/* lib/ #copy in
+# modprobe vfat if we are booting from  vfat formatted media
+sed -i "s/vfat)/vfat) \\n   modprobe vfat/" init 
 sync
 find . -print | cpio -H newc -o | gzip -9 > ../boot${VERDIR}/initrd.gz #compress
 statusfunc $?
