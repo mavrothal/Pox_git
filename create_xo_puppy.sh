@@ -235,11 +235,9 @@ echo "removing unneeded xorg drivers"
 #drake, wary, squezze, lupu whatever dir
 case "$DISTRO_FILE_PREFIX" in
 wary)   XORGDIR="squashfs-root/usr/X11R7/lib/xorg/modules/drivers" 
-		XORGLIBDIR="squashfs-root/usr/X11R7/lib/"
-	echo "NOTE: Wary at this time is only useful on the XO-1"
-	sleep 5 ;;
-	#cp -af $XODIR/wary/xorg/modules/drivers/* \
-	#squashfs-root/usr/lib/xorg/modules/drivers/;; #openchrome/chrome no good
+		XORGLIBDIR="squashfs-root/usr/X11R7/lib/"	
+	cp -af $XODIR/wary/xorg/modules/drivers/* \
+	squashfs-root/usr/X11R7/lib/xorg/modules/drivers/;; #openchrome/chrome no good
 slacko|spup) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="squashfs-root/usr/lib/"
 	cp -af $XODIR/slacko/xorg/modules/drivers/* \
