@@ -238,7 +238,7 @@ do
 	rm -f *.sh *.spec*
 	find . | sed 's/^.//' > $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME	
 	cp -aR * $SQDIR/squashfs-root/
-	cd ../ 
+	cd $extra_pets 
 	rm -rf $PNAME
 done
 cd $SQDIR
