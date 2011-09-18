@@ -21,7 +21,10 @@ scripts can run also independent of each other, to make a kernel  or repackage
 a build, for example.
 
 The files in XO/XO_sfs folder are either modified puppy scripts or new ones 
-appropriate for OLPC's XOs needed to suit XOs special characteristics. 
+appropriate for OLPC's XOs needed to suit XOs special characteristics.
+
+The XO/extra_pets folder can be used to included additional pets in 
+the build. Just add them in the folder 
 
 The build scripts can run in any linux distro to build an XO-puppy, however 
 is highly suggested to use either the puppy version you want to build for 

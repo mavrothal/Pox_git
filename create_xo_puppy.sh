@@ -19,7 +19,7 @@ export -f xoolpcfunc
 xoolpcfunc
 
 #ver
-VER=0.4 #110907-mavrothal
+VER=0.5 #110918-mavrothal
 #workdir
 PWD="`pwd`"
 CWD="$PWD"
@@ -224,6 +224,24 @@ for SFS in *.sfs
  done
 echo "decompressing $SFS successful" && statusfunc 0
 rm -f $SFS
+# Include extra pets in the build 
+# Do it early in case pets have unneeded components
+# Ugly, but will do for distro independent
+echo "including extra pets in the build"
+extra_pets=$XODIR/extra_pets
+cd $extra_pets
+for p in ./* 
+do 
+	PNAME=`echo $p | sed 's/\.pet//'`
+	tar xzf $p 2>/dev/null 
+	cd $PNAME
+	rm -f *.sh *.spec*
+	find . | sed 's/^.//' > $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME	
+	cp -aR * $SQDIR/squashfs-root/
+	cd ../ 
+	rm -rf $PNAME
+done
+cd $SQDIR
 rm -rf squashfs-root/lib/modules/* #delete old kernel
 echo "deleting old kernel"
 rm -rf squashfs-root/lib/firmware/* #delete not needed firmware
