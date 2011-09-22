@@ -18,8 +18,8 @@ echo ""
 export -f xoolpcfunc
 xoolpcfunc
 
-#ver
-VER=0.5 #110918-mavrothal
+#version
+VER=0.6
 
 #workdir
 PWD="`pwd`"
