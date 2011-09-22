@@ -20,17 +20,20 @@ xoolpcfunc
 
 #ver
 VER=0.5 #110918-mavrothal
+
 #workdir
 PWD="`pwd`"
 CWD="$PWD"
+
 #read config
 . $CWD/pkgs_remrc
+
 #ok, we exit on most errors, error function
 statusfunc()
 {
-if [ "$1" = "0" ];then echo -en "\033[0;32m" OK; echo -e "\033[0m" #green
-	else echo -en "\033[0;31m" FAIL; echo -e "\033[0m" && exit #red
-fi	
+	if [ "$1" = "0" ];then echo -en "\033[0;32m" OK; echo -e "\033[0m" #green
+		else echo -en "\033[0;31m" FAIL; echo -e "\033[0m" && exit #red
+	fi	
 }
 export -f statusfunc
 
@@ -53,80 +56,82 @@ fi
 #usage
 usagefunc()
 {
-cat <<_USAGE
-Usage:
-	This program modifies a standard Puppy iso or main sfs/initrd
-	to be bootable on the XO olpc hardware, versions XO-1 and XO-1.5
+	cat <<_USAGE
+	Usage:
+		This program modifies a standard Puppy iso or main sfs/initrd
+		to be bootable on the XO olpc hardware, versions XO-1 and XO-1.5
 	
-	-h|--help	display this usage
-	-v|--version	display script version
-	-xh|--extended-help 	opens README.txt
-	-i|--iso [path/to/isoname]	the full pathname of the Puppy iso
-	-m|--manual [name of sfs]	the name of the Puppy main sfs file
-	NOTE: with the -m option it is your responsibility
-	to select the correct initrd.gz that matches the main
-	.sfs and place both in the current directory
+		-h|--help	display this usage
+		-v|--version	display script version
+		-xh|--extended-help 	opens README.txt
+		-i|--iso [path/to/isoname]	the full pathname of the Puppy iso
+		-m|--manual [name of sfs]	the name of the Puppy main sfs file
+		NOTE: with the -m option it is your responsibility
+		to select the correct initrd.gz that matches the main
+		.sfs and place both in the current directory
 	
-	(c) Created by mavrothal and 01micko
-	@murga-linux puppy forum
-	GPLv3. See /usr/share/doc/legal/
-	NO WARRANTY
-	While all care is taken NO responsibility is accepted
+		(c) Created by mavrothal and 01micko
+		@murga-linux puppy forum
+		GPLv3. See /usr/share/doc/legal/
+		NO WARRANTY
+		While all care is taken NO responsibility is accepted
 _USAGE
 	
-xoolpcfunc
-exit 0
+	xoolpcfunc
+	exit 0
 }
 export -f usagefunc
 
 case "$#" in
-0) usagefunc ;;
-[3-9])echo "too many arguments"; usagefunc ;;
+	0) usagefunc ;;
+	[3-9])echo "too many arguments"; usagefunc ;;
 esac
 
 case $1 in 
--h|--help) usagefunc && exit 0 ;;
--v|--version) echo "$VER" && exit 0 ;;
--xh|--extended-help)cat README.txt|more 
-xoolpcfunc && exit 0 ;;
--i|--iso) [ ! $2 ] && usagefunc
-ISOPATH=$2 
-ISO="`basename $ISOPATH`" ;;
--m|--manual) [ ! $2 ] && usagefunc
-ls $CWD|grep "^initrd" >/dev/null 2>&1
-echo -n initrd; statusfunc $?
-ININIT="`ls $CWD|grep "^initrd"`"
-INSFS="`ls $CWD|grep "sfs$"|head -n1`"
-echo "you chose $2"
-sleep 0.5
-echo "the sfs is $INSFS"
-sleep 0.5
-ls $CWD|grep "sfs$" >/dev/null 2>&1 
-echo -n $2; statusfunc $?
-[ "$2" != "$INSFS" ] && echo "ERROR: Not correct sfs.. typo?" && statusfunc 1
-;;
+	-h|--help) usagefunc && exit 0 ;;
+	-v|--version) echo "$VER" && exit 0 ;;
+	-xh|--extended-help)cat README.txt|more 
+		xoolpcfunc && exit 0 ;;
+	-i|--iso) [ ! $2 ] && usagefunc
+		ISOPATH=$2 
+		ISO="`basename $ISOPATH`" ;;
+	-m|--manual) [ ! $2 ] && usagefunc
+		ls $CWD|grep "^initrd" >/dev/null 2>&1
+		echo -n initrd; statusfunc $?
+		ININIT="`ls $CWD|grep "^initrd"`"
+		INSFS="`ls $CWD|grep "sfs$"|head -n1`"
+		echo "you chose $2"
+		sleep 0.5
+		echo "the sfs is $INSFS"
+		sleep 0.5
+		ls $CWD|grep "sfs$" >/dev/null 2>&1 
+		echo -n $2; statusfunc $?
+		[ "$2" != "$INSFS" ] && echo "ERROR: Not correct sfs.. typo?" && statusfunc 1
+		;;
 esac
 
 #==============================================================================
 #test we are compatible Puppy #changed to any distro by mavrothal 110824
 #put in a check for mksquashfs, ..Ubuntu doesn't ship with it. 110825 01micko
-if [ -f /etc/DISTRO_SPECS ];then . /etc/DISTRO_SPECS
-	else 
+if [ -f /etc/DISTRO_SPECS ];then 
+	. /etc/DISTRO_SPECS
+else 
 	MSQY="`which mksquashfs`"
 	if [ "$MSQY" = "" ];then
-	echo "Sorry, you cant run this $0 without \"$MSQY\""
-	echo "Please install \"mksquashfs\" from your package manager"
-	echo "and try again"
-	statusfunc 1
-		else
-	echo "You are not running Puppy Linix"
-	echo "This should be ok as it seems you have"
-	echo "\"$MSQY\""
-	echo "Hit enter to keep going"
-	read getgoing
-	statusfunc 0
+		echo "Sorry, you cant run this $0 without \"$MSQY\""
+		echo "Please install \"mksquashfs\" from your package manager"
+		echo "and try again"
+		statusfunc 1
+	else
+		echo "You are not running Puppy Linix"
+		echo "This should be ok as it seems you have"
+		echo "\"$MSQY\""
+		echo "Hit enter to keep going"
+		read getgoing
+		statusfunc 0
 	fi
 fi
+
 #test kernel for squash 4 support
 KERNEL="`uname -r`"
 KERNELMAJ="`echo $KERNEL|head -c1`"
@@ -135,6 +140,7 @@ if [[ "$KERNELMAJ" -ge "2" && "$KERNELMIN" -ge "29" ]];then
 	echo "kernel Ok"
 	else echo "kernel too old, exiting" && exit 0
 fi
+
 #test for free space
 BASEDISK="`echo $CWD|cut -d '/' -f 1,2,3`" #returns eg "/mnt/sda1"
 BASEPART="`echo $CWD|cut -d '/' -f 3`" #returns eg "sda1" if not in pupsave
@@ -163,6 +169,7 @@ if test "$DF" -lt "500" ;then EXIT=1
 	echo "space check... disk space free is $DF"
 fi
 statusfunc $EXIT
+
 #set vars
 XODIR="$CWD"
 [ ! -d $XODIR/squashdir ] && mkdir $XODIR/squashdir
@@ -217,35 +224,67 @@ fi
 MAINSFS="`ls $SQDIR|grep -v "^z"`"
 cd $SQDIR
 for SFS in *.sfs
- do unsquashfs $SFS
- echo "unsquashing $SFS"
- statusfunc $?||break #should unpack everything to squashfs-root, exit on fail
- sync
- done
+do unsquashfs $SFS
+ 	echo "unsquashing $SFS"
+ 	statusfunc $?||break #should unpack everything to squashfs-root, exit on fail
+ 	sync
+done
 echo "decompressing $SFS successful" && statusfunc 0
 rm -f $SFS
+
 # Include extra pets in the build 
 # Do it early in case pets have unneeded components
 # Ugly, but will do for distro independent
-echo "including extra pets in the build"
 extra_pets=$XODIR/extra_pets
-cd $extra_pets
-for p in ./* 
-do 
-	PNAME=`echo $p | sed 's/\.pet//'`
-	tar xzf $p 2>/dev/null 
-	cd $PNAME
-	rm -f *.sh *.spec*
-	find . | sed 's/^.//' > $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME	
-	cp -aR * $SQDIR/squashfs-root/
-	cd $extra_pets 
-	rm -rf $PNAME
-done
+if [ ! -f $extra_pets/*.pet ] ; then
+	echo -e "\\0033[1;34m"
+	echo "If you want any additional pets in the build"
+	echo "add them NOW in the \"extra_pets\" folder and then"
+	echo "hit \"a\"  and then  \"enter\" to continue"
+	echo "or just \"enter\" to skip this step."
+	echo -en "\\0033[0;39m"
+	read CONTINUE
+		if [ "$CONTINUE" = "a" ];then
+			echo "including extra pets in the build"
+			cd $extra_pets
+			for p in ./* 
+			do 
+				PNAME=`echo $p | sed 's/\.pet//'`
+				tar xzf $p 2>/dev/null 
+				cd $PNAME
+				rm -f *.sh *.spec*
+				find . | sed 's/^.//' > $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME	
+				cp -aR * $SQDIR/squashfs-root/
+				cd $extra_pets 
+				rm -rf $PNAME
+			done
+		else
+			echo "No pets added"
+		fi
+else
+	echo "including extra pets in the build"
+	cd $extra_pets
+	for p in ./* 
+	do 
+		PNAME=`echo $p | sed 's/\.pet//'`
+		tar xzf $p 2>/dev/null 
+		cd $PNAME
+		rm -f *.sh *.spec*
+		find . | sed 's/^.//' > $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME	
+		cp -aR * $SQDIR/squashfs-root/
+		cd $extra_pets 
+		rm -rf $PNAME
+	done
+fi
+
 cd $SQDIR
-rm -rf squashfs-root/lib/modules/* #delete old kernel
+#delete old kernel
+rm -rf squashfs-root/lib/modules/* 
 echo "deleting old kernel"
-rm -rf squashfs-root/lib/firmware/* #delete not needed firmware
+#delete not needed firmware
+rm -rf squashfs-root/lib/firmware/* 
 echo "deleting not needed firmware"
+
 . squashfs-root/etc/DISTRO_SPECS
 echo "removing unneeded xorg drivers"
 #sort video drivers
@@ -254,69 +293,84 @@ echo "removing unneeded xorg drivers"
 case "$DISTRO_FILE_PREFIX" in
 wary)   XORGDIR="squashfs-root/usr/X11R7/lib/xorg/modules/drivers" 
 		XORGLIBDIR="squashfs-root/usr/X11R7/lib/"	
-	cp -af $XODIR/wary/xorg/modules/drivers/* \
-	squashfs-root/usr/X11R7/lib/xorg/modules/drivers/;; #openchrome/chrome no good
+		cp -af $XODIR/wary/xorg/modules/drivers/* \
+		squashfs-root/usr/X11R7/lib/xorg/modules/drivers/
+		;; 
 slacko|spup) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="squashfs-root/usr/lib/"
-	cp -af $XODIR/slacko/xorg/modules/drivers/* \
-	squashfs-root/usr/lib/xorg/modules/drivers/ ;;
+		cp -af $XODIR/slacko/xorg/modules/drivers/* \
+		squashfs-root/usr/lib/xorg/modules/drivers/ 
+		;;
 lupu|luci) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="squashfs-root/usr/lib/"
-	cp -af $XODIR/lupu/xorg/modules/drivers/* \
-	squashfs-root/usr/lib/xorg/modules/drivers/ ;;	
+		cp -af $XODIR/lupu/xorg/modules/drivers/* \
+		squashfs-root/usr/lib/xorg/modules/drivers/ 
+		;;	
 drake) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="squashfs-root/usr/lib/"
-	echo "At time of writing, drake has issues on XO hardware"
-	cp -af $XODIR/drake/xorg/modules/drivers/* \
-	squashfs-root/usr/lib/xorg/modules/drivers/ ;;
+		echo "At time of writing, drake has issues on XO hardware"
+		cp -af $XODIR/drake/xorg/modules/drivers/* \
+		squashfs-root/usr/lib/xorg/modules/drivers/ 
+		;;
 squeeze|dpup|squeezed|next) 
 		XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="squashfs-root/usr/lib/"
-	cp -af $XODIR/squeeze/xorg/modules/drivers/* \
-	squashfs-root/usr/lib/xorg/modules/drivers/ ;;		
+		cp -af $XODIR/squeeze/xorg/modules/drivers/* \
+		squashfs-root/usr/lib/xorg/modules/drivers/ 
+		;;		
 *)		XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers" 
-		XORGLIBDIR="squashfs-root/usr/lib/";; #maybe this kinda works?
+		XORGLIBDIR="squashfs-root/usr/lib/"
+		;; #maybe this kinda works?
 esac
+
 XMODULES="`ls $XORGDIR \
 	|grep -iE -v "chrome|geode|openchrome|sisusb|ztv_drv|v4l"`"
+
 #remove unneeded xorg drivers #are they right?
 for drv in $XMODULES
- do rm -f $XORGDIR/$drv
- echo "removing $drv"
+do 
+	rm -f $XORGDIR/$drv
+ 	echo "removing $drv"
 done
+
+echo "removing other useless stuff for XO..."
+# remove extra video stuff
+echo "extra video libs..."
+for v in $XTRA 
+do 
+	echo "removing $v"
+ 	rm -f $XORGLIBDIR/$v
+done
+#remove puppy scripts
+echo "unneeded puppy scripts..." 
+cd squashfs-root 
+for s in $WOOFSCRIPTS
+do  
+	echo "removing $s"
+ 	rm -f usr/sbin/$s
+done
+ 
+for i in $OTHER
+do  
+	echo "removing $i"
+ 	rm root/Startup/$i
+done
+
+#..and DOT desktops
+echo "unneeded .desktop files..." 
+for desk in $WOOFDESK
+do 
+	echo "removing $desk"
+ 	rm -f usr/share/applications/$desk
+done 
+
 #Add support for the XO internal drives in fstab
 echo "Adjusting /etc/fstab for XO internal drives..."
 cat << EOF >> squashfs-root/etc/fstab
 /dev/mtdblock0		/.xo-nand	jffs2	defaults,noauto	  0 0
 /dev/mmcblk1p2		/.intSD	    ext4	defaults,noauto	  0 0
 EOF
-echo "removing other useless stuff for XO..."
-# remove extra video stuff
-echo "extra video libs..."
-for v in $XTRA 
- do echo "removing $v"
- rm -f $XORGLIBDIR/$v
- done
-#remove puppy scripts
-echo "unneeded puppy scripts..." 
-cd squashfs-root 
-for s in $WOOFSCRIPTS
- do  echo "removing $s"
- rm -f usr/sbin/$s
- done
- 
-for i in $OTHER
- do  echo "removing $i"
- rm root/Startup/$i
- done
 
-#..and DOT desktops
-echo "unneeded .desktop files..." 
-for desk in $WOOFDESK
- do echo "removing $desk"
- rm -f usr/share/applications/$desk
- done 
- 
 statusfunc 0
 #remove packages #technosaurus #added 110826 01micko
 
@@ -380,10 +434,13 @@ echo "removing expanded filesystem"
 rm -rf squashfs-root 
 sync
 statusfunc $?
+
 #==============================================================================
+
 #mod the initrd
 cd $INITDIR
 for DIR in XO*
+
 #get xo hw version
  do VER="`echo $DIR|sed -e 's%^XO%%' -e 's%kernel$%%'`"
 	case $VER in
@@ -398,18 +455,21 @@ for DIR in XO*
 echo "Making the ${XO} initrd.gz"
 mkdir $CWD/initramfs
 cd initramfs
-gunzip -c ../initrd.gz | cpio -i #open initrd
+# unpack initrd
+gunzip -c ../initrd.gz | cpio -i 
 statusfunc $?
 sync
+# Replace kernel modules with OLPC_Puppy ones
 rm -rf lib/modules/*
-cp -arf ../$DIR/lib/* lib/ #copy in
+cp -arf ../$DIR/lib/* lib/ 
 # modprobe vfat if we are booting from  vfat formatted media
 sed -i "s/vfat)/vfat) \\n   modprobe vfat/" init 
 sync
-find . -print | cpio -H newc -o | gzip -9 > ../boot${VERDIR}/initrd.gz #compress
+# compress initrd
+find . -print | cpio -H newc -o | gzip -9 > ../boot${VERDIR}/initrd.gz
 statusfunc $?
 sync
-
+# Cleanup
 cd ..
 rm -rf initramfs/*
 echo "find kernel and initrd in the $DIR diectory"
@@ -419,6 +479,7 @@ cd $SQDIR
 cd ..
 
 #==============================================================================
+
 #move everything to top level
 [ ! -d build ] && mkdir build
 echo "copying files into build"
@@ -428,6 +489,7 @@ mv -f $SQDIR/$MAINSFS build
 rm -f build/initrd*
 rm -f $INITDIR/boot*/initrd*
 statusfunc $?
+
 #cleanup
 echo "removing working dirs"
 rm -rf $SQDIR
@@ -462,6 +524,7 @@ echo -en "\\0033[0;39m"
 unset DISTRO_FILE_PREFIX #just to make sure, maybe the whole lot? Nah not exported
 xoolpcfunc
 statusfunc 0 
+
 echo -e "\\0033[1;34m"
 echo " Done!"
 echo -en "\\0033[0;39m"
