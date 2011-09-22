@@ -258,8 +258,6 @@ if [ ! -f $extra_pets/*.pet ] ; then
 				cd $extra_pets 
 				rm -rf $PNAME
 			done
-		else
-			echo "No pets added"
 		fi
 else
 	echo "including extra pets in the build"
@@ -366,7 +364,7 @@ done
 
 #Add support for the XO internal drives in fstab
 echo "Adjusting /etc/fstab for XO internal drives..."
-cat << EOF >> squashfs-root/etc/fstab
+cat << EOF >> $SQDIR/squashfs-root/etc/fstab
 /dev/mtdblock0		/.xo-nand	jffs2	defaults,noauto	  0 0
 /dev/mmcblk1p2		/.intSD	    ext4	defaults,noauto	  0 0
 EOF
