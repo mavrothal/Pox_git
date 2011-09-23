@@ -10,7 +10,19 @@ if [  "$TestEth"  != "" ] ; then
    exit 0
 fi
 
-###################SETUP SERVICES################
+CHKFRISBEE=`cat /usr/local/bin/defaultconnect | grep Frisbee`
+if [ "$CHKFRISBEE" != "" ] ; then
+	sleep 5
+    killall -9 dhcpcd
+	killall wpa_cli
+	/usr/local/Frisbee/start-dhcp
+	killall -9 wpa_supplicant
+	rm -rf /var/run/wpa_supplicant/*
+	rm /tmp/wpa_supplicant.log
+	/usr/local/Frisbee/start-wpa
+	/usr/local/Frisbee/connect
+else
+###################FROM SETUP SERVICES################
 
 if [ -h /dev/modem ];then
  DEVM="`readlink /dev/modem`"
@@ -29,22 +41,6 @@ if [ -h /dev/modem ];then
    setserial -v -b /dev/modem auto_irq skip_test autoconfig
   ;;
  esac
-fi
-
-#had hoped to retire this, but HardInfo needs it...
-# [ "`lsmod | grep '^usbcore'`" != "" ] && busybox mount -t usbfs none /proc/bus/usb
-
-#100814 record cumulative tx/rx, see also network_tray and rc.shutdown...
-mkdir -p /var/local/sns
-[ ! -f /var/local/sns/rx_bytes_month ] && echo -n '0' > /var/local/sns/rx_bytes_month
-[ ! -f /var/local/sns/tx_bytes_month ] && echo -n '0' > /var/local/sns/tx_bytes_month
-[ ! -f /var/local/sns/curent_month ] && date +%b > /var/local/sns/current_month
-UPDATE_MONTH="`date +%b`"
-CURRENT_MONTH="`cat /var/local/sns/current_month`"
-if [ "$UPDATE_MONTH" != "$CURRENT_MONTH" ];then
- echo -n '0' > /var/local/sns/rx_bytes_month
- echo -n '0' > /var/local/sns/tx_bytes_month
- echo "$UPDATE_MONTH" > /var/local/sns/current_month
 fi
 
 #100227 choose default network tool...
@@ -114,7 +110,7 @@ case $NETCHOICE in
  ;;
 esac
 
-/etc/rc.d/rc.services & #run scripts in /etc/rc.d/init.d
+fi
 
 # Test if eth0 is realy up since some times fails after soft sleep
 sleep 20

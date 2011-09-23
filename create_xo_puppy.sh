@@ -512,6 +512,7 @@ if [ "$COPY" = "c" ];then
 		else
 			echo "Copy all files in the ./build directory to USB media/SD card"
 			echo " Done!"
+			sync
 		fi
 else 
 	echo "Copy all files in the ./build directory to USB media/SD card"
