@@ -19,7 +19,7 @@ export -f xoolpcfunc
 xoolpcfunc
 
 #version
-VER=0.6
+VER=0.7
 
 #workdir
 PWD="`pwd`"
@@ -384,30 +384,35 @@ statusfunc 0
 
 for i in $PACKAGES_REM
 	do 
-	D="root/.packages/builtin_files"
+	D="$SQDIR/squashfs-root/root/.packages/builtin_files"
 	PKG=$i
-		#remove
-		for y in `cat $D/$PKG`
+	FILES="`cat $D/$PKG`"
+	if [ -f $D/$PKG ] ; then
+		echo "removing \"$i\""
+		for LINE in $FILES
 			do
-			if [ "`echo $y|head -c1`" = "/" ];then
-				x=`echo $y|sed 's%^\/%%'`
+			if [ "`echo $LINE|head -c1`" = "/" ];then
+				x=`echo $LINE|sed 's%^\/%%'`
+				cd $SQDIR/squashfs-root/$x
+			else
+				x="$LINE"
+				rm $x
 			fi
-			[ -d $x ] && cd $x || rm $x #&& echo "removing $x"
-			cd - >/dev/null 2>&1
 			done
 			#fix root/.packages/woof-installed-packages
-		grep -v "$PKG" root/.packages/woof-installed-packages| \
-		while read LINE
-			do 
-			echo $LINE >> root/.packages/woof-installed-packages.tmp
-			done
-		mv -f root/.packages/woof-installed-packages.tmp \
-			root/.packages/woof-installed-packages
-			statusfunc $?
-			echo "removing \"$i\""
+		grep -v "$PKG" $SQDIR/squashfs-root/root/.packages/woof-installed-packages| \
+			while read LINE
+				do 
+				echo $LINE >> $SQDIR/squashfs-root/root/.packages/woof-installed-packages.tmp
+				done
+		mv -f $SQDIR/squashfs-root/root/.packages/woof-installed-packages.tmp \
+			$SQDIR/squashfs-root/root/.packages/woof-installed-packages		 
+		rm $D/$PKG 
+		statusfunc $?
+	fi
 	done
 
-cd ..
+cd $SQDIR
 		
 #clean up
 echo "removing OLD $MAINSFS"
