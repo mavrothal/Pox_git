@@ -514,6 +514,7 @@ if [ "$COPY" = "c" ];then
 		if [ "$TRANSFER" = "t" ];then
 			rm -rf $DEVICE/boot*
 			cp -aR build/* $DEVICE/
+			sync
 		else
 			echo "Copy all files in the ./build directory to USB media/SD card"
 			echo " Done!"
