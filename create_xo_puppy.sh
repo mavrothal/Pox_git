@@ -19,7 +19,7 @@ export -f xoolpcfunc
 xoolpcfunc
 
 #version
-VER=0.7
+VER=0.8
 
 #workdir
 PWD="`pwd`"
@@ -289,19 +289,19 @@ echo "removing unneeded xorg drivers"
 #We can compile more drivers for separate distro and store in
 #drake, wary, squezze, lupu whatever dir
 case "$DISTRO_FILE_PREFIX" in
-wary)   XORGDIR="squashfs-root/usr/X11R7/lib/xorg/modules/drivers" 
+wary|racy)   XORGDIR="squashfs-root/usr/X11R7/lib/xorg/modules/drivers" 
 		XORGLIBDIR="squashfs-root/usr/X11R7/lib/"	
-		cp -af $XODIR/wary/xorg/modules/drivers/* \
+		cp -af $XODIR/{wary,racy}/xorg/modules/drivers/* \
 		squashfs-root/usr/X11R7/lib/xorg/modules/drivers/
 		;; 
 slacko|spup) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="squashfs-root/usr/lib/"
-		cp -af $XODIR/slacko/xorg/modules/drivers/* \
+		cp -af $XODIR/{slacko,spup}/xorg/modules/drivers/* \
 		squashfs-root/usr/lib/xorg/modules/drivers/ 
 		;;
 lupu|luci) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="squashfs-root/usr/lib/"
-		cp -af $XODIR/lupu/xorg/modules/drivers/* \
+		cp -af $XODIR/{lupu,luci}/xorg/modules/drivers/* \
 		squashfs-root/usr/lib/xorg/modules/drivers/ 
 		;;	
 drake) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
@@ -313,7 +313,7 @@ drake) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
 squeeze|dpup|squeezed|next) 
 		XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="squashfs-root/usr/lib/"
-		cp -af $XODIR/squeeze/xorg/modules/drivers/* \
+		cp -af $XODIR/{squeeze,dpup,squeezed,next}/xorg/modules/drivers/* \
 		squashfs-root/usr/lib/xorg/modules/drivers/ 
 		;;		
 *)		XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers" 
