@@ -13,7 +13,7 @@ WOOFDESK="Puppy-universal-installer.desktop BootFlash-usb-installer.desktop Wake
 
 #xtra
 #/usr/lib or /usr/X11R7/lib
-XTRA="libIntelXvMC.* libI810XvMC.* libdrm_* dri/*" 
+XTRA="libIntelXvMC.* libI810XvMC.* libdrm* dri/*" 
 
 # Other scripts
 # /root/Startup
