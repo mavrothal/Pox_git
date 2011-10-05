@@ -362,6 +362,12 @@ do
  	rm -f usr/share/applications/$desk
 done 
 
+# Patch xorgwizard
+echo "patching xorgwizrd"
+patches="$CWD/XO_sfs_patches"
+patch -p1 < $patches/xorgwizard.patch
+patch -p1 < $patches/xorg.conf0.patch
+
 #Add support for the XO internal drives in fstab
 echo "Adjusting /etc/fstab for XO internal drives..."
 cat << EOF >> $SQDIR/squashfs-root/etc/fstab
