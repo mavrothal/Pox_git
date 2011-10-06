@@ -9,7 +9,7 @@
 +	Option "OffTime" "0"
 +	Option "BlankTime" "0"
 +	Option "StandbyTime" "0"
-+	Option "DontZap" "true"
++	Option "DontZap" "false"
  
  EndSection
  
