@@ -368,6 +368,10 @@ patches="$CWD/XO_sfs_patches"
 patch -p1 < $patches/xorgwizard.patch
 patch -p1 < $patches/xorg.conf0.patch
 
+# Patch PPM
+echo "patching 0setup"
+patch -p1 < $patches/0setup.patch
+
 #Add support for the XO internal drives in fstab
 echo "Adjusting /etc/fstab for XO internal drives..."
 cat << EOF >> $SQDIR/squashfs-root/etc/fstab

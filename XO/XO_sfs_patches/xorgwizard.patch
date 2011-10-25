@@ -1,4 +1,4 @@
---- a/usr/sbin/xorgwizard copy	2011-09-27 05:31:20.000000000 +0300
+--- a/usr/sbin/xorgwizard 	2011-09-27 05:31:20.000000000 +0300
 +++ b/usr/sbin/xorgwizard	2011-10-05 14:48:26.000000000 +0300
 @@ -568,6 +568,10 @@
        drvLIST="${drvLIST}
