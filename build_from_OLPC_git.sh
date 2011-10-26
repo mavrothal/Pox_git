@@ -340,6 +340,8 @@ bld_chrome()
 	if [ $? -ne 0 ]; then
 		echo "Chrome compilation failed. Try co compile from within the " >> $CWD/build.log
 		echo ".../XO_sfs_sources/xf86-video-chrome directory to check. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	else
+		echo "chrome_drv.so was compiled successfully. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
 	strip -s src/.libs/chrome_drv.so	
 	sync
