@@ -372,6 +372,14 @@ patch -p1 < $patches/xorg.conf0.patch
 echo "patching 0setup"
 patch -p1 < $patches/0setup.patch
 
+# Patch snapmerge
+echo "patching snapmergepuppy"
+patch -p1 < $patches/snapmerge.patch
+
+# Patch frontend_d
+echo "patching pup_event_frontend_d"
+patch -p1 < $patches/frontend_d.patch
+
 #Add support for the XO internal drives in fstab
 echo "Adjusting /etc/fstab for XO internal drives..."
 cat << EOF >> $SQDIR/squashfs-root/etc/fstab
