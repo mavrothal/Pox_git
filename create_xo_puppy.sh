@@ -136,7 +136,7 @@ fi
 KERNEL="`uname -r`"
 KERNELMAJ="`echo $KERNEL|head -c1`"
 KERNELMIN="`echo $KERNEL|cut -d '.' -f3`"
-if [[ "$KERNELMAJ" -ge "2" && "$KERNELMIN" -ge "29" ]];then
+if [[ "$KERNELMAJ" -eq "2" && "$KERNELMIN" -ge "29" ]] || [[ "$KERNELMAJ" -eq "3" ]] ;then
 	echo "kernel Ok"
 	else echo "kernel too old, exiting" && exit 0
 fi
