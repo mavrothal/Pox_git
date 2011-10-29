@@ -1,14 +1,14 @@
 --- a/usr/sbin/snapmergepuppy	2011-05-05 08:43:29.000000000 +0800
 +++ b/usr/sbin/snapmergepuppy	2011-10-06 08:21:28.000000000 +0800
-@@ -27,6 +27,11 @@
- #110224 BK: revert remove all /dev, for now. 110503 added dev/snd
- #110505 support sudo for non-root user.
+@@ -31,6 +31,11 @@
+ 
+ export LANG=C #110206 Dougal: I **think** this should not cause problems with filenames
  
 +#exit if we are sleeping
 +if [ -f /tmp/sleeping.now ] ; then
 +	exit 0
 +fi
 +
- [ "`whoami`" != "root" ] && exec sudo -A ${0} ${@} #110505
- 
- export LANG=C #110206 Dougal: I **think** this should not cause problems with filenames
+ #variables created at bootup by 'init' script in initramfs...
+ . /etc/rc.d/PUPSTATE
+ . /etc/DISTRO_SPECS #v412
