@@ -380,6 +380,10 @@ patch -p1 < $patches/snapmerge.patch
 echo "patching pup_event_frontend_d"
 patch -p1 < $patches/frontend_d.patch
 
+# Patch rc.shutdown
+echo "patching rc.shutdown"
+patch -p1 < $patches/rc.shutdown.patch
+
 #Add support for the XO internal drives in fstab
 echo "Adjusting /etc/fstab for XO internal drives..."
 cat << EOF >> $SQDIR/squashfs-root/etc/fstab

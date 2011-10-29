@@ -1,0 +1,21 @@
+--- a/etc/rc.d/rc.shutdown	2011-09-28 10:02:30.000000000 +0800
++++ b/etc/rc.d/rc.shutdown	2011-10-29 13:59:17.000000000 +0800
+@@ -67,6 +67,18 @@
+ 
+ which rfkill &>/dev/null && rfkill unblock all #110919 jemimah has this in fluppy. if don't do this, may be locked at next boot.
+ 
++#Stop the XOpup PM associated daemons started in rc.local.   
++killall olpc-switchd 
++#Kill the dpad-rotating olpc-kbdshim. Grabs the arrow keys and are unusable in console
++killall olpc-kbdshim
++killall olpc-kbdshim-udev
++#powerd kicks in before the looong USB save file is over or if lid closed. Kill it early
++killall powerd
++rm -f /var/log/powerd.trace
++if [ -f /tmp/sleeping.now ] ; then 
++	rm -f /tmp/sleeping.now
++fi
++
+ #w482 use xorriso if it is installed (see also functions4puppy)...
+ CDRECORD='cdrecord'
+ MKISOFS='mkisofs'
