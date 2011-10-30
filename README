@@ -15,6 +15,9 @@ chrome video driver.
 `create_xo_puppy.sh' will use the kernel and sfs sources to modify a puppy 
 ISO image and make the XO-compatible files, transfer them in a USB/SDcard
 and make it ready to boot the XO-1 and/or XO-1.5
+The associated `pkgs_remrc' files has the instructions for the files and 
+packages that will be either totally removed or moved from the main sfs 
+to an `extras.sfs'. It can be edited as needed.
 
 `make_build' is the master script that calls the other 3 but the previous
 scripts can run also independent of each other, to make a kernel  or repackage

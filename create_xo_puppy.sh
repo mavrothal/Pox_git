@@ -394,7 +394,7 @@ cat << EOF >> $SQDIR/squashfs-root/etc/fstab
 /dev/mmcblk1p2		/.intSD	    ext4	defaults,noauto	  0 0
 EOF
 
-# Fix menu font size, in Seamonkey/Filefox
+# Fix menu font size, in Seamonkey/Firefox
 sed -i 's/font-size: 12px !important;/font-size: 16px !important;/' \
  $SQDIR/squashfs-root/root/.mozilla/{seamonkey,firefox}/*.default/chrome/userChrome.css
 
