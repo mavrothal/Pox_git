@@ -19,7 +19,7 @@ export -f xoolpcfunc
 xoolpcfunc
 
 #version
-VER=0.8
+VER=0.9
 
 #workdir
 PWD="`pwd`"
@@ -38,11 +38,14 @@ statusfunc()
 export -f statusfunc
 
 #clear old build
-if [ -d build ];then echo "A previuos build has been detected" 
+if [ -d build ];then
+	echo -e "\\0033[1;31m"
+	echo "A previuos build has been detected" 
 	echo "You can quit the $0 prog now and save it or delete it"
 	echo "and continue."
 	echo "Hit \"d\" > \"enter\" to delete and continue or"
 	echo "\"enter\" only to quit"
+	echo -en "\\0033[0;39m"
 	read DELETE
 	if [ "$DELETE" = "d" ];then rm -rf build
 		echo "Deleted previous build... continuing"
@@ -136,7 +139,7 @@ fi
 KERNEL="`uname -r`"
 KERNELMAJ="`echo $KERNEL|head -c1`"
 KERNELMIN="`echo $KERNEL|cut -d '.' -f3`"
-if [[ "$KERNELMAJ" -eq "2" && "$KERNELMIN" -ge "29" ]] || [[ "$KERNELMAJ" -eq "3" ]] ;then
+if [[ "$KERNELMAJ" -eq "2" && "$KERNELMIN" -ge "29" ]] || [[ "$KERNELMAJ" -eq "3" ]] ; then
 	echo "kernel Ok"
 	else echo "kernel too old, exiting" && exit 0
 fi
@@ -391,7 +394,7 @@ cat << EOF >> $SQDIR/squashfs-root/etc/fstab
 /dev/mmcblk1p2		/.intSD	    ext4	defaults,noauto	  0 0
 EOF
 
-# Fix menu font-size, in Seamonkey/Firefox
+# Fix menu font size, in Seamonkey/Filefox
 sed -i 's/font-size: 12px !important;/font-size: 16px !important;/' \
  $SQDIR/squashfs-root/root/.mozilla/{seamonkey,firefox}/*.default/chrome/userChrome.css
 
@@ -439,6 +442,68 @@ for i in $PACKAGES_REM
 	done
 
 cd $SQDIR
+
+echo -e "\\0033[1;34m"
+echo "Do you want to move some, not frequently used on the XO,"
+echo "applications to an \"extras.sfs\" ? "
+echo "Hit \"m\"  and then  \"enter\" to move them"
+echo "or just \"enter\" to skip this step."
+echo -en "\\0033[0;39m"
+read CONTINUE
+if [ "$CONTINUE" = "m" ];then
+	mkdir -p $SQDIR/extras
+	for i in $PACKAGES_MOVE
+		do 
+		D="$SQDIR/squashfs-root/root/.packages/builtin_files"
+		PKG=$i
+		FILES="`cat $D/$PKG`"
+		if [ -f $D/$PKG ] ; then
+			echo "moving \"$i\""
+			for LINE in $FILES
+				do
+				if [ "`echo $LINE|head -c1`" = "/" ];then
+					mkdir -p $SQDIR/extras"$LINE"
+					MOVEPATH=$SQDIR/extras"$LINE"/
+					x=`echo $LINE|sed 's%^\/%%'`
+					cd $SQDIR/squashfs-root/$x
+				else
+					x="$LINE"
+					mv $x $MOVEPATH
+				fi
+				done
+			#fix root/.packages/woof-installed-packages
+			grep -v "$PKG" $SQDIR/squashfs-root/root/.packages/woof-installed-packages| \
+				while read LINE
+					do 
+					echo $LINE >> $SQDIR/squashfs-root/root/.packages/woof-installed-packages.tmp
+					done
+			mv -f $SQDIR/squashfs-root/root/.packages/woof-installed-packages.tmp \
+				$SQDIR/squashfs-root/root/.packages/woof-installed-packages		 
+			rm $D/$PKG
+			statusfunc $?
+		fi
+	done
+
+	cd $SQDIR
+	
+	if [ ! -f $SQDIR/squashfs-root/usr/bin/geany ] ; then
+		if [ -f $SQDIR/squashfs-root/usr/bin/leafpad ] ; then
+			sed -i 's/geany/leafpad/' $SQDIR/squashfs-root/usr/local/bin/defaulttexteditor
+		else
+			sed -i 's/geany/nicoedit/' $SQDIR/squashfs-root/usr/local/bin/defaulttexteditor
+		fi
+	fi
+	
+#	cat << EOF > $SQDIR/squashfs-root/usr/local/bin/install_extras
+##!/bin/sh
+#gtkdialog-splash -fontsize large -bg hotpink -icon gtk-dialog-error -close box -timeout 15 -text "Please, load the \"extras.sfs\" to use this program" &
+#EOF
+#	chmod 755 $SQDIR/squashfs-root/usr/local/bin/install_extras	
+
+	statusfunc $?
+else
+	echo "Nothing moved out of the main sfs"
+fi
 		
 #clean up
 echo "removing OLD $MAINSFS"
@@ -454,7 +519,7 @@ cp -rf $XOSFS/* ./
 
 statusfunc $?
 
-cd .. #$SQDIR
+cd $SQDIR
 sync
 echo "now compressing the NEW $MAINSFS..."
 mksquashfs squashfs-root "$MAINSFS"
@@ -463,6 +528,16 @@ echo "removing expanded filesystem"
 rm -rf squashfs-root 
 sync
 statusfunc $?
+
+if [ -d $SQDIR/extras ] ; then
+	cd $SQDIR
+	echo "now compressing the \"extras.sfs\"..."
+	mksquashfs extras extras.sfs
+	statusfunc $?
+	rm -rf extras
+	sync
+	statusfunc $?
+fi
 
 #==============================================================================
 
@@ -515,6 +590,9 @@ echo "copying files into build"
 cp -arf $INITDIR/boot* build
 mv -f $INITDIR/initrd* build
 mv -f $SQDIR/$MAINSFS build 
+if [ -f $SQDIR/extras.sfs ] ; then
+	mv -f $SQDIR/extras.sfs build
+fi
 rm -f build/initrd*
 rm -f $INITDIR/boot*/initrd*
 statusfunc $?
