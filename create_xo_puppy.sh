@@ -313,10 +313,10 @@ drake) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
 		cp -af $XODIR/drake/xorg/modules/drivers/* \
 		squashfs-root/usr/lib/xorg/modules/drivers/ 
 		;;
-squeeze|dpup|squeezed|next) 
+squeeze|dpup|squeezed|next|guydog) 
 		XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="squashfs-root/usr/lib/"
-		cp -af $XODIR/{squeeze,dpup,squeezed,next}/xorg/modules/drivers/* \
+		cp -af $XODIR/{squeeze,dpup,squeezed,next,guydog}/xorg/modules/drivers/* \
 		squashfs-root/usr/lib/xorg/modules/drivers/ 
 		;;		
 *)		XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers" 
