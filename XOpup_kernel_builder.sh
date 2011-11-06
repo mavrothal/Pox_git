@@ -219,6 +219,8 @@ patch_sources()
 	if [ ! -d patches ] ; then 
 		mkdir patches
 		mv *.patch patches/
+	else
+		mv *.patch patches/
 	fi
 	
 
