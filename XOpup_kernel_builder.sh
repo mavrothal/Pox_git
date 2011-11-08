@@ -3,13 +3,14 @@
 # This script will build a kernel capable of running puppylinux
 # on the OLPC XO-1 and XO-1.5 laptops.
 # Use in combination with the create_xo_puppy script to make any
-# flavor XOpup running an updated 2.6.35 OLPC kernel
+# flavor XOpup running an updated 2.6.35 OLPC kernel or the new
+# (and for now experimental) OLPC 3.1.0 kernel
 #
 # GPL2 (see /usr/share/doc) (c) mavrothal, 01micko
 # NO WARRANTY
 
 #ver
-VER=9 
+VER=10 
 
 # fail-safe switch in case someone clicks the script in ROX 
 #echo -e "\\0033[1;34m"
@@ -21,7 +22,8 @@ CWD="$BASEDIR"
 mkdir $BASEDIR/kernel_sources
 sources="$BASEDIR/kernel_sources"
 git_clone="$sources/olpc-2.6"
-git_clone_aufs="$sources/aufs2-standalone"
+git_clone_aufs2="$sources/aufs2-standalone"
+git_clone_aufs3="$sources/aufs3-standalone"
 patches="$BASEDIR/XO_kernel_patches"
 
 #bit of fun! (curtesy of 01micko)
@@ -172,7 +174,7 @@ get_sources()
 	fi
 	sync
 
-	if [ ! -d "$git_clone_aufs" ] ; then
+	if [ ! -d "$git_clone_aufs2" ] ; then
 		cd $sources
 		git clone git://aufs.git.sourceforge.net/gitroot/aufs/aufs2-standalone.git 2>&1
 		if [ $? -ne 0 ]; then
@@ -186,7 +188,39 @@ get_sources()
 			fi
 		fi
 	else  
-		cd $git_clone_aufs
+		cd $git_clone_aufs2
+		git reset --hard HEAD
+		git fetch
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed to update the Aufs sources."
+			echo -e "\\0033[1;34m"
+			echo "Hit \"c\"  and then  \"enter\" to continue"
+			echo "with the old sources or just \"enter\" to quit,"
+			echo "check the connection and try latter."
+			echo -en "\\0033[0;39m"
+			read CONTINUE
+			if [ "$CONTINUE" = "c" ];then
+				echo "Aufs git update failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			else
+				exit 0
+			fi
+		fi	
+	fi
+	sync 
+	
+	if [ ! -d "$git_clone_aufs3" ] ; then
+		cd $sources
+		git clone git://aufs.git.sourceforge.net/gitroot/aufs/aufs3-standalone.git 2>&1
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed to download the Aufs sources."
+			echo "Check the connection and try again"
+			echo -en "\\0033[0;39m"
+			exit 1
+		fi
+	else  
+		cd $git_clone_aufs3
 		git reset --hard HEAD
 		git fetch
 		if [ $? -ne 0 ]; then
@@ -213,39 +247,100 @@ patch_sources()
 {
 	output="$BASEDIR"
 	
-	# Point aufs git to kernel version 2.6.35
-	cd $git_clone_aufs
-	git checkout origin/aufs2.2-35
-	if [ ! -d patches ] ; then 
-		mkdir patches
-		mv *.patch patches/
-	else
-		mv *.patch patches/
-	fi
+	# Sellect kernel to build
+	exho
+	echo -e "\\0033[1;34m"
+	echo "To build the experimental 3.1 kernel"
+	echo "hit \"3\"  and then  \"enter\" "
+	echo "or just \"enter\" to build the 2.6.35 kernel"
+	echo -en "\\0033[0;39m"
+	read CONTINUE
+	if [ "$CONTINUE" = "3" ];then
+		# Point aufs git to kernel version 3.1
+		cd $git_clone_aufs3
+		git checkout origin/aufs3.1
+		if [ ! -d patches ] ; then 
+			mkdir patches
+			mv *.patch patches/
+		else
+			mv *.patch patches/
+		fi
 	
 
-	# Patch the OLPC kernel
-	cd $git_clone
-	git checkout origin/olpc-2.6.35
-	sync
+		# Patch the OLPC kernel
+		cd $git_clone
+		git checkout origin/x86-3.1
+		sync
 
-	# Apply patches and aufs source in kernel
-	cp -aR $git_clone_aufs/fs .
-	cp -aR $git_clone_aufs/Documentation .
-	cp -a $git_clone_aufs/include/linux/aufs_type.h include/linux/
+		# Apply patches and aufs source in kernel
+		cp -aR $git_clone_aufs3/fs .
+		cp -aR $git_clone_aufs3/Documentation .
+		cp -a $git_clone_aufs3/include/linux/aufs_type.h include/linux/
 	
 	 
-	for patch in $git_clone_aufs/patches/*; do
-		echo "Applying $patch"
-		patch -p1 < $patch
-		if [ $? -ne 0 ]; then
-			echo "Error: failed to apply $patch on the kernel sources."
-			exit 1
-		fi
-	done
+		for patch in $git_clone_aufs3/patches/*; do
+			echo "Applying $patch"
+			patch -p1 < $patch
+			if [ $? -ne 0 ]; then
+				echo "Error: failed to apply $patch on the kernel sources."
+				exit 1
+			fi
+		done
 
-	# Apply puppy-specific and config patches
-	for patch in $patches/*; do
+		# Apply config patches
+		for patch in $patches/3.1/*; do
+			echo "Applying $patch"
+			patch -p1 < $patch
+			if [ $? -ne 0 ]; then
+				echo "Error: failed to apply $patch on the kernel sources."
+				exit 1
+			fi
+		done
+	else	
+		# Point aufs git to kernel version 2.6.35
+		cd $git_clone_aufs2
+		git checkout origin/aufs2.2-35
+		if [ ! -d patches ] ; then 
+			mkdir patches
+			mv *.patch patches/
+		else
+			mv *.patch patches/
+		fi
+	
+
+		# Patch the OLPC kernel
+		cd $git_clone
+		git checkout origin/olpc-2.6.35
+		sync
+
+		# Apply patches and aufs source in kernel
+		cp -aR $git_clone_aufs2/fs .
+		cp -aR $git_clone_aufs2/Documentation .
+		cp -a $git_clone_aufs2/include/linux/aufs_type.h include/linux/
+	
+	 
+		for patch in $git_clone_aufs2/patches/*; do
+			echo "Applying $patch"
+			patch -p1 < $patch
+			if [ $? -ne 0 ]; then
+				echo "Error: failed to apply $patch on the kernel sources."
+				exit 1
+			fi
+		done
+
+		# Apply config patches
+		for patch in $patches/2.6/*; do
+			echo "Applying $patch"
+			patch -p1 < $patch
+			if [ $? -ne 0 ]; then
+				echo "Error: failed to apply $patch on the kernel sources."
+				exit 1
+			fi
+		done
+	fi
+	
+	# Apply puppy patches
+	for patch in $patches/puppy/*; do
 		echo "Applying $patch"
 		patch -p1 < $patch
 		if [ $? -ne 0 ]; then
@@ -253,7 +348,7 @@ patch_sources()
 			exit 1
 		fi
 	done
-	
+		
 	# Remove the "+" signed that is added at the end of the kernel extraversion
 	sed -rie 's/echo "\+"/#echo "\+"/' scripts/setlocalversion
 
@@ -283,12 +378,19 @@ make_XO1_kernel()
 	echo -e "\\0033[1;34m"
 	echo "Making XO-1 kernel"
 	echo -en "\\0033[0;39m"
-	kernsub=`cat Makefile |grep ^SUBLEVEL | cut -f2 -d "=" | tr -d ' '`
+	KVER=`cat Makefile |grep ^VERSION | cut -f2 -d "=" | tr -d ' '`
+	KPATCH=`cat Makefile |grep ^PATCHLEVEL | cut -f2 -d "=" | tr -d ' '`
+	KSUB=`cat Makefile |grep ^SUBLEVEL | cut -f2 -d "=" | tr -d ' '`
 	kernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "=" | tr -d ' ' | cut -f1 -d "_"`
 	gitcommit=`cat .git/HEAD | awk '{print substr($0,1,7)}'`
-	kernel_ver="2.6."$kernsub""$kernextr"_xo1-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy"
+	kernel_ver=""$KVER"."$KPATCH"."$KSUB""$kernextr"_xo1-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy"
 	# Change kernel extra version
-	sed -i "s/^EXTRAVERSION = [.a-zA-Z0-9_-]*/EXTRAVERSION = "$kernextr"_xo1-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy/" Makefile
+	NOkernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "="`
+	if [ "$NOkernextr" = "" ] ; then  
+		sed -i "s/^EXTRAVERSION =/EXTRAVERSION = "$kernextr"_xo1-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy/" Makefile
+	else
+		sed -i "s/^EXTRAVERSION = [.a-zA-Z0-9_-]*/EXTRAVERSION = "$kernextr"_xo1-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy/" Makefile
+	fi
 	make clean distclean
 	make mrproper
 	sync
@@ -343,12 +445,19 @@ make_XO15_kernel()
 	echo -e "\\0033[1;34m"
 	echo "Making XO-1.5 kernel"
 	echo -en "\\0033[0;39m"
-	kernsub=`cat Makefile |grep ^SUBLEVEL | cut -f2 -d "=" | tr -d ' '`
+	KVER=`cat Makefile |grep ^VERSION | cut -f2 -d "=" | tr -d ' '`
+	KPATCH=`cat Makefile |grep ^PATCHLEVEL | cut -f2 -d "=" | tr -d ' '`
+	KSUB=`cat Makefile |grep ^SUBLEVEL | cut -f2 -d "=" | tr -d ' '`
 	kernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "=" | tr -d ' ' | cut -f1 -d "_"`
 	gitcommit=`cat .git/HEAD | awk '{print substr($0,1,7)}'`
-	kernel_ver="2.6."$kernsub""$kernextr"_xo1.5-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy"
+	kernel_ver=""$KVER"."$KPATCH"."$KSUB""$kernextr"_xo1.5-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy"
 	# Change kernel extra version
-	sed -i "s/^EXTRAVERSION = [.a-zA-Z0-9_-]*/EXTRAVERSION = "$kernextr"_xo1.5-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy/" Makefile
+	NOkernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "="`
+	if [ "$NOkernextr" = "" ] ; then  
+		sed -i "s/^EXTRAVERSION =/EXTRAVERSION = "$kernextr"_xo1.5-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy/" Makefile
+	else
+		sed -i "s/^EXTRAVERSION = [.a-zA-Z0-9_-]*/EXTRAVERSION = "$kernextr"_xo1.5-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy/" Makefile
+	fi
 	make clean distclean
 	make mrproper
 	sync
