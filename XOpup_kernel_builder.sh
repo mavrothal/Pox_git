@@ -562,7 +562,9 @@ export -f dir_2_pet
 finished()
 {
 	if [ -f $output_k/kernel-headers-$kernel_ver.pet ] ; then
-		cd $git_clone_aufs
+		cd $git_clone_aufs2
+		git reset --hard HEAD
+		cd $git_clone_aufs3
 		git reset --hard HEAD 
 		cd $git_clone
 		git reset --hard HEAD
