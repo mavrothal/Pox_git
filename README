@@ -21,7 +21,8 @@ to an `extras.sfs'. It can be edited as needed.
 
 `build_aufs_util.sh' will download the sources and build auf2-util or
 aufs3-util (aufs utilities in puppies are pretty dated). Chances are that 
-will fail to compile in a lot of puppies. In this case just run the script 
+will fail to compile in a lot of puppies since they are using the old aufs-2.1
+branch or have unionfs instead of aufs. In this case just run the script 
 from within your XO build to make the new files.
 
 `make_build' is the master script that calls the other 4 but the previous
