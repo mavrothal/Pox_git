@@ -124,6 +124,8 @@ run_all()
 	echo "Building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	./build_from_OLPC_git.sh -b
 	sync; sync
+	./build_aufs_util.sh
+	sync; sync
 	echo "Finished building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	sleep 5
 	echo "Building $BUILDNAME-XO . $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
@@ -148,6 +150,8 @@ no_kernel()
 	
 	echo "Building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	./build_from_OLPC_git.sh -b
+	sync; sync
+	./build_aufs_util.sh
 	sync; sync
 	echo "Finished building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	sleep 5

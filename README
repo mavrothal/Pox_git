@@ -2,7 +2,7 @@ Pox_git (Puppylinux_Olpc_Xo_git), is a collection of scripts and files needed to
 build Puppy linux for the OLPC XO-1 and XO-1.5 laptops, starting from a 
 puppy ISO image and public sources
 
-There are 4 build scripts and several modified puppy-scripts.
+There are 5 build scripts and several modified puppy-scripts.
   
 `XOpup_kernel_builder.sh' will build the XO-specific kernels from the 
 olpc-2.6 and Aufs2.2 gits, with patched puppy-specific config files.
@@ -19,7 +19,12 @@ The associated `pkgs_remrc' files has the instructions for the files and
 packages that will be either totally removed or moved from the main sfs 
 to an `extras.sfs'. It can be edited as needed.
 
-`make_build' is the master script that calls the other 3 but the previous
+`build_aufs_util.sh' will download the sources and build auf2-util or
+aufs3-util (aufs utilities in puppies are pretty dated). Chances are that 
+will fail to compile in a lot of puppies. In this case just run the script 
+from within your XO build to make the new files.
+
+`make_build' is the master script that calls the other 4 but the previous
 scripts can run also independent of each other, to make a kernel  or repackage
 a build, for example.
 
