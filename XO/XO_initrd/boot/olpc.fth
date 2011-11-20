@@ -113,7 +113,7 @@ visible
 
    check-ofw
 
-   " console=ttyS0,115200 console=tty0 fbcon=font:SUN12x22 ${PD}" expand$ to boot-file
+   " console=ttyS0,115200 console=tty0 fbcon=font:SUN12x22 no_console_suspend ${PD}" expand$ to boot-file
 
 \ Uncomment the next 2 lines to see the command line
 \   ." cmdline is " boot-file type cr
