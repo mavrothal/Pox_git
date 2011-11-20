@@ -500,7 +500,7 @@ if [ "$CONTINUE" = "m" ];then
 #EOF
 #	chmod 755 $SQDIR/squashfs-root/usr/local/bin/install_extras	
 
-	statusfunc $?
+#	statusfunc $?
 else
 	echo "Nothing moved out of the main sfs"
 fi
@@ -617,6 +617,7 @@ if [ "$COPY" = "c" ];then
 	read TRANSFER
 		if [ "$TRANSFER" = "t" ];then
 			rm -rf $DEVICE/boot*
+			rm -rf $DEVICE/$MAINSFS
 			cp -aR build/* $DEVICE/
 			sync
 		else
