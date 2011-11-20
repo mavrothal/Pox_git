@@ -10,7 +10,7 @@
 # NO WARRANTY
 
 #ver
-VER=10 
+VER=11 
 
 # fail-safe switch in case someone clicks the script in ROX 
 #echo -e "\\0033[1;34m"
@@ -150,6 +150,7 @@ get_sources()
 			echo "Error: failed to download the kernel sources."
 			echo "Check the connection and try again"
 			echo -en "\\0033[0;39m"
+			echo "OLPC-2.6 kernel source dowanload failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			exit 1
 		fi
 	else 
@@ -184,6 +185,7 @@ get_sources()
 				echo "Error: failed to download the Aufs sources."
 				echo "Check the connection and try again"
 				echo -en "\\0033[0;39m"
+				echo "Aufs source dowanload failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
 			fi
 		fi
@@ -217,6 +219,7 @@ get_sources()
 			echo "Error: failed to download the Aufs sources."
 			echo "Check the connection and try again"
 			echo -en "\\0033[0;39m"
+			echo "Aufs source dowanload failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			exit 1
 		fi
 	else  
@@ -283,6 +286,7 @@ patch_sources()
 			patch -p1 < $patch
 			if [ $? -ne 0 ]; then
 				echo "Error: failed to apply $patch on the kernel sources."
+				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
 			fi
 		done
@@ -293,6 +297,7 @@ patch_sources()
 			patch -p1 < $patch
 			if [ $? -ne 0 ]; then
 				echo "Error: failed to apply $patch on the kernel sources."
+				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
 			fi
 		done
@@ -324,6 +329,7 @@ patch_sources()
 			patch -p1 < $patch
 			if [ $? -ne 0 ]; then
 				echo "Error: failed to apply $patch on the kernel sources."
+				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
 			fi
 		done
@@ -334,6 +340,7 @@ patch_sources()
 			patch -p1 < $patch
 			if [ $? -ne 0 ]; then
 				echo "Error: failed to apply $patch on the kernel sources."
+				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
 			fi
 		done
@@ -345,6 +352,7 @@ patch_sources()
 		patch -p1 < $patch
 		if [ $? -ne 0 ]; then
 			echo "Error: failed to apply $patch on the kernel sources."
+			echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			exit 1
 		fi
 	done
