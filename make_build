@@ -8,7 +8,7 @@
 # NO WARRANTY
 
 #ver
-VER=2
+VER=3
 
 xoolpcfunc()
 {
@@ -119,7 +119,16 @@ run_all()
 	echo "Starting kernel build. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	./XOpup_kernel_builder.sh -b
 	sync; sync
-	echo "Finished kernel build. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+	if [ ! -f $WDIR/boot10/vmlinuz ] || [ ! -f $WDIR/boot15/vmlinuz ] ; then
+		echo -e "\\0033[1;31m"
+		echo "Aborting! XO kernel build failed"
+		echo "Check $WDIR/build.log for more."
+		echo -en "\\0033[0;39m"
+		echo "Kernel build failed. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+		exit 1
+	else
+		echo "Finished kernel build. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+	fi
 	sleep 5
 	echo "Building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	./build_from_OLPC_git.sh -b
