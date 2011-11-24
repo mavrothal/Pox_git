@@ -1,0 +1,12 @@
+--- a/fs/aufs/loop.c	2011-05-11 11:27:21.922000014 +0200
++++ b/fs/aufs/loop.c	2011-05-11 11:28:00.310000011 +0200
+@@ -28,6 +28,9 @@
+  */
+ int au_test_loopback_overlap(struct super_block *sb, struct dentry *h_adding)
+ {
++	/* allow Squashfs file systems to be used as Aufs branches */
++	return 0;
++	
+ 	struct super_block *h_sb;
+ 	struct loop_device *l;
+ 

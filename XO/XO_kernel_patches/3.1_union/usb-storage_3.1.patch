@@ -1,0 +1,27 @@
+--- a/drivers/usb/storage/usb.c	2011-11-20 07:45:09.000000000 +0200
++++ b/drivers/usb/storage/usb.c	2011-11-20 08:26:27.000000000 +0200
+@@ -830,6 +830,7 @@
+ 	struct device *dev = &us->pusb_intf->dev;
+ 
+ 	dev_dbg(dev, "device found\n");
++	printk(KERN_DEBUG "usb-storage: device found at %d\n", us->pusb_dev->devnum);
+ 
+ 	set_freezable_with_signal();
+ 	/*
+@@ -846,6 +847,8 @@
+ 	if (delay_use > 0) {
+ 		dev_dbg(dev, "waiting for device to settle "
+ 				"before scanning\n");
++		printk(KERN_DEBUG "usb-storage: waiting for device "
++				"to settle before scanning\n");
+ 		wait_event_interruptible_timeout(us->delay_wait,
+ 				test_bit(US_FLIDX_DONT_SCAN, &us->dflags),
+ 				delay_use * HZ);
+@@ -863,6 +866,7 @@
+ 		}
+ 		scsi_scan_host(us_to_host(us));
+ 		dev_dbg(dev, "scan complete\n");
++		printk(KERN_DEBUG "usb-storage: device scan complete\n");
+ 
+ 		/* Should we unbind if no devices were detected? */
+ 	}

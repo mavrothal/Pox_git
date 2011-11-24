@@ -10,7 +10,7 @@
 # NO WARRANTY
 
 #ver
-VER=11 
+VER=12 
 
 # fail-safe switch in case someone clicks the script in ROX 
 #echo -e "\\0033[1;34m"
@@ -24,6 +24,7 @@ sources="$BASEDIR/kernel_sources"
 git_clone="$sources/olpc-2.6"
 git_clone_aufs2="$sources/aufs2-standalone"
 git_clone_aufs3="$sources/aufs3-standalone"
+union_patch="$sources/unionfs-2.5.10_for_3.1.0-rc4.diff"
 patches="$BASEDIR/XO_kernel_patches"
 
 #bit of fun! (curtesy of 01micko)
@@ -139,7 +140,6 @@ export -f check_space
 
 get_sources() 
 {
-
 	# Get needed files
 	if [ ! -d "$git_clone" ] ; then
 		cd $sources
@@ -243,6 +243,21 @@ get_sources()
 		fi	
 	fi
 	sync 
+	
+	if [ ! -f "$union_patch" ] ; then
+		cd $sources
+		wget -c http://download.filesystems.org/unionfs/unionfs-2.x-latest/unionfs-2.5.10_for_3.1.0-rc4.diff.gz
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed to download the unionfs patch."
+			echo "Check the connection and try again"
+			echo -en "\\0033[0;39m"
+			echo "Unionfs source dowanload failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			exit 1
+		fi
+		sync
+		gzip -d unionfs-2.5.10_for_3.1.0-rc4.diff.gz 
+	fi
 }
 export -f get_sources
 
@@ -251,7 +266,7 @@ patch_sources()
 	output="$BASEDIR"
 	
 	# Sellect kernel to build
-	exho
+	echo
 	echo -e "\\0033[1;34m"
 	echo "To build the experimental 3.1 kernel"
 	echo "hit \"3\"  and then  \"enter\" "
@@ -259,48 +274,73 @@ patch_sources()
 	echo -en "\\0033[0;39m"
 	read CONTINUE
 	if [ "$CONTINUE" = "3" ];then
-		# Point aufs git to kernel version 3.1
-		cd $git_clone_aufs3
-		git checkout origin/aufs3.1
-		if [ ! -d patches ] ; then 
-			mkdir patches
-			mv *.patch patches/
-		else
-			mv *.patch patches/
-		fi
-	
+		echo
+		echo -e "\\0033[1;34m"
+		echo "To build the 3.1 kernel with Aufs "
+		echo "hit \"a\"  and then  \"enter\" "
+		echo "or just \"enter\" to build with union fs"
+		echo -en "\\0033[0;39m"
+		read CONTINUE
+		if [ "$CONTINUE" = "a" ];then	
+			# Point aufs git to kernel version 3.1
+			cd $git_clone_aufs3
+			git checkout origin/aufs3.1
+			if [ ! -d patches ] ; then 
+				mkdir patches
+				mv *.patch patches/
+			else
+				mv *.patch patches/
+			fi	
 
-		# Patch the OLPC kernel
-		cd $git_clone
-		git checkout origin/x86-3.1
-		sync
+			# Patch the OLPC kernel
+			cd $git_clone
+			git checkout origin/x86-3.1
+			sync
 
-		# Apply patches and aufs source in kernel
-		cp -aR $git_clone_aufs3/fs .
-		cp -aR $git_clone_aufs3/Documentation .
-		cp -a $git_clone_aufs3/include/linux/aufs_type.h include/linux/
+			# Apply patches and aufs source in kernel
+			cp -aR $git_clone_aufs3/fs .
+			cp -aR $git_clone_aufs3/Documentation .
+			cp -a $git_clone_aufs3/include/linux/aufs_type.h include/linux/
 	
 	 
-		for patch in $git_clone_aufs3/patches/*; do
-			echo "Applying $patch"
-			patch -p1 < $patch
-			if [ $? -ne 0 ]; then
-				echo "Error: failed to apply $patch on the kernel sources."
-				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-				exit 1
-			fi
-		done
+			for patch in $git_clone_aufs3/patches/*; do
+				echo "Applying $patch"
+				patch -p1 < $patch
+				if [ $? -ne 0 ]; then
+					echo "Error: failed to apply $patch on the kernel sources."
+					echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+					exit 1
+				fi
+			done
 
-		# Apply config patches
-		for patch in $patches/3.1/*; do
-			echo "Applying $patch"
-			patch -p1 < $patch
-			if [ $? -ne 0 ]; then
-				echo "Error: failed to apply $patch on the kernel sources."
-				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-				exit 1
-			fi
-		done
+			# Apply config patches
+			for patch in $patches/3.1/*; do
+				echo "Applying $patch"
+				patch -p1 < $patch
+				if [ $? -ne 0 ]; then
+					echo "Error: failed to apply $patch on the kernel sources."
+					echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+					exit 1
+				fi
+			done
+		else
+			# Patch the OLPC kernel with unionfs
+			cd $git_clone
+			git checkout origin/x86-3.1
+			sync
+			patch -N -p1 < $union_patch
+			
+			# Apply config patches
+			for patch in $patches/3.1_union/*; do
+				echo "Applying $patch"
+				patch -p1 < $patch
+				if [ $? -ne 0 ]; then
+					echo "Error: failed to apply $patch on the kernel sources."
+					echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+					exit 1
+				fi
+			done
+		fi
 	else	
 		# Point aufs git to kernel version 2.6.35
 		cd $git_clone_aufs2
@@ -312,7 +352,6 @@ patch_sources()
 			mv *.patch patches/
 		fi
 	
-
 		# Patch the OLPC kernel
 		cd $git_clone
 		git checkout origin/olpc-2.6.35
@@ -322,7 +361,6 @@ patch_sources()
 		cp -aR $git_clone_aufs2/fs .
 		cp -aR $git_clone_aufs2/Documentation .
 		cp -a $git_clone_aufs2/include/linux/aufs_type.h include/linux/
-	
 	 
 		for patch in $git_clone_aufs2/patches/*; do
 			echo "Applying $patch"
