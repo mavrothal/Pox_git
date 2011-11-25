@@ -6,7 +6,7 @@
 TestEth=`ifconfig | grep wlan`
 if [  "$TestEth"  != "" ] ; then
    # turnoff mesh while at it (for 2.6.35 kernel)
-   echo 0 > /sys/class/net/etc0/lbs_mesh &
+   echo 0 > /sys/class/net/wlan0/lbs_mesh &
    exit 0
 fi
 
@@ -116,7 +116,7 @@ fi
 sleep 20
 if [  "$TestEth"  != "" ] ; then
    # turnoff mesh while at it (for 2.6.35 kernel)
-   echo 0 > /sys/class/net/etc0/lbs_mesh &
+   echo 0 > /sys/class/net/wlan0/lbs_mesh &
    exit 0
    else
    cd /etc/powerd/postresume.d/
