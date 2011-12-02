@@ -119,7 +119,7 @@ run_all()
 	echo "Starting kernel build. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
 	./XOpup_kernel_builder.sh -b
 	sync; sync
-	if [ ! -f $WDIR/boot10/vmlinuz ] || [ ! -f $WDIR/boot15/vmlinuz ] ; then
+	if [ ! -f $WDIR/boot10/vmlinuz ] && [ ! -f $WDIR/boot15/vmlinuz ] ; then
 		echo -e "\\0033[1;31m"
 		echo "Aborting! XO kernel build failed"
 		echo "Check $WDIR/build.log for more."
@@ -148,7 +148,7 @@ export -f run_all
 no_kernel()
 {
 	# Use an existing kernel
-	if [ ! -f $WDIR/boot10/vmlinuz ] || [ ! -f $WDIR/boot15/vmlinuz ] ; then
+	if [ ! -f $WDIR/boot10/vmlinuz ] && [ ! -f $WDIR/boot15/vmlinuz ] ; then
 		echo -e "\\0033[1;31m"
 		echo " You do not have the XO kernels in the"
 		echo " $WDIR directory."
