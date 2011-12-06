@@ -369,6 +369,10 @@ done
 echo "patching xorgwizrd"
 patches="$CWD/XO_sfs_patches"
 patch -p1 < $patches/xorgwizard.patch
+# some puppies have xorg-setup instead
+if [ $? -ne 0 ]; then
+	patch -p1 usr/sbin/xorg-setup < $patches/xorgwizard.patch
+fi
 patch -p1 < $patches/xorg.conf0.patch
 
 # Patch PPM
