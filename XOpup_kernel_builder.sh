@@ -335,6 +335,9 @@ patch_sources()
 					echo -en "\\0033[0;39m"
 					echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 					exit 1
+				else
+					echo "Building kernel 3.x with Aufs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+					LAYERFS="Aufs"
 				fi
 			done
 
@@ -373,6 +376,9 @@ patch_sources()
 					echo -en "\\0033[0;39m"
 					echo "Failed to apply Unionfs patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 					exit 1
+				else
+					echo "Building kernel 3.x with Unionfs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+					LAYERFS="Unionfs"
 				fi
 			fi
 			
@@ -419,6 +425,9 @@ patch_sources()
 				echo -en "\\0033[0;39m"
 				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
+			else
+				echo "Building kernel 2.6.x with Aufs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				LAYERFS="Aufs"
 			fi
 		done
 
@@ -482,13 +491,13 @@ make_XO1_kernel()
 	KSUB=`cat Makefile |grep ^SUBLEVEL | cut -f2 -d "=" | tr -d ' '`
 	kernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "=" | tr -d ' ' | cut -f1 -d "_"`
 	gitcommit=`cat .git/HEAD | awk '{print substr($0,1,7)}'`
-	kernel_ver=""$KVER"."$KPATCH"."$KSUB""$kernextr"_xo1-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy"
+	kernel_ver=""$KVER"."$KPATCH"."$KSUB""$kernextr"_xo1-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS""
 	# Change kernel extra version
 	NOkernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "="`
 	if [ "$NOkernextr" = "" ] ; then  
-		sed -i "s/^EXTRAVERSION =/EXTRAVERSION = "$kernextr"_xo1-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy/" Makefile
+		sed -i "s/^EXTRAVERSION =/EXTRAVERSION = "$kernextr"_xo1-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS"/" Makefile
 	else
-		sed -i "s/^EXTRAVERSION = [.a-zA-Z0-9_-]*/EXTRAVERSION = "$kernextr"_xo1-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy/" Makefile
+		sed -i "s/^EXTRAVERSION = [.a-zA-Z0-9_-]*/EXTRAVERSION = "$kernextr"_xo1-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS"/" Makefile
 	fi
 	make clean distclean
 	make mrproper
@@ -548,13 +557,13 @@ make_XO15_kernel()
 	KSUB=`cat Makefile |grep ^SUBLEVEL | cut -f2 -d "=" | tr -d ' '`
 	kernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "=" | tr -d ' ' | cut -f1 -d "_"`
 	gitcommit=`cat .git/HEAD | awk '{print substr($0,1,7)}'`
-	kernel_ver=""$KVER"."$KPATCH"."$KSUB""$kernextr"_xo1.5-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy"
+	kernel_ver=""$KVER"."$KPATCH"."$KSUB""$kernextr"_xo1.5-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS""
 	# Change kernel extra version
 	NOkernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "="`
 	if [ "$NOkernextr" = "" ] ; then  
-		sed -i "s/^EXTRAVERSION =/EXTRAVERSION = "$kernextr"_xo1.5-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy/" Makefile
+		sed -i "s/^EXTRAVERSION =/EXTRAVERSION = "$kernextr"_xo1.5-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS"/" Makefile
 	else
-		sed -i "s/^EXTRAVERSION = [.a-zA-Z0-9_-]*/EXTRAVERSION = "$kernextr"_xo1.5-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_Puppy/" Makefile
+		sed -i "s/^EXTRAVERSION = [.a-zA-Z0-9_-]*/EXTRAVERSION = "$kernextr"_xo1.5-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS"/" Makefile
 	fi
 	make clean distclean
 	make mrproper
