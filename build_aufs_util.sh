@@ -1,4 +1,15 @@
 #!/bin/bash
+# 
+# This script will download and build aufs-util and prepare for installation
+# by the associated create_xo_puppy script.
+# You need to have kernel-headers from an aufs-enabled kernel, installed
+#
+# GPL2 (see /usr/share/doc) (c) mavrothal
+# NO WARRANTY
+
+
+BASEDIR=`pwd`
+CWD="$BASEDIR" 
 
 # check if the build system has aufs
 if [ ! -f /usr/include/linux/aufs_type.h ] ; then
@@ -11,8 +22,6 @@ if [ ! -f /usr/include/linux/aufs_type.h ] ; then
 	exit 1
 fi
 
-BASEDIR=`pwd`
-CWD="$BASEDIR" 
 if [ ! -d $BASEDIR/XO_SFS_sources ] ; then 
 	mkdir $BASEDIR/XO_SFS_sources
 fi
