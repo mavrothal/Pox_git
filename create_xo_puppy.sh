@@ -333,6 +333,9 @@ do
 	rm -f $XORGDIR/$drv
  	echo "removing $drv"
 done
+# some puppies have additional drivers elsewhere
+rm -rf squashfs-root/usr/lib/xorg/modules/drivers-*
+rm -rf squashfs-root/usr/lib/x/*
 
 echo "removing other useless stuff for XO..."
 # remove extra video stuff
