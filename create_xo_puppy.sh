@@ -249,30 +249,42 @@ if [ ! -f $extra_pets/*.pet ] ; then
 	read CONTINUE
 		if [ "$CONTINUE" = "a" ];then
 			echo "including extra pets in the build"
+			echo "The following pets were included in the build" >> $CWD/build.log
 			cd $extra_pets
 			for p in ./* 
 			do 
 				PNAME=`echo $p | sed 's/\.pet//'`
 				tar xzf $p 2>/dev/null 
 				cd $PNAME
-				rm -f *.sh *.spec*
+				rm -f *.sh *.spec* 2>/dev/null
 				find . | sed 's/^.//' > $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME	
 				cp -aR * $SQDIR/squashfs-root/
+				if [ $? -ne 0 ]; then
+					echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				else
+					echo "$p was added in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				fi
 				cd $extra_pets 
 				rm -rf $PNAME
 			done
 		fi
 else
 	echo "including extra pets in the build"
+	echo "The following pets were included in the build" >> $CWD/build.log
 	cd $extra_pets
 	for p in ./* 
 	do 
 		PNAME=`echo $p | sed 's/\.pet//'`
 		tar xzf $p 2>/dev/null 
 		cd $PNAME
-		rm -f *.sh *.spec*
+		rm -f *.sh *.spec* 2>/dev/null
 		find . | sed 's/^.//' > $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME	
 		cp -aR * $SQDIR/squashfs-root/
+		if [ $? -ne 0 ]; then
+			echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		else
+			echo "$p was added in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		fi
 		cd $extra_pets 
 		rm -rf $PNAME
 	done
@@ -333,7 +345,7 @@ do
 	rm -f $XORGDIR/$drv
  	echo "removing $drv"
 done
-# some puppies have additional drivers elsewhere
+#some puppies have additonal drivers elsewhere
 rm -rf squashfs-root/usr/lib/xorg/modules/drivers-*
 rm -rf squashfs-root/usr/lib/x/*
 
@@ -372,27 +384,63 @@ done
 echo "patching xorgwizrd"
 patches="$CWD/XO_sfs_patches"
 patch -p1 < $patches/xorgwizard.patch
-# some puppies have xorg-setup instead
 if [ $? -ne 0 ]; then
+	echo "Failed to patch xorgwizard. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	cp -a usr/sbin/xorgwizard.orig usr/sbin/xorgwizard
+	rm -f usr/sbin/xorgwizard.{orig,rej}
+	# some puppies have xorg-setup instead
 	patch -p1 usr/sbin/xorg-setup < $patches/xorgwizard.patch
+	if [ $? -ne 0 ]; then
+		echo "Failed to patch xorg-setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	else
+		echo "Patched xorg-setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
+else
+	echo "Patched xorgwizard. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
+
 patch -p1 < $patches/xorg.conf0.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch xorg.conf0. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+else
+	echo "Patched xorg.conf0. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
 
 # Patch PPM
 echo "patching 0setup"
 patch -p1 < $patches/0setup.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch 0setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+else
+	echo "Patched 0setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
 
 # Patch snapmerge
 echo "patching snapmergepuppy"
 patch -p1 < $patches/snapmerge.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch snapmergepuppy. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+else
+	echo "Patched snapmergepuppy. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
 
 # Patch frontend_d
 echo "patching pup_event_frontend_d"
 patch -p1 < $patches/frontend_d.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch pup_event_frontend_d. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+else
+	echo "Patched pup_event_frontend_d. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
 
 # Patch rc.shutdown
 echo "patching rc.shutdown"
 patch -p1 < $patches/rc.shutdown.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch rc.shutdown. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+else
+	echo "Patched rc.shutdown. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
 
 #Add support for the XO internal drives in fstab
 echo "Adjusting /etc/fstab for XO internal drives..."
@@ -418,6 +466,7 @@ statusfunc 0
 #Continue?" 0 0 && [ $? ] && for x in `cat $D/$PKG`; do [ -d $x ] && cd $x || rm $x; done && rm $D/$PKG && $0
 #left comment here for now to see the logic :)
 
+echo "The following buildin packages have been removed from the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 for i in $PACKAGES_REM
 	do 
 	D="$SQDIR/squashfs-root/root/.packages/builtin_files"
@@ -444,6 +493,11 @@ for i in $PACKAGES_REM
 		mv -f $SQDIR/squashfs-root/root/.packages/woof-installed-packages.tmp \
 			$SQDIR/squashfs-root/root/.packages/woof-installed-packages		 
 		rm $D/$PKG 
+		if [ $? -ne 0 ]; then
+			echo "Failed to remove $PKG from the build." >> $CWD/build.log
+		else
+			echo "$PKG was removed." >> $CWD/build.log
+		fi
 		statusfunc $?
 	fi
 	done
@@ -458,6 +512,7 @@ echo "or just \"enter\" to skip this step."
 echo -en "\\0033[0;39m"
 read CONTINUE
 if [ "$CONTINUE" = "m" ];then
+	echo "The following buildin packages have been moved into the extras.sfs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	mkdir -p $SQDIR/extras
 	for i in $PACKAGES_MOVE
 		do 
@@ -487,6 +542,11 @@ if [ "$CONTINUE" = "m" ];then
 			mv -f $SQDIR/squashfs-root/root/.packages/woof-installed-packages.tmp \
 				$SQDIR/squashfs-root/root/.packages/woof-installed-packages		 
 			rm $D/$PKG
+			if [ $? -ne 0 ]; then
+				echo "Failed to move $PKG into extras.sfs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			else
+				echo "$PKG was moved " >> $CWD/build.log
+			fi
 			statusfunc $?
 		fi
 	done
@@ -510,6 +570,7 @@ if [ "$CONTINUE" = "m" ];then
 #	statusfunc $?
 else
 	echo "Nothing moved out of the main sfs"
+	echo "Nothing was moved into the extras.sfs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
 		
 #clean up
@@ -645,3 +706,4 @@ statusfunc 0
 echo -e "\\0033[1;34m"
 echo " Done!"
 echo -en "\\0033[0;39m"
+
