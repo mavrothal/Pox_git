@@ -156,6 +156,7 @@ get_sources()
 	else 
 		cd $git_clone
 		git reset --hard HEAD
+		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"
@@ -192,6 +193,7 @@ get_sources()
 	else  
 		cd $git_clone_aufs2
 		git reset --hard HEAD
+		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"
@@ -225,6 +227,7 @@ get_sources()
 	else  
 		cd $git_clone_aufs3
 		git reset --hard HEAD
+		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"

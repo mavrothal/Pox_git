@@ -85,6 +85,7 @@ dnld_kbd()
 	else 
 		cd olpc-kbdshim
 		git reset --hard HEAD
+		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"
@@ -123,6 +124,7 @@ dnld_powerd()
 	else 
 		cd powerd
 		git reset --hard HEAD
+		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"
@@ -161,6 +163,7 @@ dnld_chrome()
 	else 
 		cd xf86-video-chrome
 		git reset --hard HEAD
+		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"
