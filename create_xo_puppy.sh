@@ -304,9 +304,9 @@ echo "removing unneeded xorg drivers"
 #We can compile more drivers for separate distro and store in
 #drake, wary, squezze, lupu whatever dir
 case "$DISTRO_FILE_PREFIX" in
-wary|racy)   XORGDIR="squashfs-root/usr/X11R7/lib/xorg/modules/drivers" 
+wary|racy|luki)   XORGDIR="squashfs-root/usr/X11R7/lib/xorg/modules/drivers" 
 		XORGLIBDIR="squashfs-root/usr/X11R7/lib/"	
-		cp -af $XODIR/{wary,racy}/xorg/modules/drivers/* \
+		cp -af $XODIR/{wary,racy,luki}/xorg/modules/drivers/* \
 		squashfs-root/usr/X11R7/lib/xorg/modules/drivers/
 		;; 
 slacko|spup) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
