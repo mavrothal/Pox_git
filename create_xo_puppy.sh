@@ -572,6 +572,9 @@ else
 	echo "Nothing moved out of the main sfs"
 	echo "Nothing was moved into the extras.sfs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
+
+# Saluki has /etc/acpi that may interfere with PM
+$SQDIR/squashfs-root/etc/acpi/*
 		
 #clean up
 echo "removing OLD $MAINSFS"
