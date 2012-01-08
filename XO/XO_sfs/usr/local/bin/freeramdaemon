@@ -81,9 +81,9 @@ if [[ "$CB0" = "true" ]];then exit
 fi
 while true;do
 #setup vars
-TOTALAVAILRAM=`free|grep -w 'Total'|awk '{print $2}'` #includes swap if existing
-USEDAVAILRAM=`free|grep -w 'Total'|awk '{print $3}'` 
-FREEAVAILRAM=`free|grep -w 'Total'|awk '{print $4}'` 
+TOTALAVAILRAM=`free|grep -w '[t,T]otal'|awk '{print $2}'` #includes swap if existing
+USEDAVAILRAM=`free|grep -w '[t,T]otal'|awk '{print $3}'` 
+FREEAVAILRAM=`free|grep -w '[t,T]otal'|awk '{print $4}'` 
 
 #FACTOR=`echo $(($FREEAVAILRAM * 100))`
 #FREEAVAILRAMPERCENT=`echo $(($FACTOR/$TOTALAVAILRAM))`
