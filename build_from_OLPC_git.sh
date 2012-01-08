@@ -473,7 +473,7 @@ case $1 in
 -v|--version) echo "$VER" && exit 0 ;;
 -xh|--extended-help) echo "Coming soon..." 
 					xoolpcfunc && exit 0 ;;	
--d|--download) dnld_kbd	&& dnld_powerd && dnld_utils && dnld_chrome ;;
+-d|--download) dnld_kbd	&& dnld_powerd && dnld_chrome ;;
 -g|--get) get_binaries && finished ;;
 -s|--pets) get_pets && finished ;;
 -b|--build) dnld_kbd && dnld_powerd && dnld_chrome
