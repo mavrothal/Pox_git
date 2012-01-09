@@ -237,7 +237,6 @@ rm -f $SFS
 
 # Include extra pets in the build 
 # Do it early in case pets have unneeded components
-# Ugly, but will do for distro independent
 extra_pets=$XODIR/extra_pets
 if [ ! -f $extra_pets/*.pet ] ; then
 	echo -e "\\0033[1;34m"
@@ -252,12 +251,30 @@ if [ ! -f $extra_pets/*.pet ] ; then
 			echo "The following pets were included in the build" >> $CWD/build.log
 			cd $extra_pets
 			for p in ./* 
-			do 
+				do 
 				PNAME=`echo $p | sed 's/\.pet//'`
 				tar xzf $p 2>/dev/null 
 				cd $PNAME
 				rm -f *.sh *.spec* 2>/dev/null
-				find . | sed 's/^.//' > $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME	
+				find . > /tmp/$PNAME.files
+				PREVPATH=''
+				cat /tmp/$PNAME.files |
+				while read ONELINE
+				do
+				if [ -d "${ONELINE}" ] ; then
+					PREVPATH="$ONELINE"
+					echo "$ONELINE" >> $SQDIR/squashfs-root/root/.packages/builtin_files/"$PNAME"
+				else
+					NEWPATH="`dirname "$ONELINE"`"
+					[ "$NEWPATH" == "/" ] && continue #ignore top-level files.
+					NEWFILE="`basename "$ONELINE"`"
+					if [ -e "${ONELINE}" ] ; then #sanity check.
+						if [ "$PREVPATH" == "$NEWPATH" ] ; then #sanity check.
+							echo " ${NEWFILE}" >> $SQDIR/squashfs-root/root/.packages/builtin_files/"$PNAME"
+						fi
+					fi
+				fi
+				done					
 				cp -aR * $SQDIR/squashfs-root/
 				if [ $? -ne 0 ]; then
 					echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
@@ -266,6 +283,8 @@ if [ ! -f $extra_pets/*.pet ] ; then
 				fi
 				cd $extra_pets 
 				rm -rf $PNAME
+				rm -f /tmp/"$PNAME".files
+				sed -i 's/^\.//' $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME
 			done
 		fi
 else
@@ -273,12 +292,30 @@ else
 	echo "The following pets were included in the build" >> $CWD/build.log
 	cd $extra_pets
 	for p in ./* 
-	do 
+		do 
 		PNAME=`echo $p | sed 's/\.pet//'`
 		tar xzf $p 2>/dev/null 
 		cd $PNAME
 		rm -f *.sh *.spec* 2>/dev/null
-		find . | sed 's/^.//' > $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME	
+		find . > /tmp/$PNAME.files
+		PREVPATH=''
+		cat /tmp/$PNAME.files |
+		while read ONELINE
+		do
+		if [ -d "${ONELINE}" ] ; then
+			PREVPATH="$ONELINE"
+			echo "$ONELINE" >> $SQDIR/squashfs-root/root/.packages/builtin_files/"$PNAME"
+		else
+			NEWPATH="`dirname "$ONELINE"`"
+			[ "$NEWPATH" == "/" ] && continue #ignore top-level files.
+			NEWFILE="`basename "$ONELINE"`"
+			if [ -e "${ONELINE}" ] ; then #sanity check.
+				if [ "$PREVPATH" == "$NEWPATH" ] ; then #sanity check.
+					echo " ${NEWFILE}" >> $SQDIR/squashfs-root/root/.packages/builtin_files/"$PNAME"
+				fi
+			fi
+		fi
+		done					
 		cp -aR * $SQDIR/squashfs-root/
 		if [ $? -ne 0 ]; then
 			echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
@@ -287,6 +324,8 @@ else
 		fi
 		cd $extra_pets 
 		rm -rf $PNAME
+		rm -f /tmp/"$PNAME".files
+		sed -i 's/^\.//' $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME
 	done
 fi
 
@@ -574,7 +613,7 @@ else
 fi
 
 # Saluki has /etc/acpi that may interfere with PM
-$SQDIR/squashfs-root/etc/acpi/*
+rm -rf $SQDIR/squashfs-root/etc/acpi/*
 		
 #clean up
 echo "removing OLD $MAINSFS"
