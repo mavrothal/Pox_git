@@ -492,6 +492,12 @@ EOF
 sed -i 's/font-size: 12px !important;/font-size: 16px !important;/' \
  $SQDIR/squashfs-root/root/.mozilla/{seamonkey,firefox}/*.default/chrome/userChrome.css
 
+# Fix font size for XFCE4 (Saluki 006+)
+sed -i 's/Sans 10/Sans 7/' \
+ $SQDIR/squashfs-root/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+sed -i 's/Bold 9/Bold 7/' \
+ $SQDIR/squashfs-root/root/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
+
 statusfunc 0
 #remove packages #technosaurus #added 110826 01micko
 
