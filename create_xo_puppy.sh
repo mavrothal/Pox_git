@@ -613,7 +613,7 @@ else
 fi
 
 # Saluki has /etc/acpi that may interfere with PM
-rm -rf $SQDIR/squashfs-root/etc/acpi/*
+#rm -rf $SQDIR/squashfs-root/etc/acpi/*
 		
 #clean up
 echo "removing OLD $MAINSFS"
