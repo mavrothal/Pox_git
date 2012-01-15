@@ -493,11 +493,11 @@ sed -i 's/font-size: 12px !important;/font-size: 16px !important;/' \
  $SQDIR/squashfs-root/root/.mozilla/{seamonkey,firefox}/*.default/chrome/userChrome.css
 
 # Fix font size for XFCE4 (Saluki 006+)
-sed -i 's/<property name="DPI" type="empty"\/>/<property name="DPI" type="int" value="150"\/>/' $SQDIR/squashfs-root/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+sed -i 's/<property name="DPI" type="empty"\/>/<property name="DPI" type="int" value="140"\/>/' $SQDIR/squashfs-root/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 sed -i 's/<\/channel>//' $SQDIR/squashfs-root/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 cat << EOF >> $SQDIR/squashfs-root/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
   <property name="Xfce" type="empty">
-    <property name="LastCustomDPI" type="int" value="150"/>
+    <property name="LastCustomDPI" type="int" value="140"/>
   </property>
 </channel>
 EOF
