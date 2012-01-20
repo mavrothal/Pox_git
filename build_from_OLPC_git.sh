@@ -222,7 +222,7 @@ bld_kbd()
 	cd $XO_sources/olpc-kbdshim
 	git reset --hard HEAD
 	# feeze to version 19 for now
-	git checkout cf77c1b19fa002b309cc9ccb8a3dc16ef35ef687
+	# git checkout cf77c1b19fa002b309cc9ccb8a3dc16ef35ef687
 	make clean
 	make olpc-kbdshim-udev
 	if [ $? -ne 0 ]; then
@@ -256,7 +256,7 @@ bld_powerd()
 	cd $XO_sources/powerd
 	git reset --hard HEAD
 	# Feeze to v 33 for now
-	git checkout 6a01e60feed4fd7c3ddb5b4d3c33f736eb947e7e
+	# git checkout 6a01e60feed4fd7c3ddb5b4d3c33f736eb947e7e
 	make clean
 	make olpc-switchd
 	if [ $? -ne 0 ]; then
