@@ -81,29 +81,29 @@ if [[ "$CB0" = "true" ]];then exit
 fi
 while true;do
 #setup vars
-TOTALAVAILRAM=`free|grep -w '[t,T]otal'|awk '{print $2}'` #includes swap if existing
-USEDAVAILRAM=`free|grep -w '[t,T]otal'|awk '{print $3}'` 
-FREEAVAILRAM=`free|grep -w '[t,T]otal'|awk '{print $4}'` 
+#TOTALAVAILRAM=`free|grep -w '[t,T]otal'|awk '{print $2}'` #includes swap if existing
+#USEDAVAILRAM=`free|grep -w '[t,T]otal'|awk '{print $3}'` 
+FREEAVAILRAM=`free | awk '/[m,M]em:/ {print $4}'`
+FREEAVAILSWAP=`free | awk 'END {print $4}'` 
 
 #FACTOR=`echo $(($FREEAVAILRAM * 100))`
 #FREEAVAILRAMPERCENT=`echo $(($FACTOR/$TOTALAVAILRAM))`
 FREEAVAILRAMMEG=`echo $(($FREEAVAILRAM/1024))`
+FREEAVAILSWAPMEG=`echo $(($FREEAVAILSWAP/1024))`
 
 # echo $FREEAVAILRAMMEG # Mick said to coment out
 
-if [[ $FREEAVAILRAMMEG -le 32 && $FREEAVAILRAMMEG -gt 8 ]];then MISSION="warning"
-	elif [[ $FREEAVAILRAMMEG -le 8 ]];then MISSION="critical"
+if [[ $FREEAVAILRAMMEG -le 32 && $FREEAVAILRAMMEG -gt 8 && $FREEAVAILSWAPMEG -le 32 ]];then MISSION="warning"
+	elif [[ $FREEAVAILRAMMEG -le 8 && $FREEAVAILSWAPMEG -le 16 ]];then MISSION="critical"
 	else MISSION="coolbananas"
 fi
-
-# echo $MISSION # Mick said to coment out
 
 sleep 10
 
 	case $MISSION in
 	#60)my test
 	warning)	FREERAMWARNINGRUNNING=`pidof freeramwarning`
-	        if [ [ "$FREERAMWARNINGRUNNING" = "" ]];then 
+	        if [[ "$FREERAMWARNINGRUNNING" = "" ]];then 
 	        killall freeramcritical 2>/dev/null
 	        freeramwarning &
 	        fi
