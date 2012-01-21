@@ -491,6 +491,17 @@ EOF
 # Fix menu font size, in Seamonkey/Firefox
 sed -i 's/font-size: 12px !important;/font-size: 16px !important;/' \
  $SQDIR/squashfs-root/root/.mozilla/{seamonkey,firefox}/*.default/chrome/userChrome.css
+ 
+# Fix JWM window tittle hight
+sed -i 's/Height>[0-9][0-9]/Height>30/' $SQDIR/squashfs-root/root/.jwm/jwmrc-theme 
+sed -i 's/Height>[0-9][0-9]/Height>30/' $SQDIR/squashfs-root/root/.jwmrc
+sed -i 's/Height>[0-9][0-9]/Height>30/' $SQDIR/squashfs-root/etc/xdg/templates/_root_.jwmrc
+sed -i 's/WINDOWHEIGHT="[0-9][0-9]"/WINDOWHEIGHT="30"/' $SQDIR/squashfs-root/etc/JWMRC
+sed -i 's/WINDOWHEIGHT="[0-9][0-9]"/WINDOWHEIGHT="30"/' $SQDIR/squashfs-root/root/.jwm/JWMRC
+for i in $SQDIR/squashfs-root/root/.jwm/themes/*-jwmrc 
+	do 
+		sed -i 's/Height>[0-9][0-9]/Height>30/' $i  
+	done
 
 # Fix font size for XFCE4 (Saluki 006+)
 sed -i 's/<property name="DPI" type="empty"\/>/<property name="DPI" type="int" value="140"\/>/' $SQDIR/squashfs-root/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
