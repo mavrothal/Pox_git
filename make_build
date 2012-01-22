@@ -110,6 +110,10 @@ cp -aR $NOWDIR/*Pox_git*/XO/extra_pets .
 cp -aR $NOWDIR/*Pox_git*/XO/XO_initrd/* .
 cp -aR $NOWDIR/*Pox_git*/XO/XO_kernel_patches .
 chmod 755 *.sh
+sync
+# and remove the .gitignore files
+rm -f $WDIR/extra_pets/.gitignore
+rm -f $WDIR/XO_sfs/.*/.gitignore
 }
 export -f prepare
 
