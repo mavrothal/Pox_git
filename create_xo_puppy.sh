@@ -251,18 +251,19 @@ do echo "unsquashing $SFS"
 	sync
 done
 
-
 # Combine the SFSs in squashfs-root
-echo "Mersging the SFSs. May take some time..."
-for FILES in *.sfs.root 
+echo "Merging the SFSs. May take some time..."
+ls | grep ".sfs.root" | tac > /tmp/DIRS
+MERGE="`cat /tmp/DIRS`"
+for LINE in $MERGE 
 do 
-	cp -aR --remove-destination $FILES/* $SFSROOT/
+	cp -aR --remove-destination $LINE/* $SFSROOT/
 	sync
-	echo "$FILES was merged"
-	rm -rf $FILES
+	echo "$LINE was merged"
+	rm -rf $LINE
 	sync
 done
-
+rm /tmp/DIRS
 
 # Include extra pets in the build 
 # Do it early in case pets have unneeded components
