@@ -19,7 +19,7 @@ export -f xoolpcfunc
 xoolpcfunc
 
 #version
-VER=0.9
+VER=1.0
 
 #workdir
 PWD="`pwd`"
@@ -175,10 +175,13 @@ statusfunc $EXIT
 
 #set vars
 XODIR="$CWD"
-[ ! -d $XODIR/squashdir ] && mkdir $XODIR/squashdir
+[ ! -d $XODIR/squashdir/squashfs-root ] && mkdir -p $XODIR/squashdir/squashfs-root
+[ ! -d $XODIR/isos ] && mkdir $XODIR/isos
 SQDIR="$XODIR/squashdir"
+SFSROOT="$SQDIR/squashfs-root"
 INITDIR="$XODIR"
 XOSFS="$XODIR/XO_sfs"
+ISOFILES="$XODIR/isos"
 MNTDIR=""
 
 #==============================================================================
@@ -195,45 +198,71 @@ if [ "$ISOPATH" != "" ];then
 	echo "looking for sfs files in iso"
 	ls|grep "sfs$" >/dev/null 2>&1
 	statusfunc $?
-	SFSTHERE="`ls|grep "sfs$"`"
-	if [ "`echo $SFSTHERE|grep "^z"`" != "" ];then
+	cp * $ISOFILES
+	sync
+	cd $ISOFILES
+	umount $MNTDIR #$ISOPATH
+	rm -rf $MNTDIR	
+	SFSTHERE=`ls|grep "sfs$"`
+	ZSFS=`echo $SFSTHERE|grep "zdrv"`
+	if [ "$ZSFS" != "" ];then
+		echo -e "\\0033[1;34m"
 		echo  "a zdrv is present, you can manually search it"
 		echo  "for stuff needed or delete it. Hit \"d\" to delete"
 		echo  "and enter or just \"enter\" to continue"
+		echo -en "\\0033[0;39m"
 		read ZDEL
 		[ "$ZDEL" = "d" ] && rm -f z*.sfs #why do we keep it?
 	fi
-	cp -af *sfs ../
-	cp -af initrd* ../
+	ASFS=`echo $SFSTHERE|grep "adrv"`
+	if [ "$ASFS" != "" ];then
+		echo -e "\\0033[1;34m"
+		echo  "a adrv is present, you can manually search it"
+		echo  "for stuff needed or delete it. Hit \"d\" to delete"
+		echo  "and enter or just \"enter\" to continue"
+		echo -en "\\0033[0;39m"
+		read ADEL
+		[ "$ADEL" = "d" ] && rm -f a*.sfs
+	fi
+	mv -f *.sfs $SQDIR
+	mv -f initrd* $INITDIR
 	cd ..
-	umount $MNTDIR #$ISOPATH
-	sync
-	rm -rf $MNTDIR
+	rm -rf $ISOFILES
 	sync
 fi
-
-#at this stage we should have the main sfs, the zdrv, if existing, and initrd.gz
-#put stuff where it's supposed to go
-#main sfs
-mv -f *.sfs $SQDIR
-mv -f initrd* $INITDIR
 
 #==============================================================================
 #mod main sfs
-NUMBER="`ls $SQDIR|wc -l`"
-if [ "$NUMBER" -gt "2" ];then echo "Something is wrong! $NUMBER sfs files"
-	echo "Too many, should be 1 or 2 .. aborting..." && statusfunc 1
+NUMBER="`ls $SQDIR/*.sfs|wc -l`"
+if [ "$NUMBER" -gt "3" ];then echo "Something is wrong! $NUMBER sfs files"
+	echo "Should not be more than 3 ... aborting..." && statusfunc 1
 fi
-MAINSFS="`ls $SQDIR|grep -v "^z"`"
+
+MAINSFS="`ls $SQDIR|grep "sfs$" | grep -v "^z"|grep -v "^a"`"
+
 cd $SQDIR
 for SFS in *.sfs
-do unsquashfs $SFS
- 	echo "unsquashing $SFS"
+do echo "unsquashing $SFS"
+	unsquashfs -d $SFS.root $SFS	
  	statusfunc $?||break #should unpack everything to squashfs-root, exit on fail
  	sync
+ 	statusfunc 0 && echo "decompressed $SFS successful"
+	rm -f $SFS
+	sync
 done
-echo "decompressing $SFS successful" && statusfunc 0
-rm -f $SFS
+
+
+# Combine the SFSs in squashfs-root
+echo "Mersging the SFSs. May take some time..."
+for FILES in *.sfs.root 
+do 
+	cp -aR --remove-destination $FILES/* $SFSROOT/
+	sync
+	echo "$FILES was merged"
+	rm -rf $FILES
+	sync
+done
+
 
 # Include extra pets in the build 
 # Do it early in case pets have unneeded components
@@ -263,19 +292,19 @@ if [ ! -f $extra_pets/*.pet ] ; then
 				do
 				if [ -d "${ONELINE}" ] ; then
 					PREVPATH="$ONELINE"
-					echo "$ONELINE" >> $SQDIR/squashfs-root/root/.packages/builtin_files/"$PNAME"
+					echo "$ONELINE" >> $SFSROOT/root/.packages/builtin_files/"$PNAME"
 				else
 					NEWPATH="`dirname "$ONELINE"`"
 					[ "$NEWPATH" == "/" ] && continue #ignore top-level files.
 					NEWFILE="`basename "$ONELINE"`"
 					if [ -e "${ONELINE}" ] ; then #sanity check.
 						if [ "$PREVPATH" == "$NEWPATH" ] ; then #sanity check.
-							echo " ${NEWFILE}" >> $SQDIR/squashfs-root/root/.packages/builtin_files/"$PNAME"
+							echo " ${NEWFILE}" >> $SFSROOT/root/.packages/builtin_files/"$PNAME"
 						fi
 					fi
 				fi
 				done					
-				cp -aR * $SQDIR/squashfs-root/
+				cp -aR * $SFSROOT
 				if [ $? -ne 0 ]; then
 					echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				else
@@ -284,7 +313,7 @@ if [ ! -f $extra_pets/*.pet ] ; then
 				cd $extra_pets 
 				rm -rf $PNAME
 				rm -f /tmp/"$PNAME".files
-				sed -i 's/^\.//' $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME
+				sed -i 's/^\.//' $SFSROOT/root/.packages/builtin_files/$PNAME
 			done
 		fi
 else
@@ -304,19 +333,19 @@ else
 		do
 		if [ -d "${ONELINE}" ] ; then
 			PREVPATH="$ONELINE"
-			echo "$ONELINE" >> $SQDIR/squashfs-root/root/.packages/builtin_files/"$PNAME"
+			echo "$ONELINE" >> $SFSROOT/root/.packages/builtin_files/"$PNAME"
 		else
 			NEWPATH="`dirname "$ONELINE"`"
 			[ "$NEWPATH" == "/" ] && continue #ignore top-level files.
 			NEWFILE="`basename "$ONELINE"`"
 			if [ -e "${ONELINE}" ] ; then #sanity check.
 				if [ "$PREVPATH" == "$NEWPATH" ] ; then #sanity check.
-					echo " ${NEWFILE}" >> $SQDIR/squashfs-root/root/.packages/builtin_files/"$PNAME"
+					echo " ${NEWFILE}" >> $SFSROOT/root/.packages/builtin_files/"$PNAME"
 				fi
 			fi
 		fi
 		done					
-		cp -aR * $SQDIR/squashfs-root/
+		cp -aR * $SFSROOT
 		if [ $? -ne 0 ]; then
 			echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		else
@@ -325,53 +354,54 @@ else
 		cd $extra_pets 
 		rm -rf $PNAME
 		rm -f /tmp/"$PNAME".files
-		sed -i 's/^\.//' $SQDIR/squashfs-root/root/.packages/builtin_files/$PNAME
+		sed -i 's/^\.//' $SFSROOT/root/.packages/builtin_files/$PNAME
 	done
 fi
 
 cd $SQDIR
 #delete old kernel
-rm -rf squashfs-root/lib/modules/* 
+rm -rf $SFSROOT/lib/modules/* 
 echo "deleting old kernel"
 #delete not needed firmware
-rm -rf squashfs-root/lib/firmware/* 
+rm -rf $SFSROOT/lib/firmware/* 
 echo "deleting not needed firmware"
 
-. squashfs-root/etc/DISTRO_SPECS
+. $SFSROOT/etc/DISTRO_SPECS
 echo "removing unneeded xorg drivers"
+
 #sort video drivers
 #We can compile more drivers for separate distro and store in
 #drake, wary, squezze, lupu whatever dir
 case "$DISTRO_FILE_PREFIX" in
-wary|racy|luki)   XORGDIR="squashfs-root/usr/X11R7/lib/xorg/modules/drivers" 
-		XORGLIBDIR="squashfs-root/usr/X11R7/lib/"	
+wary|racy|luki)   XORGDIR="$SFSROOT/usr/X11R7/lib/xorg/modules/drivers" 
+		XORGLIBDIR="$SFSROOT/usr/X11R7/lib/"	
 		cp -af $XODIR/{wary,racy,luki}/xorg/modules/drivers/* \
-		squashfs-root/usr/X11R7/lib/xorg/modules/drivers/
+		$SFSROOT/usr/X11R7/lib/xorg/modules/drivers/
 		;; 
-slacko|spup) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
-		XORGLIBDIR="squashfs-root/usr/lib/"
+slacko|spup) XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
+		XORGLIBDIR="$SFSROOT/usr/lib/"
 		cp -af $XODIR/{slacko,spup}/xorg/modules/drivers/* \
-		squashfs-root/usr/lib/xorg/modules/drivers/ 
+		$SFSROOT/usr/lib/xorg/modules/drivers/ 
 		;;
-lupu|luci) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
-		XORGLIBDIR="squashfs-root/usr/lib/"
+lupu|luci) XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
+		XORGLIBDIR="$SFSROOT/usr/lib/"
 		cp -af $XODIR/{lupu,luci}/xorg/modules/drivers/* \
-		squashfs-root/usr/lib/xorg/modules/drivers/ 
+		$SFSROOT/usr/lib/xorg/modules/drivers/ 
 		;;	
-drake) XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
-		XORGLIBDIR="squashfs-root/usr/lib/"
+drake) XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
+		XORGLIBDIR="$SFSROOT/usr/lib/"
 		echo "At time of writing, drake has issues on XO hardware"
 		cp -af $XODIR/drake/xorg/modules/drivers/* \
-		squashfs-root/usr/lib/xorg/modules/drivers/ 
+		$SFSROOT/usr/lib/xorg/modules/drivers/ 
 		;;
 squeeze|dpup|squeezed|next|guydog) 
-		XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers"
-		XORGLIBDIR="squashfs-root/usr/lib/"
+		XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
+		XORGLIBDIR="$SFSROOT/usr/lib/"
 		cp -af $XODIR/{squeeze,dpup,squeezed,next,guydog}/xorg/modules/drivers/* \
-		squashfs-root/usr/lib/xorg/modules/drivers/ 
+		$SFSROOT/usr/lib/xorg/modules/drivers/ 
 		;;		
-*)		XORGDIR="squashfs-root/usr/lib/xorg/modules/drivers" 
-		XORGLIBDIR="squashfs-root/usr/lib/"
+*)		XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers" 
+		XORGLIBDIR="$SFSROOT/usr/lib/"
 		;; #maybe this kinda works?
 esac
 
@@ -385,8 +415,8 @@ do
  	echo "removing $drv"
 done
 #some puppies have additonal drivers elsewhere
-rm -rf squashfs-root/usr/lib/xorg/modules/drivers-*
-rm -rf squashfs-root/usr/lib/x/*
+rm -rf $SFSROOT/usr/lib/xorg/modules/drivers-*
+rm -rf $SFSROOT/usr/lib/x/*
 
 echo "removing other useless stuff for XO..."
 # remove extra video stuff
@@ -398,7 +428,7 @@ do
 done
 #remove puppy scripts
 echo "unneeded puppy scripts..." 
-cd squashfs-root 
+cd $SFSROOT 
 for s in $WOOFSCRIPTS
 do  
 	echo "removing $s"
@@ -483,30 +513,30 @@ fi
 
 #Add support for the XO internal drives in fstab
 echo "Adjusting /etc/fstab for XO internal drives..."
-cat << EOF >> $SQDIR/squashfs-root/etc/fstab
+cat << EOF >> $SFSROOT/etc/fstab
 /dev/mtdblock0		/.xo-nand	jffs2	defaults,noauto	  0 0
 /dev/mmcblk1p2		/.intSD	    ext4	defaults,noauto	  0 0
 EOF
 
 # Fix menu font size, in Seamonkey/Firefox
 sed -i 's/font-size: 12px !important;/font-size: 16px !important;/' \
- $SQDIR/squashfs-root/root/.mozilla/{seamonkey,firefox}/*.default/chrome/userChrome.css
+ $SFSROOT/root/.mozilla/{seamonkey,firefox}/*.default/chrome/userChrome.css
  
 # Fix JWM window tittle hight
-sed -i 's/Height>[0-9][0-9]/Height>30/' $SQDIR/squashfs-root/root/.jwm/jwmrc-theme 
-sed -i 's/Height>[0-9][0-9]/Height>30/' $SQDIR/squashfs-root/root/.jwmrc
-sed -i 's/Height>[0-9][0-9]/Height>30/' $SQDIR/squashfs-root/etc/xdg/templates/_root_.jwmrc
-sed -i 's/WINDOWHEIGHT="[0-9][0-9]"/WINDOWHEIGHT="30"/' $SQDIR/squashfs-root/etc/JWMRC
-sed -i 's/WINDOWHEIGHT="[0-9][0-9]"/WINDOWHEIGHT="30"/' $SQDIR/squashfs-root/root/.jwm/JWMRC
-for i in $SQDIR/squashfs-root/root/.jwm/themes/*-jwmrc 
+sed -i 's/Height>[0-9][0-9]/Height>30/' $SFSROOT/root/.jwm/jwmrc-theme 
+sed -i 's/Height>[0-9][0-9]/Height>30/' $SFSROOT/root/.jwmrc
+sed -i 's/Height>[0-9][0-9]/Height>30/' $SFSROOT/etc/xdg/templates/_root_.jwmrc
+sed -i 's/WINDOWHEIGHT="[0-9][0-9]"/WINDOWHEIGHT="30"/' $SFSROOT/etc/JWMRC
+sed -i 's/WINDOWHEIGHT="[0-9][0-9]"/WINDOWHEIGHT="30"/' $SFSROOT/root/.jwm/JWMRC
+for i in $SFSROOT/root/.jwm/themes/*-jwmrc 
 	do 
 		sed -i 's/Height>[0-9][0-9]/Height>30/' $i  
 	done
 
 # Fix font size for XFCE4 (Saluki 006+)
-sed -i 's/<property name="DPI" type="empty"\/>/<property name="DPI" type="int" value="140"\/>/' $SQDIR/squashfs-root/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
-sed -i 's/<\/channel>//' $SQDIR/squashfs-root/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
-cat << EOF >> $SQDIR/squashfs-root/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+sed -i 's/<property name="DPI" type="empty"\/>/<property name="DPI" type="int" value="140"\/>/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+sed -i 's/<\/channel>//' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+cat << EOF >> $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
   <property name="Xfce" type="empty">
     <property name="LastCustomDPI" type="int" value="140"/>
   </property>
@@ -514,22 +544,11 @@ cat << EOF >> $SQDIR/squashfs-root/root/.config/xfce4/xfconf/xfce-perchannel-xml
 EOF
 
 statusfunc 0
-#remove packages #technosaurus #added 110826 01micko
-
-
-#D=$HOME/.packages/builtin_files #this comment will be removed for tidiness 
-#PKGS=`ls -1 $D`
-#PKG=`Xdialog --stdout --combobox "select package to remove" 0 0 $PKGS`
-#[ $PKG ] && Xdialog --yesno "Reverse dependencies:
-#`cat $HOME/.packages/woof-installed-packages |grep +$PKG |cut -d "|" -f2`
-
-#Continue?" 0 0 && [ $? ] && for x in `cat $D/$PKG`; do [ -d $x ] && cd $x || rm $x; done && rm $D/$PKG && $0
-#left comment here for now to see the logic :)
 
 echo "The following buildin packages have been removed from the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 for i in $PACKAGES_REM
 	do 
-	D="$SQDIR/squashfs-root/root/.packages/builtin_files"
+	D="$SFSROOT/root/.packages/builtin_files"
 	PKG=$i
 	FILES="`cat $D/$PKG`"
 	if [ -f $D/$PKG ] ; then
@@ -538,20 +557,20 @@ for i in $PACKAGES_REM
 			do
 			if [ "`echo $LINE|head -c1`" = "/" ];then
 				x=`echo $LINE|sed 's%^\/%%'`
-				cd $SQDIR/squashfs-root/$x
+				cd $SFSROOT/$x
 			else
 				x="$LINE"
 				rm $x
 			fi
 			done
 			#fix root/.packages/woof-installed-packages
-		grep -v "$PKG" $SQDIR/squashfs-root/root/.packages/woof-installed-packages| \
+		grep -v "$PKG" $SFSROOT/root/.packages/woof-installed-packages| \
 			while read LINE
 				do 
-				echo $LINE >> $SQDIR/squashfs-root/root/.packages/woof-installed-packages.tmp
+				echo $LINE >> $SFSROOT/root/.packages/woof-installed-packages.tmp
 				done
-		mv -f $SQDIR/squashfs-root/root/.packages/woof-installed-packages.tmp \
-			$SQDIR/squashfs-root/root/.packages/woof-installed-packages		 
+		mv -f $SFSROOT/root/.packages/woof-installed-packages.tmp \
+			$SFSROOT/root/.packages/woof-installed-packages		 
 		rm $D/$PKG 
 		if [ $? -ne 0 ]; then
 			echo "Failed to remove $PKG from the build." >> $CWD/build.log
@@ -576,7 +595,7 @@ if [ "$CONTINUE" = "m" ];then
 	mkdir -p $SQDIR/extras
 	for i in $PACKAGES_MOVE
 		do 
-		D="$SQDIR/squashfs-root/root/.packages/builtin_files"
+		D="$SFSROOT/root/.packages/builtin_files"
 		PKG=$i
 		FILES="`cat $D/$PKG`"
 		if [ -f $D/$PKG ] ; then
@@ -587,20 +606,20 @@ if [ "$CONTINUE" = "m" ];then
 					mkdir -p $SQDIR/extras"$LINE"
 					MOVEPATH=$SQDIR/extras"$LINE"/
 					x=`echo $LINE|sed 's%^\/%%'`
-					cd $SQDIR/squashfs-root/$x
+					cd $$SFSROOT/$x
 				else
 					x="$LINE"
 					mv $x $MOVEPATH
 				fi
 				done
 			#fix root/.packages/woof-installed-packages
-			grep -v "$PKG" $SQDIR/squashfs-root/root/.packages/woof-installed-packages| \
+			grep -v "$PKG" $SFSROOT/root/.packages/woof-installed-packages| \
 				while read LINE
 					do 
-					echo $LINE >> $SQDIR/squashfs-root/root/.packages/woof-installed-packages.tmp
+					echo $LINE >> $SFSROOT/root/.packages/woof-installed-packages.tmp
 					done
-			mv -f $SQDIR/squashfs-root/root/.packages/woof-installed-packages.tmp \
-				$SQDIR/squashfs-root/root/.packages/woof-installed-packages		 
+			mv -f $SFSROOT/root/.packages/woof-installed-packages.tmp \
+				$SFSROOT/root/.packages/woof-installed-packages		 
 			rm $D/$PKG
 			if [ $? -ne 0 ]; then
 				echo "Failed to move $PKG into extras.sfs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
@@ -613,34 +632,20 @@ if [ "$CONTINUE" = "m" ];then
 
 	cd $SQDIR
 	
-	if [ ! -f $SQDIR/squashfs-root/usr/bin/geany ] ; then
-		if [ -f $SQDIR/squashfs-root/usr/bin/leafpad ] ; then
-			sed -i 's/geany/leafpad/' $SQDIR/squashfs-root/usr/local/bin/defaulttexteditor
+	if [ ! -f $SFSROOT/usr/bin/geany ] ; then
+		if [ -f $SFSROOT/usr/bin/leafpad ] ; then
+			sed -i 's/geany/leafpad/' $SFSROOT/usr/local/bin/defaulttexteditor
 		else
-			sed -i 's/geany/nicoedit/' $SQDIR/squashfs-root/usr/local/bin/defaulttexteditor
+			sed -i 's/geany/nicoedit/' $SFSROOT/usr/local/bin/defaulttexteditor
 		fi
 	fi
-	
-#	cat << EOF > $SQDIR/squashfs-root/usr/local/bin/install_extras
-##!/bin/sh
-#gtkdialog-splash -fontsize large -bg hotpink -icon gtk-dialog-error -close box -timeout 15 -text "Please, load the \"extras.sfs\" to use this program" &
-#EOF
-#	chmod 755 $SQDIR/squashfs-root/usr/local/bin/install_extras	
-
-#	statusfunc $?
 else
 	echo "Nothing moved out of the main sfs"
 	echo "Nothing was moved into the extras.sfs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
 
-# Saluki has /etc/acpi that may interfere with PM
-#rm -rf $SQDIR/squashfs-root/etc/acpi/*
-		
-#clean up
-echo "removing OLD $MAINSFS"
-sleep 2
-rm -f $MAINSFS
-cd squashfs-root
+
+cd $SFSROOT
 
 # Fix permissions for fido
 chmod -R 777 tmp
@@ -653,10 +658,10 @@ statusfunc $?
 cd $SQDIR
 sync
 echo "now compressing the NEW $MAINSFS..."
-mksquashfs squashfs-root "$MAINSFS"
+mksquashfs squashfs-root/ "$MAINSFS"
 statusfunc $?
 echo "removing expanded filesystem"
-rm -rf squashfs-root 
+rm -rf $SFSROOT 
 sync
 statusfunc $?
 
