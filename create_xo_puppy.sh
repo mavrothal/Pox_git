@@ -176,12 +176,10 @@ statusfunc $EXIT
 #set vars
 XODIR="$CWD"
 [ ! -d $XODIR/squashdir/squashfs-root ] && mkdir -p $XODIR/squashdir/squashfs-root
-[ ! -d $XODIR/isos ] && mkdir $XODIR/isos
 SQDIR="$XODIR/squashdir"
 SFSROOT="$SQDIR/squashfs-root"
 INITDIR="$XODIR"
 XOSFS="$XODIR/XO_sfs"
-ISOFILES="$XODIR/isos"
 MNTDIR=""
 
 #==============================================================================
@@ -198,12 +196,9 @@ if [ "$ISOPATH" != "" ];then
 	echo "looking for sfs files in iso"
 	ls|grep "sfs$" >/dev/null 2>&1
 	statusfunc $?
-	cp * $ISOFILES
-	sync
-	cd $ISOFILES
-	umount $MNTDIR #$ISOPATH
-	rm -rf $MNTDIR	
+	
 	SFSTHERE=`ls|grep "sfs$"`
+	MAINSFS="`ls $SFSTHERE|grep "sfs$" | grep -v "^z"|grep -v "^a"`"
 	ZSFS=`echo $SFSTHERE|grep "zdrv"`
 	if [ "$ZSFS" != "" ];then
 		echo -e "\\0033[1;34m"
@@ -212,7 +207,7 @@ if [ "$ISOPATH" != "" ];then
 		echo  "and enter or just \"enter\" to continue"
 		echo -en "\\0033[0;39m"
 		read ZDEL
-		[ "$ZDEL" = "d" ] && rm -f z*.sfs #why do we keep it?
+		[ "$ZDEL" != "d" ] && cp zdrv*.sfs $SQDIR #why do we keep it?
 	fi
 	ASFS=`echo $SFSTHERE|grep "adrv"`
 	if [ "$ASFS" != "" ];then
@@ -222,12 +217,14 @@ if [ "$ISOPATH" != "" ];then
 		echo  "and enter or just \"enter\" to continue"
 		echo -en "\\0033[0;39m"
 		read ADEL
-		[ "$ADEL" = "d" ] && rm -f a*.sfs
+		[ "$ADEL" != "d" ] && cp adrv*.sfs $SQDIR
 	fi
-	mv -f *.sfs $SQDIR
-	mv -f initrd* $INITDIR
+	cp $MAINSFS $SQDIR
+	cp initrd* $INITDIR
 	cd ..
-	rm -rf $ISOFILES
+	sync
+	umount $MNTDIR
+	rm -rf $MNTDIR
 	sync
 fi
 
@@ -237,8 +234,6 @@ NUMBER="`ls $SQDIR/*.sfs|wc -l`"
 if [ "$NUMBER" -gt "3" ];then echo "Something is wrong! $NUMBER sfs files"
 	echo "Should not be more than 3 ... aborting..." && statusfunc 1
 fi
-
-MAINSFS="`ls $SQDIR|grep "sfs$" | grep -v "^z"|grep -v "^a"`"
 
 cd $SQDIR
 for SFS in *.sfs
