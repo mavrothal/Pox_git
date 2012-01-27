@@ -180,6 +180,7 @@ SQDIR="$XODIR/squashdir"
 SFSROOT="$SQDIR/squashfs-root"
 INITDIR="$XODIR"
 XOSFS="$XODIR/XO_sfs"
+extra_pets="$XODIR/extra_pets"
 MNTDIR=""
 
 #==============================================================================
@@ -267,9 +268,41 @@ else
 	rm /tmp/DIRS
 fi
 
+# T2 builds do not have the full udev with extras and the synaptics 
+# driver freezes the mouse/keyboard in the XO-1.5. Get them.
+. $SFSROOT/etc/DISTRO_SPECS
+case "$DISTRO_FILE_PREFIX" in
+wary|racy|luki) 
+	if [ ! -f $extra_pets/udev_luki_racy-167-i486.pet ] ; then 
+		wget -c -P $extra_pets\
+	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/udev_luki_racy-167-i486.pet
+		if [ $? -ne 0 ]; then
+			echo "Failed to download udev.pet. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		else
+			echo "The T2 udev.pet was added in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		fi
+	else 
+		echo "The T2 udev.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
+	if [ ! -f $extra_pets/synaptics_luki.pet ] ; then  
+		wget -c -P $extra_pets \
+	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/synaptics_luki.pet
+		if [ $? -ne 0 ]; then
+			echo "Failed to download synaptics.pet. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		else
+			echo "The synaptics.pet was added in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		fi
+	else
+		echo "The synaptics.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
+	;;
+*)  
+	echo "Not a T2-based puppy"
+	;;
+esac
+
 # Include extra pets in the build 
 # Do it early in case pets have unneeded components
-extra_pets=$XODIR/extra_pets
 if [ ! -f $extra_pets/*.pet ] ; then
 	echo -e "\\0033[1;34m"
 	echo "If you want any additional pets in the build"
@@ -369,7 +402,6 @@ echo "deleting old kernel"
 rm -rf $SFSROOT/lib/firmware/* 
 echo "deleting not needed firmware"
 
-. $SFSROOT/etc/DISTRO_SPECS
 echo "removing unneeded xorg drivers"
 
 #sort video drivers
