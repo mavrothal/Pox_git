@@ -236,29 +236,36 @@ if [ "$NUMBER" -gt "3" ];then echo "Something is wrong! $NUMBER sfs files"
 fi
 
 cd $SQDIR
-for SFS in *.sfs
-do echo "unsquashing $SFS"
-	unsquashfs -d $SFS.root $SFS	
- 	statusfunc $?||break #should unpack everything to squashfs-root, exit on fail
- 	sync
- 	statusfunc 0 && echo "decompressed $SFS successful"
-	rm -f $SFS
+if [ "$NUMBER" = "1" ] ; then
+	echo "unsquashing $MAINSFS"
+	rm -rf squashfs-root
+	unsquashfs $MAINSFS
 	sync
-done
-
-# Combine the SFSs in squashfs-root
-echo "Merging the SFSs. May take some time..."
-ls | grep ".sfs.root" | tac > /tmp/DIRS
-MERGE="`cat /tmp/DIRS`"
-for LINE in $MERGE 
-do 
-	cp -aR --remove-destination $LINE/* $SFSROOT/
-	sync
-	echo "$LINE was merged"
-	rm -rf $LINE
-	sync
-done
-rm /tmp/DIRS
+	rm -f $MAINSFS
+else
+	for SFS in *.sfs
+	do echo "unsquashing $SFS"
+		unsquashfs -d $SFS.root $SFS	
+		statusfunc $?||break #should unpack everything to squashfs-root, exit on fail
+		sync
+		statusfunc 0 && echo "decompressed $SFS successful"
+		rm -f $SFS
+		sync
+	done
+	# Combine the SFSs in squashfs-root
+	echo "Merging the SFSs. May take some time..."
+	ls | grep ".sfs.root" | tac > /tmp/DIRS
+	MERGE="`cat /tmp/DIRS`"
+	for LINE in $MERGE 
+	do 
+		cp -aR --remove-destination $LINE/* $SFSROOT/
+		sync
+		echo "$LINE was merged"
+		rm -rf $LINE
+		sync
+	done
+	rm /tmp/DIRS
+fi
 
 # Include extra pets in the build 
 # Do it early in case pets have unneeded components
