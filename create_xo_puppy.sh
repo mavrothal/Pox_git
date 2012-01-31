@@ -568,6 +568,9 @@ for i in $SFSROOT/root/.jwm/themes/*-jwmrc
 		sed -i 's/Height>[0-9][0-9]/Height>30/' $i  
 	done
 
+# Fix driver spacing to fit SDcard long name
+sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/eventmanager
+
 # Fix font size for XFCE4 (Saluki 006+)
 sed -i 's/<property name="DPI" type="empty"\/>/<property name="DPI" type="int" value="140"\/>/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 sed -i 's/<\/channel>//' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
