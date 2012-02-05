@@ -581,6 +581,10 @@ cat << EOF >> $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.x
 </channel>
 EOF
 
+# Fix the suspend/hibernate calls (Saluki)
+sed -i 's/\/etc\/acpi\/hibernate\.sh/powerd-config =gotosleep/' $SFSROOT/usr/bin/shutdown-gui
+sed -i 's/\/etc\/acpi\/sleep\.sh/powerd-config =dark-suspend/' $SFSROOT/usr/bin/shutdown-gui
+
 statusfunc 0
 
 echo "The following buildin packages have been removed from the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
