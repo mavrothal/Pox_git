@@ -235,6 +235,9 @@ bld_kbd()
 	fi
 	strip -s olpc-kbdshim-udev
 	patch -p1 < $patches/olpc-rotate.patch
+	if [ $? -ne 0 ]; then
+		echo "Failed to patch olpc-rotate. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
 	cp -a --remove-destination olpc-kbdshim-udev $output/usr/sbin
 	cp -a --remove-destination olpc-rotate $output/usr/bin
 	cp -a --remove-destination olpc-volume $output/usr/bin
@@ -279,7 +282,13 @@ bld_powerd()
 	fi
 	strip -s pnmto565fb
 	patch -p1 < $patches/powerd.patch 
+	if [ $? -ne 0 ]; then
+		echo "Failed to patch powerd. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
 	patch -p1 < $patches/powerd_conf.patch
+	if [ $? -ne 0 ]; then
+		echo "Failed to patch powerd-conf. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
 	VERSION=`cat Makefile | grep ^VERSION= | cut -d "=" -f 2` 
 	echo "powerd_version='version "$VERSION"'" > version
 	cp -a --remove-destination powerd $output/usr/sbin

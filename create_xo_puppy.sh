@@ -490,12 +490,12 @@ patches="$CWD/XO_sfs_patches"
 patch -p1 < $patches/xorgwizard.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch xorgwizard. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	cp -a usr/sbin/xorgwizard.orig usr/sbin/xorgwizard
 	rm -f usr/sbin/xorgwizard.{orig,rej}
 	# some puppies have xorg-setup instead
 	patch -p1 usr/sbin/xorg-setup < $patches/xorgwizard.patch
 	if [ $? -ne 0 ]; then
 		echo "Failed to patch xorg-setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		rm -f usr/sbin/xorg-setup.{orig,rej}
 	else
 		echo "Patched xorg-setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
@@ -506,6 +506,7 @@ fi
 patch -p1 < $patches/xorg.conf0.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch xorg.conf0. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f etc/X11/xorg.conf0.{orig,rej}
 else
 	echo "Patched xorg.conf0. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
@@ -515,6 +516,7 @@ echo "patching 0setup"
 patch -p1 < $patches/0setup.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch 0setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/local/petget/0setup.{orig,rej}
 else
 	echo "Patched 0setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
@@ -524,6 +526,7 @@ echo "patching snapmergepuppy"
 patch -p1 < $patches/snapmerge.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch snapmergepuppy. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/sbin/snapmergepuppy.{orig,rej}
 else
 	echo "Patched snapmergepuppy. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
@@ -533,6 +536,7 @@ echo "patching pup_event_frontend_d"
 patch -p1 < $patches/frontend_d.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch pup_event_frontend_d. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f sbin/pup_event_frontend_d.{orig,rej}
 else
 	echo "Patched pup_event_frontend_d. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
@@ -542,6 +546,7 @@ echo "patching rc.shutdown"
 patch -p1 < $patches/rc.shutdown.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch rc.shutdown. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f etc/rc.d/rc.shutdown.{orig,rej}
 else
 	echo "Patched rc.shutdown. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
