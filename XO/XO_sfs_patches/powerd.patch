@@ -1,6 +1,6 @@
---- a/powerd	2011-08-28 17:14:50.000000000 +0000
-+++ b/powerd	2011-08-06 19:51:04.000000000 +0000
-@@ -579,8 +534,6 @@
+--- a/powerd	2012-02-22 19:39:23.000000000 +0200
++++ b/powerd	2012-02-23 20:03:05.000000000 +0200
+@@ -718,8 +718,6 @@
          set -x
          debug=1
          : @ debug begun, $powerd_version
@@ -9,7 +9,7 @@
          ;;
      off)
          if [ "$tracing" ]
-@@ -623,13 +576,6 @@
+@@ -777,13 +775,6 @@
  
  read_hwinfo()
  {
@@ -23,42 +23,38 @@
      read hwvendor < /sys/class/dmi/id/sys_vendor ||
          hwvendor="n/a"
      read hwname < /sys/class/dmi/id/product_name ||
-@@ -688,8 +634,6 @@
+@@ -845,9 +836,6 @@
  exec 1>&2   # capture stdout, too. (prevents console spew)
  
  log powerd $powerd_version startup at $(date), on XO-$XO
--log $(cat /proc/version)
--log olpc build: $(cat /boot/olpc_build)
- 
+-log $(< /proc/version)
+-log olpc build: $(< /boot/olpc_build)
+-
  
  yes_or_true()
-@@ -713,10 +713,10 @@
- fi
- 
+ {
+@@ -880,8 +868,8 @@
  # pull the (first) wlan interface name from the output of iwconfig
--# if we find none, wlan may be rfkilled, in which case choose wlan0
-+# if we find none, wlan may be rfkilled, in which case choose eth0
+ # if we find none, wlan may be rfkilled, in which case choose eth0
  WLANIFACE=$(iwconfig 2>/dev/null |
--    sed -n -e 's/^\(wlan[0-9]\+\).*/\1/p' | sed 1q)
--: ${WLANIFACE:=wlan0}
-+    sed -n -e 's/^\(eth[0-9]\+\).*/\1/p' | sed 1q)
-+: ${WLANIFACE:=eth0}
+-    sed -n -e 's/^\(eth[0-9]\+\).*/\1/p' | sed 1q)
+-: ${WLANIFACE:=eth0}
++    sed -n -e 's/^\(wlan[0-9]\+\).*/\1/p' | sed 1q)
++: ${WLANIFACE:=wlan0}
  
  
  splash()
-@@ -791,8 +735,8 @@
+@@ -933,7 +921,7 @@
      log shutting down due to $*
      leavesplash # kill the splasher (leaving splash visible)
      sleep .05s
 -    /sbin/poweroff &
--    sleep 9999999
 +    /usr/bin/wmpoweroff &
-+    sleep 9999999
+     sleep 9999999
  }
  
- #
-@@ -1316,8 +1243,6 @@
-     while :
+@@ -1575,8 +1563,6 @@
+     while : snooze loop
      do
  
 -        pwrlog_take_reading suspend
@@ -66,7 +62,7 @@
          trace until-sleep_type is $until-$sleep_type 
  
          case $until-$sleep_type in
-@@ -1454,8 +1379,6 @@
+@@ -1729,8 +1715,6 @@
          trace got wakeup: $wakeupsource @ $lastwakeup, \
                  slept $(( lastwakeup - sleep_started ))
  
@@ -75,27 +71,27 @@
          case $wakeupsource in
          "powerbutton")
              trace power button during $until
-@@ -1799,11 +1699,6 @@
- 
+@@ -2235,11 +2219,6 @@
      config_CPU_IDLE_LIMIT=10
      config_MONITOR_NETWORK_ACTIVITY=yes
--
+ 
 -    config_PWRLOG_INTERVAL=0
 -    config_PWRLOG_DIR=/home/olpc/power-logs
 -    config_PWRLOG_LOGSIZE=50            # Kbytes
 -    config_PWRLOG_LOGDIRSIZE=1000       # Kbytes
+-
+     config_AMBIENT_BRIGHT=50    # low OLS sensor trigger level, for sunshine
+     config_AMBIENT_NORMAL=80    # high trigger level, for shade or indoors
  }
- 
- read_config()
-@@ -2144,7 +2029,6 @@
- 
+@@ -2597,7 +2576,6 @@
  exit_actions()
  {
+     [ -n "$powerd_dbus_pid" ] && kill $powerd_dbus_pid
 -    pwrlog_take_reading shutdown
      set_wakeupevents none
      unsplash
      dcon thaw
-@@ -2212,8 +2096,6 @@
+@@ -2665,8 +2643,6 @@
              continue
          fi
  
@@ -104,14 +100,15 @@
          case $event in
  
          powerbutton|fake_powerbutton)
-@@ -2409,29 +2269,6 @@
+@@ -2887,30 +2863,6 @@
      done <&6  # from the fifo
  }
  
 -configure_pwrlog()
 -{
 -    if [ $config_PWRLOG_INTERVAL -gt 30 -a \
--            -s $CONFIGDIR/olpc-pwr-log.sh ]
+-            -s $CONFIGDIR/olpc-pwr-log.sh \
+-            -a -z "$no_battery" ]
 -    then
 -        pwrlog_inside_powerd=yes
 -
@@ -134,7 +131,7 @@
  netactivity_snapshot()
  {
      iptables --list netactivity --verbose --exact --numeric
-@@ -2518,10 +2353,6 @@
+@@ -3010,10 +2962,6 @@
  
  init_netactivity_tracking
  
