@@ -641,7 +641,7 @@ else
 fi
 
 #Add pmount in the tray
-patch -p1 < $patches/jwm-tray_luki.patch
+patch -p1 < $patches/jwmrc-tray_luki.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to Patch .jwmrc-tray for Saluki . $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	rm -f root/.jwmrc-tray.{orig,rej}
@@ -650,12 +650,12 @@ else
 fi
 
 # reload instead of restart JWM
-sed -i "s/jwm -restart/jwm -reload/" /usr/local/petget/installpreview.sh 
-sed -i "s/jwm -restart/jwm -reload/" /usr/local/petget/removepreview.sh  
-sed -i "s/jwm -restart/jwm -reload/" /usr/local/petget/petget 
+sed -i "s/jwm -restart/jwm -reload/" $SFSROOT/usr/local/petget/installpreview.sh 
+sed -i "s/jwm -restart/jwm -reload/" $SFSROOT/usr/local/petget/removepreview.sh  
+sed -i "s/jwm -restart/jwm -reload/" $SFSROOT/usr/local/petget/petget 
 
 # Further increase font size
-sed -i 's/108/130/' $SFSROOT/root/.Xresources
+sed -i 's/108/130/' $XOSFS/root/.Xresources
 
 # Show file/folder icons in Thunar when in JWM
 echo "patching xwin"
