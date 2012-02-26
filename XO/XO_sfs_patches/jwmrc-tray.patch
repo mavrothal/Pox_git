@@ -1,0 +1,14 @@
+--- a/root/.jwmrc-tray	2010-05-24 09:41:41.000000000 +0300
++++ b/root/.jwmrc-tray	2012-02-24 19:09:01.000000000 +0200
+@@ -34,9 +36,9 @@
+ 			freememappletshell
+ 		</Swallow> -->
+ 
+-		<Swallow name="xload" width="32">
++	<!--	<Swallow name="xload" width="32">
+ 			xload -nolabel -bg "#888888" -fg red -hl white
+-		</Swallow>
++		</Swallow> -->
+ 
+ 		<Clock format="%H:%M">minixcal</Clock>
+ 	</Tray>

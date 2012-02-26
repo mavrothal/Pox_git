@@ -1,0 +1,14 @@
+--- a/root/.jwmrc-tray	2010-05-24 09:41:41.000000000 +0300
++++ b/root/.jwmrc-tray	2012-02-26 09:06:16.146554246 +0200
+@@ -14,8 +14,10 @@
+ 		<!-- Additional TaskList attribute: maxwidth -->
+ 		<TaskList/>
+ 
++		<TrayButton popup="Mount devices" icon="/usr/share/icons/gnome/24x24/devices/gnome-dev-removable.png">exec:pmount</TrayButton>
++		
+ 		<Dock/>
+-
++		
+ 		<!-- Additional Swallow attribute: height -->
+ 
+ 	<!--	<Swallow name="blinky">

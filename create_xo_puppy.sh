@@ -295,6 +295,19 @@ wary|racy|luki)
 	else
 		echo "The synaptics.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
+	if [ "$DISTRO_FILE_PREFIX" = "luki" ] ; then
+		if [ ! -f $extra_pets/jwm-578-deco-luki-1-i486.pet ] ; then 
+			wget -c -P $extra_pets\
+	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/jwm-578-deco-luki-1-i486.pet
+			if [ $? -ne 0 ]; then
+				echo "Failed to download jwm-578-deco-luki-1-i486.pet. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			else
+				echo "The jwm-578-deco-luki-1-i486.pet was added in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			fi
+		else 
+			echo "The jwm-578-deco-luki-1-i486.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		fi
+	fi
 	;;
 *)  
 	echo "Not a T2-based puppy"
@@ -551,12 +564,23 @@ else
 	echo "Patched rc.shutdown. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
 
+# Remove xload from tray. Wastes CPU cycles
+echo "removing xload from tray"
+patch -p1 < $patches/jwmrc-tray.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f root/.jwmrc-tray.{orig,rej}
+else
+	echo "Patched jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
+
 #Add support for the XO internal drives in fstab
 echo "Adjusting /etc/fstab for XO internal drives..."
 cat << EOF >> $SFSROOT/etc/fstab
 /dev/mtdblock0		/.xo-nand	jffs2	defaults,noauto	  0 0
 /dev/mmcblk1p2		/.intSD	    ext4	defaults,noauto	  0 0
 EOF
+
 
 # Fix menu font size, in Seamonkey/Firefox
 sed -i 's/font-size: 12px !important;/font-size: 16px !important;/' \
@@ -576,6 +600,9 @@ for i in $SFSROOT/root/.jwm/themes/*-jwmrc
 # Fix driver spacing to fit SDcard long name
 sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/eventmanager
 
+# Saluki specific fixes
+case "$DISTRO_FILE_PREFIX" in
+luki)
 # Fix font size for XFCE4 (Saluki 006+)
 sed -i 's/<property name="DPI" type="empty"\/>/<property name="DPI" type="int" value="140"\/>/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 sed -i 's/<\/channel>//' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
@@ -589,6 +616,67 @@ EOF
 # Fix the suspend/hibernate calls (Saluki)
 sed -i 's/\/etc\/acpi\/hibernate\.sh/powerd-config =gotosleep/' $SFSROOT/usr/bin/shutdown-gui
 sed -i 's/\/etc\/acpi\/sleep\.sh/powerd-config =dark-suspend/' $SFSROOT/usr/bin/shutdown-gui
+
+#Add support for the XO internal drives in fstab
+cat << EOF >> $SFSROOT/etc/fstab.d/static_entries
+/dev/mtdblock0		/.xo-nand	jffs2	defaults,noauto	  0 0
+/dev/mmcblk1p2		/.intSD	    ext4	defaults,noauto	  0 0
+EOF
+
+#Fix JWM 
+echo "patching jwmrc"
+patch -p1 < $patches/jwmrc.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f root/.jwmrc.{orig,rej}
+else
+	echo "Patched jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
+patch -p1 < $patches/etc_jwmrc.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch _root_.jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f etc/xdg/templates/_root_.jwmrc.{orig,rej}
+else
+	echo "Patched _root_.jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
+
+# Further increase font size
+sed -i 's/108/130/' $SFSROOT/root/.Xresources
+
+# Show file/folder icons in Thunar when in JWM
+echo "patching xwin"
+patch -p1 < $patches/xwin.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch xwin. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/bin/xwin.{orig,rej}
+else
+	echo "Patched xwin. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
+
+#Add a second JWM tary on top
+cat << EOF > $SFSROOT/root/.jwmrc-tray2
+<JWM>
+<Tray autohide="true"  insert="right" halign="center" x="-1" y="0" border="2" height="54" layout="horizontal" >
+<!-- Additional TrayButton attribute: label -->
+<TrayButton popup="File browser" icon="home48.png">exec:Thunar</TrayButton>
+<TrayButton popup="Web Browser" icon="www48.png">exec:defaultbrowser</TrayButton>
+<TrayButton popup="Terminal" icon="xfce-terminal.png">exec:Terminal</TrayButton>
+<TrayButton popup="Geany text editor" icon="edit48.png">exec:geany</TrayButton>
+<!--TrayButton popup="PDF viewer" icon="evince.png">exec:evince</TrayButton-->
+<Program label="mtPaint image editor" icon="paint48.png">exec:mtpaint</Program>
+<TrayButton popup="XArchive archiver" icon="pupzip.png">exec:xarchive</TrayButton>
+<TrayButton popup="Puppy Package Manager" icon="pet.png">exec:/usr/local/petget/pkg_chooser.sh</TrayButton>
+<TrayButton popup="SFS-Load on-the-fly" icon="squashfs-image.png">exec:sfs_load</TrayButton>
+<TrayButton popup="Control Panel" icon="configuration24.png">exec:wizardwizard</TrayButton>
+<!--TrayButton popup="Frisbee connect to internet" icon="frisbee.png">exec:Frisbee</TrayButton-->
+<TrayButton popup="Shutdown" icon="shutdown.png">exec:shutdown-gui</TrayButton>
+</Tray>
+</JWM>
+EOF
+;;
+*) echo "Not Saluki" ;;
+esac
+
 
 statusfunc 0
 

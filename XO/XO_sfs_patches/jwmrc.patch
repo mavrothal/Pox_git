@@ -1,0 +1,41 @@
+--- a/root/.jwmrc	2012-02-22 19:40:59.000000000 +0200
++++ b/root/.jwmrc	2012-02-25 01:10:39.730000380 +0200
+@@ -77,6 +90,7 @@
+ <!-- Additional tray attributes: autohide, width, border, layer, layout -->
+ <!-- Tray definition moved to separate file: .jwmrc-tray -->
+ <Include>/root/.jwmrc-tray</Include>
++<Include>/root/.jwmrc-tray2</Include>
+ 
+ <!-- Visual Styles -->
+ 
+@@ -139,6 +153,8 @@
+ <IconPath>/usr/local/lib/X11/pixmaps</IconPath>
+ <IconPath>/usr/share/pixmaps</IconPath>
+ <IconPath>/usr/local/share/pixmaps</IconPath>
++<IconPath>/usr/share/icons/gnome/48x48/apps/</IconPath>
++<IconPath>/usr/share/icons/hicolor/48x48/apps/</IconPath>
+ <!-- </Icons> -->
+ 
+ <StartupCommand>
+@@ -146,7 +162,20 @@
+ 
+ <!-- Virtual Desktops -->
+ <!-- Name tags can be contained within Desktops for desktop names.  BK: syntax change with jwm 500... -->
+-<Desktops  width="3" height="1"/>
++<Desktops  width="2" height="1">
++<Desktop Name="One">
++<Background type="tile">/usr/share/backgrounds/default.jpg</Background>
++</Desktop>
++
++<Desktop Name="Two">
++<Background type="tile">/usr/share/backgrounds/default.jpg</Background>
++</Desktop>
++
++<Desktop Name="Three">
++<Background type="tile">/usr/share/backgrounds/default.jpg</Background>
++</Desktop>
++
++</Desktops>
+ 
+ <!-- Double click speed (in milliseconds) -->
+ <DoubleClickSpeed>400</DoubleClickSpeed>

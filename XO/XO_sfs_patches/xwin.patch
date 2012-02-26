@@ -1,0 +1,22 @@
+--- /initrd/pup_ro2/usr/bin/xwin	2011-11-18 09:58:04.000000000 +0200
++++ /usr/bin/xwin	2012-02-26 09:52:53.263079397 +0200
+@@ -55,6 +55,19 @@
+ if [ $1 ];then
+  echo -n "$1" > /etc/windowmanager
+  #note, /root/.xinitrc uses this file.
++ case "$1" in
++ jwm)
++ cp -a /root/.gtkrc-2.0 /root/.gtkrc-2.0.bak
++ cat << EOF >> /root/.gtkrc-2.0
++gtk-theme-name="Raleigh"
++gtk-icon-theme-name="gnome"
++EOF
++ ;;
++ startxfce4)
++ rm -f /root/.gtkrc-2.0
++ mv /root/.gtkrc-2.0.bak /root/.gtkrc-2.0
++ ;;
++ esac
+ fi
+ 
+ #v1.0.7
