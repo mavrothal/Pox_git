@@ -627,18 +627,32 @@ EOF
 echo "patching jwmrc"
 patch -p1 < $patches/jwmrc.patch
 if [ $? -ne 0 ]; then
-	echo "Failed to patch jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	echo "Failed to Patch jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	rm -f root/.jwmrc.{orig,rej}
 else
 	echo "Patched jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
 patch -p1 < $patches/etc_jwmrc.patch
 if [ $? -ne 0 ]; then
-	echo "Failed to patch _root_.jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	echo "Failed to Patch _root_.jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	rm -f etc/xdg/templates/_root_.jwmrc.{orig,rej}
 else
 	echo "Patched _root_.jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
+
+#Add pmount in the tray
+patch -p1 < $patches/jwm-tray_luki.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to Patch .jwmrc-tray for Saluki . $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f root/.jwmrc-tray.{orig,rej}
+else
+	echo "Patched .jwmrc-tray for Saluki. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
+
+# reload instead of restart JWM
+sed -i "s/jwm -restart/jwm -reload/" /usr/local/petget/installpreview.sh 
+sed -i "s/jwm -restart/jwm -reload/" /usr/local/petget/removepreview.sh  
+sed -i "s/jwm -restart/jwm -reload/" /usr/local/petget/petget 
 
 # Further increase font size
 sed -i 's/108/130/' $SFSROOT/root/.Xresources
