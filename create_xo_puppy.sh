@@ -504,24 +504,24 @@ patch -p1 < $patches/xorgwizard.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch xorgwizard. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	rm -f usr/sbin/xorgwizard.{orig,rej}
-	# some puppies have xorg-setup instead
-	patch -p1 usr/sbin/xorg-setup < $patches/xorgwizard.patch
+	# New woof uses gettext in scripts so old patches may not work fully
+	patch -p1 < $patches/xorgwizard_lng.patch
 	if [ $? -ne 0 ]; then
-		echo "Failed to patch xorg-setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		rm -f usr/sbin/xorg-setup.{orig,rej}
+		echo "Failed to patch xorgwizard with _lng patch too. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		rm -f usr/sbin/xorgwizard.{orig,rej}
+		# some puppies have xorg-setup instead
+		patch -p1 usr/sbin/xorg-setup < $patches/xorgwizard.patch
+		if [ $? -ne 0 ]; then
+			echo "Failed to patch xorg-setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			rm -f usr/sbin/xorg-setup.{orig,rej}
+		else
+			echo "Patched xorg-setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		fi
 	else
-		echo "Patched xorg-setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		echo "Patched xorgwizard with _lng patch. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log		
 	fi
 else
 	echo "Patched xorgwizard. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-fi
-
-patch -p1 < $patches/xorg.conf0.patch
-if [ $? -ne 0 ]; then
-	echo "Failed to patch xorg.conf0. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f etc/X11/xorg.conf0.{orig,rej}
-else
-	echo "Patched xorg.conf0. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
 
 # Patch PPM

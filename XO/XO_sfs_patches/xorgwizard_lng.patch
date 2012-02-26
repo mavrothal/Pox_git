@@ -1,0 +1,12 @@
+--- a/usr/sbin/xorgwizard 	2011-09-27 05:31:20.000000000 +0300
++++ b/usr/sbin/xorgwizard	2011-10-05 14:48:26.000000000 +0300
+@@ -1035,6 +1040,8 @@
+  "P"  "h31.5-79v50-90   CRT 1280x1024 (basic 17inch monitor)" \
+  "Q"  "h31.5-90v50-90   CRT 1400x1050" \
+  "R"  "h31.5-94v50-90   CRT 1600x1200" \
++ "XO-1"  "h31.5-74v49-51   XO-1 1200x900" \
++ "XO-1.5"  "h20-90v49-51   XO-1.5 1200x900x24" \
+  "Z" "$(gettext 'SELECT THIS IF YOU KNOW MONITOR FREQUENCY SPECS')" \
+   2>/tmp/taggen.txt
+   CHOICE="`cat /tmp/taggen.txt 2>/dev/null`"
+
