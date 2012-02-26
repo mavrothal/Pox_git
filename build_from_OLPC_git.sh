@@ -237,6 +237,8 @@ bld_kbd()
 	patch -p1 < $patches/olpc-rotate.patch
 	if [ $? -ne 0 ]; then
 		echo "Failed to patch olpc-rotate. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	else
+		echo "Patch olpc-rotate. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
 	cp -a --remove-destination olpc-kbdshim-udev $output/usr/sbin
 	cp -a --remove-destination olpc-rotate $output/usr/bin
@@ -284,10 +286,14 @@ bld_powerd()
 	patch -p1 < $patches/powerd.patch 
 	if [ $? -ne 0 ]; then
 		echo "Failed to patch powerd. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	else
+		echo "Patch powerd. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
 	patch -p1 < $patches/powerd_conf.patch
 	if [ $? -ne 0 ]; then
 		echo "Failed to patch powerd-conf. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	else
+		echo "Patch powerd-conf. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
 	VERSION=`cat Makefile | grep ^VERSION= | cut -d "=" -f 2` 
 	echo "powerd_version='version "$VERSION"'" > version
@@ -384,6 +390,8 @@ get_binaries()
 			else
 				exit 0
 			fi
+		else 
+			echo "Downloaded usb8388.bin. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	rsync -a rsync://updates.laptop.org/build-official_xo1.5-874/root/lib/firmware/sd8686* \
 		"$output"/lib/firmware/
@@ -401,6 +409,8 @@ get_binaries()
 			else
 				exit 0
 			fi
+		else 
+			echo "Downloaded sd8686* . $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	# Get the full version of rtcwake
 	rsync -a rsync://updates.laptop.org/build-874/root/usr/sbin/rtcwake \
@@ -419,6 +429,8 @@ get_binaries()
 			else
 				exit 0
 			fi
+		else
+			echo "Downloaded rtcwake. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	sync; sync
 }
