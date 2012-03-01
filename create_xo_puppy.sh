@@ -640,6 +640,50 @@ else
 	echo "Patched _root_.jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
 
+cat << EOF > $SFSROOT/usr/sbin/variconlinks_luki
+#!/bin/bash
+
+DIR=\`pwd\`
+
+rm -rf /var/local/icons
+mkdir /var/local/icons
+
+ln -fs /usr/share/icons/hicolor/16x16/apps/* /var/local/icons/ 2>/dev/null
+ln -fs /usr/share/icons/hicolor/22x22/apps/* /var/local/icons/ 2>/dev/null
+ln -fs /usr/share/icons/hicolor/24x24/apps/* /var/local/icons/ 2>/dev/null
+ln -fs /usr/share/icons/hicolor/32x32/apps/* /var/local/icons/ 2>/dev/null
+ln -fs /usr/share/icons/hicolor/48x48/apps/* /var/local/icons/ 2>/dev/null
+ln -fs /usr/share/icons/gnome/48x48/apps/* /var/local/icons/ 2>/dev/null
+ln -fs /usr/share/icons/gnome/48x48/devices/* /var/local/icons/ 2>/dev/null
+ln -fs /usr/share/pixmaps/abiword.png /var/local/icons/ 2>/dev/null
+
+
+cd /var/local/icons
+ls | grep xpm | while read FILE
+do
+FILE2=\`echo "\$FILE" | sed 's/.xpm//'\`
+ln -s "\$FILE" "\$FILE2" 2>/dev/null
+done
+ls | grep png | while read FILE
+do
+FILE2=\`echo "\$FILE" | sed 's/.png//'\`
+ln -s "\$FILE" "\$FILE2" 2>/dev/null
+done
+
+cd "\$DIR"
+exit 0
+EOF
+chmod 755 $SFSROOT/usr/sbin/variconlinks_luki
+
+#Patch fixmenus to use variconlinks_luki
+patch -p1 < $patches/fixmenus.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to Patch fixmenus for Saluki . $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/sbin/fixmenus.{orig,rej}
+else
+	echo "Patched fixmenus for Saluki. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
+
 #Add pmount in the tray
 patch -p1 < $patches/jwmrc-tray_luki.patch
 if [ $? -ne 0 ]; then
@@ -799,8 +843,14 @@ cd $SFSROOT
 # Fix permissions for fido
 chmod -R 777 tmp
 
+#log list of XO-specific files included
+echo "The following XO-specific files where included in the build" >> $CWD/build.log
+#SAFE=$(printf "%s\n" "$XOSFS" | sed 's/[][\.*^$(){}?+|/]/\\&/g')
+y=$(printf "%s\n" "$XOSFS" | sed 's/[/]/\\&/g') # specific case
+find $XOSFS | sed s/$y//g >> $CWD/build.log
+
 echo "copying in the XO files"
-cp -rf $XOSFS/* ./
+cp -arf $XOSFS/* ./
 
 statusfunc $?
 

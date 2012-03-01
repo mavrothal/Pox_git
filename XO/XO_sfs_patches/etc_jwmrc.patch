@@ -8,16 +8,15 @@
  
  	<!-- Visual Styles -->
  
-@@ -120,6 +121,8 @@
+@@ -120,6 +121,7 @@
  		<IconPath>/usr/local/lib/X11/pixmaps</IconPath>
  		<IconPath>/usr/share/pixmaps</IconPath>
  		<IconPath>/usr/local/share/pixmaps</IconPath>
-+		<IconPath>/usr/share/icons/gnome/48x48/apps/</IconPath>
-+		<IconPath>/usr/share/icons/hicolor/48x48/apps/</IconPath>
++		<IconPath>/var/local/icons/</IconPath>
  	<!-- </Icons> -->
  
  	<StartupCommand>
-@@ -127,7 +130,20 @@
+@@ -127,7 +129,20 @@
  
  	<!-- Virtual Desktops -->
  	<!-- Name tags can be contained within Desktops for desktop names.  BK: syntax change with jwm 500... -->
