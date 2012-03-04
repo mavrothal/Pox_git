@@ -120,7 +120,7 @@ visible
 \   d# 4000 ms
 
    " ${DN}${PN}\vmlinuz"    expand$ to boot-device
-   " ${DN}${PN}\initrd.gz" expand$ to ramdisk
+   " ${DN}${PN}\initrd.img" expand$ to ramdisk
    boot
 ;
 olpc-fth-boot-me
