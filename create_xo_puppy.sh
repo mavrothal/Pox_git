@@ -905,7 +905,7 @@ cp -arf ../$DIR/lib/* lib/
 sed -i "s/vfat)/vfat) \\n   modprobe vfat/" init 
 sync
 # compress initrd
-find . -print | cpio -H newc -o | gzip -9 > ../boot${VERDIR}/initrd.gz
+find . -print | cpio -H newc -o | gzip -9 > ../boot${VERDIR}/initrd.img
 statusfunc $?
 sync
 # Cleanup
