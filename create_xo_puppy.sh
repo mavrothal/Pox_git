@@ -296,16 +296,16 @@ wary|racy|luki)
 		echo "The synaptics.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
 	if [ "$DISTRO_FILE_PREFIX" = "luki" ] ; then
-		if [ ! -f $extra_pets/jwm-578-deco-luki-1-i486.pet ] ; then 
+		if [ ! -f $extra_pets/jwm-578-deco-luki-2-i486.pet ] ; then 
 			wget -c -P $extra_pets\
-	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/jwm-578-deco-luki-1-i486.pet
+	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/jwm-578-deco-luki-2-i486.pet
 			if [ $? -ne 0 ]; then
-				echo "Failed to download jwm-578-deco-luki-1-i486.pet. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				echo "Failed to download jwm-578-deco-luki-2-i486.pet. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
-				echo "The jwm-578-deco-luki-1-i486.pet was added in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				echo "The jwm-578-deco-luki-2-i486.pet was added in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			fi
 		else 
-			echo "The jwm-578-deco-luki-1-i486.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			echo "The jwm-578-deco-luki-2-i486.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	fi
 	;;

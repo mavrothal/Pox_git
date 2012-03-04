@@ -1,11 +1,12 @@
 --- a/usr/sbin/fixmenus	2012-02-08 03:49:26.000000000 +0200
 +++ b/usr/sbin/fixmenus	2012-03-01 09:18:49.036643495 +0200
-@@ -47,6 +47,8 @@
+@@ -47,6 +47,9 @@
  [ `which jwm2fluxbox` ] && jwm2fluxbox  ##current fluxbox_menu_refresh doesn't support menu icons while this does
  [ `which obmenu-refresh` ] && obmenu-refresh
  [ `which jwm2pekwm` ] && jwm2pekwm
 +# Fix menu icons under JWM in Saluki
 +[ `which variconlinks_luki` ] && variconlinks_luki
++sed -i 's/\%F//g' /root/.jwmrc
  
  gtk-update-icon-cache -f /usr/share/icons/hicolor/ 
  touch /usr/share/applications/.fix.desktop
