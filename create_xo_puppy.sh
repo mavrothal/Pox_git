@@ -594,6 +594,10 @@ cat << EOF >> $SFSROOT/etc/fstab
 /dev/mmcblk1p2		/.intSD	    ext4	defaults,noauto	  0 0
 EOF
 
+# Stop cups and other services
+chmod 644 $SFSROOT/etc/init.d/cups
+chmod 644 $SFSROOT/etc/init.d/start_cpu_freq
+chmod 644 $SFSROOT/etc/init.d/usb-modeswitch
 
 # Fix menu font size, in Seamonkey/Firefox
 sed -i 's/font-size: 12px !important;/font-size: 16px !important;/' \
