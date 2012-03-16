@@ -566,13 +566,26 @@ fi
 
 # Remove xload from tray. Wastes CPU cycles
 echo "removing xload from tray"
-patch -p1 < $patches/jwmrc-tray.patch
-if [ $? -ne 0 ]; then
-	echo "Failed to patch jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f root/.jwmrc-tray.{orig,rej}
-else
-	echo "Patched jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-fi
+case "$DISTRO_FILE_PREFIX" in
+slacko)
+	patch -p1 < $patches/jwmrc-tray_slacko.patch
+	if [ $? -ne 0 ]; then
+		echo "Failed to patch jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		rm -f root/.jwmrc-tray.{orig,rej}
+	else
+		echo "Patched jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
+	;;
+*)
+	patch -p1 < $patches/jwmrc-tray.patch
+	if [ $? -ne 0 ]; then
+		echo "Failed to patch jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		rm -f root/.jwmrc-tray.{orig,rej}
+	else
+		echo "Patched jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
+	;;
+esac
 
 #Add support for the XO internal drives in fstab
 echo "Adjusting /etc/fstab for XO internal drives..."
