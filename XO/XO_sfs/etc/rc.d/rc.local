@@ -12,7 +12,7 @@ USBVGA=`cat /etc/X11/xorg.conf | grep sisusb`
 
 # Set the proper xorg.conf 
 # Check if we have or had a usb-to-vga dongle first
-if [ -e /dev/sisusbvga0 ]; then
+if [ "`lsmod | grep sisusbvga`" != "" ] ; then
  	cp -a /etc/X11/sisusb.conf /etc/X11/xorg.conf
 else
 # Make sure to remove the usb-to-vga config if we have removed the dongle
@@ -58,7 +58,7 @@ fi
 
 # Inhibit powerd if we are using a usb-to-vga adaptor because 
 # it powers-off the connector
-if [ -e /dev/sisusbvga0 ]; then
+if [ "`lsmod | grep sisusbvga`" != "" ] ; then
 	touch /var/run/powerd-inhibit-suspend/$$
 	# ..and run fixPuppyPin since it will probably have a different resolution
 	/usr/sbin/fixPuppyPin /root/Choices/ROX-Filer/PuppyPin
