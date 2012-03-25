@@ -4,7 +4,7 @@
 # on the OLPC XO-1 and XO-1.5 laptops.
 # Use in combination with the create_xo_puppy script to make any
 # flavor XOpup running an updated 2.6.35 OLPC kernel or the new
-# (and for now experimental) OLPC 3.1.0 kernel
+# (and for now experimental) OLPC 3.3.0 kernel
 #
 # GPL2 (see /usr/share/doc) (c) mavrothal, 01micko
 # NO WARRANTY
@@ -24,7 +24,7 @@ sources="$BASEDIR/kernel_sources"
 git_clone="$sources/olpc-2.6"
 git_clone_aufs2="$sources/aufs2-standalone"
 git_clone_aufs3="$sources/aufs3-standalone"
-union_patch="$sources/unionfs-2.5.10_for_3.1.*.diff"
+union_patch="$sources/unionfs-2.5.11_for_3.3.*.diff"
 patches="$BASEDIR/XO_kernel_patches"
 
 #bit of fun! (curtesy of 01micko)
@@ -249,7 +249,7 @@ get_sources()
 	
 	if [ ! -f $union_patch ] ; then
 		cd $sources
-		wget -c ftp://ftp.filesystems.org/pub/unionfs/unionfs-2.x-latest/unionfs-2.5.10_for_3.1.*.diff.gz
+		wget -c ftp://ftp.filesystems.org/pub/unionfs/unionfs-2.x-latest/unionfs-2.5.11_for_3.3.*.diff.gz
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"
 			echo "Error: failed to download the unionfs patch."
@@ -259,7 +259,7 @@ get_sources()
 			exit 1
 		fi
 		sync
-		gzip -d unionfs-2.5.10_for_3.1.*.diff.gz		
+		gzip -d unionfs-2.5.11_for_3.3.*.diff.gz		
 	else
 		echo -e "\\0033[1;34m"
 		echo "A unionfs patch already exits."
@@ -270,7 +270,7 @@ get_sources()
 		if [ "$CONTINUE" = "c" ];then
 			cd $sources
 			rm -f $union_patch*
-			wget -c ftp://ftp.filesystems.org/pub/unionfs/unionfs-2.x-latest/unionfs-2.5.10_for_3.1.*.diff.gz
+			wget -c ftp://ftp.filesystems.org/pub/unionfs/unionfs-2.x-latest/unionfs-2.5.11_for_3.3.*.diff.gz
 			if [ $? -ne 0 ]; then
 				echo -e "\\0033[1;31m"
 				echo "Error: failed to download the unionfs patch."
@@ -280,7 +280,7 @@ get_sources()
 				exit 1
 			fi
 			sync
-			gzip -d unionfs-2.5.10_for_3.1.*.diff.gz			
+			gzip -d unionfs-2.5.11_for_3.3.*.diff.gz			
 		else
 			echo "Using preexisting Unionfs patch. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
@@ -295,7 +295,7 @@ patch_sources()
 	# Sellect kernel to build
 	echo
 	echo -e "\\0033[1;34m"
-	echo "To build the experimental 3.1 kernel"
+	echo "To build the experimental 3.3 kernel"
 	echo "hit \"3\"  and then  \"enter\" "
 	echo "or just \"enter\" to build the 2.6.35 kernel"
 	echo -en "\\0033[0;39m"
@@ -303,15 +303,15 @@ patch_sources()
 	if [ "$CONTINUE" = "3" ];then
 		echo
 		echo -e "\\0033[1;34m"
-		echo "To build the 3.1 kernel with Unionfs "
+		echo "To build the 3.3 kernel with Unionfs "
 		echo "hit \"u\"  and then  \"enter\" "
 		echo "or just \"enter\" to build with Aufs"
 		echo -en "\\0033[0;39m"
 		read CONTINUE
 		if [ "$CONTINUE" != "u" ];then	
-			# Point aufs git to kernel version 3.1
+			# Point aufs git to kernel version 3.3
 			cd $git_clone_aufs3
-			git checkout origin/aufs3.1
+			git checkout origin/aufs3.x-rcN # no 3.3 aufs branch yet
 			if [ ! -d patches ] ; then 
 				mkdir patches
 				mv *.patch patches/
@@ -321,7 +321,7 @@ patch_sources()
 
 			# Patch the OLPC kernel
 			cd $git_clone
-			git checkout origin/x86-3.1
+			git checkout origin/x86-3.3
 			sync
 
 			# Apply patches and aufs source in kernel
@@ -345,7 +345,7 @@ patch_sources()
 			done
 
 			# Apply config patches
-			for patch in $patches/3.1/*; do
+			for patch in $patches/3.3/*; do
 				echo "Applying $patch"
 				patch -p1 < $patch
 				if [ $? -ne 0 ]; then
@@ -359,7 +359,7 @@ patch_sources()
 		else
 			# Patch the OLPC kernel with unionfs
 			cd $git_clone
-			git checkout origin/x86-3.1
+			git checkout origin/x86-3.3
 			sync
 			NUMBER=`ls -l $union_patch | wc -l | tr -d ' '`
 			if [ "$NUMBER" != "1" ] ; then 
@@ -386,7 +386,7 @@ patch_sources()
 			fi
 			
 			# Apply config patches
-			for patch in $patches/3.1_union/*; do
+			for patch in $patches/3.3_union/*; do
 				echo "Applying $patch"
 				patch -p1 < $patch
 				if [ $? -ne 0 ]; then
@@ -710,3 +710,4 @@ case $1 in
 		patch_sources && make_XO1_kernel
 		make_XO15_kernel && finished ;;
 esac
+
