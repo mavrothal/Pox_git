@@ -1,0 +1,83 @@
+--- a/usr/sbin/xorgwizard.sh 	2011-09-27 05:31:20.000000000 +0300
++++ b/usr/sbin/xorgwizard.sh	2011-10-05 14:48:26.000000000 +0300
+@@ -568,6 +568,10 @@
+       drvLIST="${drvLIST}
+ ${ONEDRV} \"Chips and Technologies\""
+      ;;
++	 chrome)
++      drvLIST="${drvLIST}
++${ONEDRV} \"VIA/XV855 chrome\""
++     ;;
+      cirrus)
+       drvLIST="${drvLIST}
+ ${ONEDRV} \"Cirrus Logic\""
+@@ -743,12 +747,13 @@
+     if [ "$XSECTION" = "InputDevice" -a "$IDENTIFIER" = "Keyboard0" ] ; then
+      TEMPSECTION="$TEMPSECTION
+ 	Option      \"XkbRules\" \"xorg\"
+-	Option      \"XkbModel\" \"pc102\"
++	Option      \"XkbModel\" \"pc104\"
+ 	Option      \"XkbLayout\" \"$XKEYMAP\" #xkeymap0"
+     elif [ "$XSECTION" = "Monitor" -a "$IDENTIFIER" = "Monitor0" ] ; then
+      TEMPSECTION="$TEMPSECTION
+ 	HorizSync    HORIZSYNC0
+ 	VertRefresh  VERTREFRESH0
++	DisplaySize  152 114
+ 	#UseModes     \"Modes0\" #monitor0usemodes
+ 	Option      \"PreferredMode\" \"PREFERREDMODE0\"
+ 	$ALINE
+@@ -837,8 +842,8 @@
+ ###################################################################
+ 
+ #v2.21 quick hack...
+-sed -e 's%/dev/input/mice%/dev/mouse%'  /etc/X11/xorg.conf >/tmp/xorgconfmousefix
+-mv -f /tmp/xorgconfmousefix /etc/X11/xorg.conf
++#sed -e 's%/dev/input/mice%/dev/mouse%'  /etc/X11/xorg.conf >/tmp/xorgconfmousefix
++#mv -f /tmp/xorgconfmousefix /etc/X11/xorg.conf
+ 
+ #echo "Probing the video card and monitor..."
+ #code below is not distinguishing multiple cards/monitors...
+@@ -1035,6 +1040,8 @@
+  "P"  "h31.5-79v50-90   CRT 1280x1024 (basic 17inch monitor)" \
+  "Q"  "h31.5-90v50-90   CRT 1400x1050" \
+  "R"  "h31.5-94v50-90   CRT 1600x1200" \
++ "XO-1"  "h31.5-74v49-51   XO-1 1200x900" \
++ "XO-1.5"  "h20-90v49-51   XO-1.5 1200x900x24" \
+  "Z" "SELECT THIS IF YOU KNOW MONITOR FREQUENCY SPECS" \
+   2>/tmp/taggen.txt
+   CHOICE="`cat /tmp/taggen.txt 2>/dev/null`"
+@@ -1137,6 +1144,16 @@
+      HORIZSYNC="31.5-94"
+      VERTREFRESH="50-90"
+      ;;
++   XO-1) # "h31.5-74v48-52   XO-1 1200x900"
++     RECMODE="1200x900x16"
++     HORIZSYNC="31.5-74"
++     VERTREFRESH="49-51"
++     ;;
++   XO-1.5) # "h31.5-74v48-52   XO-1 1200x900x24"
++     RECMODE="1200x900x24"
++     HORIZSYNC="20-90"
++     VERTREFRESH="49-51"
++     ;;
+    Z) # "SELECT THIS IF YOU KNOW MONITOR FREQUENCY SPECS"
+      dialog --title "Xorg Video Wizard" --inputbox "Please enter the horizontal frequency range of the monitor, in KHz. An example is given:" 0 0 "31.5-48.5" 2>/tmp/taghoriz.txt
+      dialog --title "Xorg Video Wizard" --inputbox "Please enter the vertical frequency range of the monitor, in Hz. An example is given:" 0 0 "56-72" 2>/tmp/tagvert.txt
+@@ -1166,7 +1183,7 @@
+     echo "$ONECHOICE \"Unconfirmed for monitor, OK for video card\" \\" >> /tmp/finalchoices.txt
+    fi
+   done
+-  for ONECHOICE in 640x480x16 800x600x16 1024x600x16 1024x768x16 1280x800x16 1280x1024x16 1360x768x16 1400x1050x16 1440x900x16 1600x1200x16 1680x1050x16 1920x1080x16 1920x1200x16 640x480x24 800x600x24 1024x600x24 1024x768x24 1280x800x24 1280x1024x24 1360x768x24 1400x1050x24 1440x900x24 1600x1200x24 1680x1050x24 1920x1080x24 1920x1200x24
++  for ONECHOICE in 640x480x16 800x600x16 1024x600x16 1024x768x16 1200x900x16 1200x900x24 1280x800x16 1280x1024x16 1366x768x16 1400x1050x16 1440x900x16 1600x1200x16 1680x1050x16 1920x1080x16 1920x1200x16 640x480x24 800x600x24 1024x600x24 1024x768x24 1280x800x24 1280x1024x24 1366x768x24 1400x1050x24 1440x900x24 1600x1200x24 1680x1050x24 1920x1080x24 1920x1200x24
+   do
+    case "$CARDCHOICES" in *$ONECHOICE*) ;; *) # we've done CARDCHOICES above
+     echo "$ONECHOICE \"Unconfirmed for monitor, maybe NOT OK for card\" \\" >> /tmp/finalchoices.txt ;;
+@@ -1304,6 +1321,7 @@
+ 	DefaultDepth $FINALDEPTH
+ 	#Option         \"metamodes\" \"${FINALXY}_60 +0+0\" #METAMODES_${i}
+ 	Subsection \"Display\"
++		Virtual     1200 1200
+ 		Depth       $FINALDEPTH
+ 		Modes       \"${FINALXY}\"
+ 	EndSubsection
+

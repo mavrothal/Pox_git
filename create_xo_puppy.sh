@@ -498,8 +498,20 @@ do
 done 
 
 # Patch xorgwizard
-echo "patching xorgwizrd"
 patches="$CWD/XO_sfs_patches"
+echo "patching xorgwizrd"
+if [ "$DISTRO_FILE_PREFIX" = "lupu" ]; then
+	echo "patching xorgwizrd.sh"
+	patch -p1 < $patches/xorgwizard.sh.patch
+	if [ $? -ne 0 ]; then
+		echo "Failed to patch xorgwizard.sh. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/sbin/xorgwizard.sh.{orig,rej}
+	else
+		echo "Patched xorgwizard.sh. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
+
+else
+
 patch -p1 < $patches/xorgwizard.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch xorgwizard. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
@@ -522,6 +534,8 @@ if [ $? -ne 0 ]; then
 	fi
 else
 	echo "Patched xorgwizard. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
+
 fi
 
 # Patch PPM
