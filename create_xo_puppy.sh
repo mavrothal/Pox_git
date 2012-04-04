@@ -333,6 +333,7 @@ if [ ! -f $extra_pets/*.pet ] ; then
 				PNAME=`echo $p | sed 's/\.pet//'`
 				tar xzf $p 2>/dev/null 
 				cd $PNAME
+				cat *.spec* >> $SFSROOT/root/.packages/woof-installed-packages
 				rm -f *.sh *.spec* 2>/dev/null
 				find . > /tmp/$PNAME.files
 				PREVPATH=''
@@ -374,6 +375,7 @@ else
 		PNAME=`echo $p | sed 's/\.pet//'`
 		tar xzf $p 2>/dev/null 
 		cd $PNAME
+		cat *.spec* >> $SFSROOT/root/.packages/woof-installed-packages
 		rm -f *.sh *.spec* 2>/dev/null
 		find . > /tmp/$PNAME.files
 		PREVPATH=''
