@@ -887,6 +887,10 @@ cp -arf $XOSFS/* ./
 
 statusfunc $?
 
+# Add the build log in the sfs
+BNAME=`echo "$ISO" | sed 's/\.iso//'`
+gzip -c $CWD/build.log > $SFSROOT/usr/local/share/$BNAME-XO_build.log.gz
+
 cd $SQDIR
 sync
 echo "now compressing the NEW $MAINSFS..."
