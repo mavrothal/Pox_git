@@ -646,6 +646,16 @@ cat << EOF >> $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.x
 </channel>
 EOF
 
+# Patch frontend_d which differs in Saluki
+echo "patching pup_event_frontend_d"
+patch -p1 < $patches/frontend_d-luki.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch pup_event_frontend_d in Saluki. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f sbin/pup_event_frontend_d.{orig,rej}
+else
+	echo "Patched pup_event_frontend_d in Saluki. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
+
 # Fix the suspend/hibernate calls (Saluki)
 sed -i 's/\/etc\/acpi\/hibernate\.sh/powerd-config =gotosleep/' $SFSROOT/usr/bin/shutdown-gui
 sed -i 's/\/etc\/acpi\/sleep\.sh/powerd-config =dark-suspend/' $SFSROOT/usr/bin/shutdown-gui

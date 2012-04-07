@@ -1,0 +1,30 @@
+--- a/sbin/pup_event_frontend_d	2012-03-23 06:16:33.000000000 +0200
++++ b/sbin/pup_event_frontend_d	2012-04-07 09:13:53.000000000 +0300
+@@ -661,7 +661,17 @@
+  create_icon_func #needs DRV_NAME, DRV_CATEGORY, DRV_DESCRIPTION.
+ else
+  #show all drives on desktop... w476 add ext4...
+- PROBEPART="`probepart -k | grep -E '\|ext4\||\|ntfs\||\|msdos\||\|udf\||\|vfat\||\|ext2\||\|ext3\||\|iso9660\||\|xfs\||\|reiser'`"
++ # Hide the XO-1.5 internal sd
++   XOVER=`uname -r | cut -f 1 -d '-' | rev | cut -f 1 -d '_'| rev`
++   if [ "$XOVER" = "xo1.5" ] ; then
++     if [ "$PDEV1" = "sda1" ] && [ "`probedisk | grep mmcblk1`" = "" ] ; then
++       PROBEPART="`probepart -k | grep -E '\|ext4\||\|ntfs\||\|msdos\||\|udf\||\|vfat\||\|ext2\||\|ext3\||\|iso9660\||\|xfs\||\|reiser' | sed -e 's/\/dev\/mmcblk0p1//g' | sed -e 's/\/dev\/mmcblk0p2//g'`"
++     else
++       PROBEPART="`probepart -k | grep -E '\|ext4\||\|ntfs\||\|msdos\||\|udf\||\|vfat\||\|ext2\||\|ext3\||\|iso9660\||\|xfs\||\|reiser' | sed -e 's/\/dev\/mmcblk1p1//g' | sed -e 's/\/dev\/mmcblk1p2//g'`"
++     fi
++   else 
++     PROBEPART="`probepart -k | grep -E '\|ext4\||\|ntfs\||\|msdos\||\|vfat\||\|ext2\||\|ext3\||\|iso9660\||\|xfs\||\|reiser'`"
++   fi  
+  if [ "$FD0ICON" = "true" ];then #see /etc/eventmanager
+   if [ -e /sys/block/fd0 ];then
+    PROBEDISK="/dev/fd0|floppy|Legacy floppy drive
+@@ -786,7 +796,7 @@
+ 
+  #######four second timeout procesing#########
+  SAVECNT=`expr $SAVECNT + 4`
+- if [ $RAMSAVEINTERVAL -ne 0 -a $SAVECNT -gt $RAMSAVEINTERVAL ];then
++ if [ $RAMSAVEINTERVAL -ne 0 -a $SAVECNT -gt $RAMSAVEINTERVAL ] && [ ! -f /tmp/sleeping.now ];then #stop merge request when in suspend
+   touch /tmp/snapmergepuppyrequest #request to savepuppy_func.
+   SAVECNT=0
+  fi
