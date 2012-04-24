@@ -261,7 +261,7 @@ bld_powerd()
 	cd $XO_sources/powerd
 	git reset --hard HEAD
 	# Feeze to v42 during development
-	# git checkout f61b0feb40bff536fc86126468626b4585fe3c3d
+	git checkout f61b0feb40bff536fc86126468626b4585fe3c3d
 	make clean
 	make olpc-switchd
 	if [ $? -ne 0 ]; then
