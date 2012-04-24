@@ -311,7 +311,7 @@ patch_sources()
 		if [ "$CONTINUE" != "u" ];then	
 			# Point aufs git to kernel version 3.3
 			cd $git_clone_aufs3
-			git checkout origin/aufs3.x-rcN # no 3.3 aufs branch yet
+			git checkout origin/aufs3.3
 			if [ ! -d patches ] ; then 
 				mkdir patches
 				mv *.patch patches/
