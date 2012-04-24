@@ -1,6 +1,6 @@
 #PACKAGES AND SCRPTS to remove for XO
 #PACKAGES_REM (must log these and fix $HOME/.packages/builtin_files)
-PACKAGES_REM="grub grub4dos 915resolution floppy_format makebootfat powerapplet_tray xserver_xvesa_t2 acpid acpitool vattery sven tempicon lm_sensors" # flsynclient flSynclient
+PACKAGES_REM="grub grub4dos 915resolution floppy_format makebootfat powerapplet_tray xserver_xvesa_t2 acpid acpitool vattery vattery_acpitool3x sven tempicon lm_sensors flsynclient flSynclient"
 
 #PACKAGES to move into an "extras.sfs"
 PACKAGES_MOVE="bones bacon cdrkit cups didiwiki dvdauthor dvd+rwtools ffconvert foomatic_filters geany ghostscript gnumeric goffice gparted homebank pburn pcd pdvdrsab peasyprint peasyscan pmetatagger precord sane-backends xsane"

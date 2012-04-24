@@ -284,17 +284,6 @@ wary|racy|luki)
 	else 
 		echo "The T2 udev.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
-	if [ ! -f $extra_pets/synaptics_luki.pet ] ; then  
-		wget -c -P $extra_pets \
-	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/synaptics_luki.pet
-		if [ $? -ne 0 ]; then
-			echo "Failed to download synaptics.pet. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		else
-			echo "The synaptics.pet was added in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		fi
-	else
-		echo "The synaptics.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	fi
 	if [ "$DISTRO_FILE_PREFIX" = "luki" ] ; then
 		if [ ! -f $extra_pets/jwm-578-deco-luki-2-i486.pet ] ; then 
 			wget -c -P $extra_pets\
@@ -467,6 +456,10 @@ done
 #some puppies have additonal drivers elsewhere
 rm -rf $SFSROOT/usr/lib/xorg/modules/drivers-*
 rm -rf $SFSROOT/usr/lib/x/*
+
+# Remove synaptics driver 
+rm -f $SFSROOT/usr/lib/xorg/modules/input/synaptics_drv.so
+rm -f $SFSROOT/usr/X11R7/lib/xorg/modules/input/synaptics_drv.so
 
 echo "removing other useless stuff for XO..."
 # remove extra video stuff
