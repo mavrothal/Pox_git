@@ -433,9 +433,9 @@ slacko|spup) XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
 		cp -af $XODIR/{slacko,spup}/xorg/modules/drivers/* \
 		$SFSROOT/usr/lib/xorg/modules/drivers/ 
 		;;
-lupu|luci) XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
+lupu|luci|precise) XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="$SFSROOT/usr/lib/"
-		cp -af $XODIR/{lupu,luci}/xorg/modules/drivers/* \
+		cp -af $XODIR/{lupu,luci,precise}/xorg/modules/drivers/* \
 		$SFSROOT/usr/lib/xorg/modules/drivers/ 
 		;;	
 drake) XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
