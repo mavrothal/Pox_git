@@ -417,31 +417,12 @@ wary|racy|luki)   XORGDIR="$SFSROOT/usr/X11R7/lib/xorg/modules/drivers"
 		cp -af $XODIR/{wary,racy,luki}/xorg/modules/drivers/* \
 		$SFSROOT/usr/X11R7/lib/xorg/modules/drivers/
 		;; 
-slacko|spup) XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
-		XORGLIBDIR="$SFSROOT/usr/lib/"
-		cp -af $XODIR/{slacko,spup}/xorg/modules/drivers/* \
-		$SFSROOT/usr/lib/xorg/modules/drivers/ 
-		;;
-lupu|luci|precise) XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
-		XORGLIBDIR="$SFSROOT/usr/lib/"
-		cp -af $XODIR/{lupu,luci,precise}/xorg/modules/drivers/* \
-		$SFSROOT/usr/lib/xorg/modules/drivers/ 
-		;;	
-drake) XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
-		XORGLIBDIR="$SFSROOT/usr/lib/"
-		echo "At time of writing, drake has issues on XO hardware"
-		cp -af $XODIR/drake/xorg/modules/drivers/* \
-		$SFSROOT/usr/lib/xorg/modules/drivers/ 
-		;;
-squeeze|dpup|squeezed|next|guydog) 
+*) 
 		XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="$SFSROOT/usr/lib/"
-		cp -af $XODIR/{squeeze,dpup,squeezed,next,guydog}/xorg/modules/drivers/* \
+		cp -af $XODIR/"$DISTRO_FILE_PREFIX"/xorg/modules/drivers/* \
 		$SFSROOT/usr/lib/xorg/modules/drivers/ 
 		;;		
-*)		XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers" 
-		XORGLIBDIR="$SFSROOT/usr/lib/"
-		;; #maybe this kinda works?
 esac
 
 XMODULES="`ls $XORGDIR \
