@@ -1,6 +1,6 @@
---- a/powerd	2012-02-22 19:39:23.000000000 +0200
-+++ b/powerd	2012-02-23 20:03:05.000000000 +0200
-@@ -718,8 +718,6 @@
+--- a/powerd	2012-04-25 19:11:08.000000000 +0300
++++ b/powerd	2012-04-25 22:49:16.000000000 +0300
+@@ -710,8 +710,6 @@
          set -x
          debug=1
          : @ debug begun, $powerd_version
@@ -9,7 +9,7 @@
          ;;
      off)
          if [ "$tracing" ]
-@@ -777,13 +775,6 @@
+@@ -769,13 +767,6 @@
  
  read_hwinfo()
  {
@@ -23,7 +23,7 @@
      read hwvendor < /sys/class/dmi/id/sys_vendor ||
          hwvendor="n/a"
      read hwname < /sys/class/dmi/id/product_name ||
-@@ -845,9 +836,6 @@
+@@ -905,9 +896,6 @@
  exec 1>&2   # capture stdout, too. (prevents console spew)
  
  log powerd $powerd_version startup at $(date), on XO-$XO
@@ -33,18 +33,16 @@
  
  yes_or_true()
  {
-@@ -880,8 +868,8 @@
- # pull the (first) wlan interface name from the output of iwconfig
+@@ -941,7 +929,7 @@
  # if we find none, wlan may be rfkilled, in which case choose eth0
  WLANIFACE=$(iwconfig 2>/dev/null |
--    sed -n -e 's/^\(eth[0-9]\+\).*/\1/p' | sed 1q)
+     sed -n -e 's/^\(eth\|wlan\)\([0-9]\+\).*/\1\2/p' | sed 1q)
 -: ${WLANIFACE:=eth0}
-+    sed -n -e 's/^\(wlan[0-9]\+\).*/\1/p' | sed 1q)
 +: ${WLANIFACE:=wlan0}
  
  
  splash()
-@@ -933,7 +921,7 @@
+@@ -993,7 +981,7 @@
      log shutting down due to $*
      leavesplash # kill the splasher (leaving splash visible)
      sleep .05s
@@ -53,25 +51,25 @@
      sleep 9999999
  }
  
-@@ -1575,8 +1563,6 @@
+@@ -1772,7 +1760,7 @@
      while : snooze loop
      do
  
 -        pwrlog_take_reading suspend
--
++		#pwrlog_take_reading suspend
+ 
          trace until-sleep_type is $until-$sleep_type 
  
-         case $until-$sleep_type in
-@@ -1729,8 +1715,6 @@
+@@ -1935,7 +1923,7 @@
          trace got wakeup: $wakeupsource @ $lastwakeup, \
                  slept $(( lastwakeup - sleep_started ))
  
 -        pwrlog_take_reading resume-$wakeupsource
--
-         case $wakeupsource in
-         "powerbutton")
-             trace power button during $until
-@@ -2235,11 +2219,6 @@
++        #pwrlog_take_reading resume-$wakeupsource
+ 
+         # if we don't know what woke us, and it was very close
+         # to the alarm time, treat it as such.  (useful esp. during
+@@ -2453,11 +2441,6 @@
      config_CPU_IDLE_LIMIT=10
      config_MONITOR_NETWORK_ACTIVITY=yes
  
@@ -83,31 +81,34 @@
      config_AMBIENT_BRIGHT=50    # low OLS sensor trigger level, for sunshine
      config_AMBIENT_NORMAL=80    # high trigger level, for shade or indoors
  }
-@@ -2597,7 +2576,6 @@
- exit_actions()
+@@ -2832,7 +2815,7 @@
  {
      [ -n "$powerd_dbus_pid" ] && kill $powerd_dbus_pid
+     [ -n "$inotify_pid" ] && kill $inotify_pid
 -    pwrlog_take_reading shutdown
++    #pwrlog_take_reading shutdown
      set_wakeupevents none
      unsplash
      dcon thaw
-@@ -2665,8 +2643,6 @@
+@@ -2903,8 +2886,8 @@
              continue
          fi
  
 -        pwrlog_take_reading $event-event $arg2 $arg3 $more
 -
++		#pwrlog_take_reading $event-event $arg2 $arg3 $more
++		
          case $event in
  
          powerbutton|fake_powerbutton)
-@@ -2887,30 +2863,6 @@
+@@ -3134,30 +3117,6 @@
      done <&6  # from the fifo
  }
  
 -configure_pwrlog()
 -{
 -    if [ $config_PWRLOG_INTERVAL -gt 30 -a \
--            -s $CONFIGDIR/olpc-pwr-log.sh \
+-            -s $LIBEXECDIR/power-logger \
 -            -a -z "$no_battery" ]
 -    then
 -        pwrlog_inside_powerd=yes
@@ -115,7 +116,7 @@
 -        mkdir -p $config_PWRLOG_DIR
 -        chown olpc:olpc $config_PWRLOG_DIR
 -
--        . $CONFIGDIR/olpc-pwr-log.sh
+-        . $LIBEXECDIR/power-logger
 -        pwrlog_init $config_PWRLOG_INTERVAL $config_PWRLOG_DIR \
 -            $config_PWRLOG_LOGSIZE $config_PWRLOG_LOGDIRSIZE
 -
@@ -128,17 +129,18 @@
 -    fi
 -}
 -
- netactivity_snapshot()
- {
-     iptables --list netactivity --verbose --exact --numeric
-@@ -3010,10 +2962,6 @@
+ # powerd runs "set -u".  variables that aren't initialized
+ # naturally are set here.
+ am_ebook=;
+@@ -3201,9 +3160,9 @@
  
  init_netactivity_tracking
  
 -configure_pwrlog
--
++#configure_pwrlog
+ 
 -pwrlog_take_reading startup
--
++#pwrlog_take_reading startup
+ 
  sched_unfreezetimer
  
- trap "exit_actions" 0
