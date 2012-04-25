@@ -1,5 +1,14 @@
 --- a/powerd	2012-04-25 19:11:08.000000000 +0300
 +++ b/powerd	2012-04-25 22:49:16.000000000 +0300
+@@ -439,7 +439,7 @@
+ XO=;
+ CONFIGDIR=/etc/powerd
+ DATADIR=$CONFIGDIR
+-LIBEXECDIR=/usr/libexec/powerd
++LIBEXECDIR=/usr/bin
+ 
+ VERSIONFILE=$DATADIR/version
+ CONFIGFILE=$CONFIGDIR/powerd.conf
 @@ -710,8 +710,6 @@
          set -x
          debug=1
