@@ -283,6 +283,16 @@ bld_powerd()
 		echo "Compiled pnmto565fb. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
 	fi
 	strip -s pnmto565fb
+	make usblist
+	if [ $? -ne 0 ]; then
+		echo -e "\\0033[1;31m"
+		echo "Error: failed compile usblist."
+		echo -en "\\0033[0;39m"
+		echo "Error: failed compile usblist. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	else
+		echo "Compiled usblist. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
+	fi
+	strip -s usblist
 	patch -p1 < $patches/powerd.patch 
 	if [ $? -ne 0 ]; then
 		echo "Failed to patch powerd. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
@@ -300,6 +310,7 @@ bld_powerd()
 	cp -a --remove-destination powerd $output/usr/sbin
 	cp -a --remove-destination olpc-switchd $output/usr/sbin
 	cp -a --remove-destination pnmto565fb $output/usr/bin
+	cp -a --remove-destination usblist $output/usr/bin
 	cp -a --remove-destination powerd-config $output/usr/bin
 	cp -a --remove-destination olpc-nosleep $output/usr/bin
 	cp -a --remove-destination pleaseconfirm.* $output/etc/powerd

@@ -32,16 +32,17 @@
      read hwvendor < /sys/class/dmi/id/sys_vendor ||
          hwvendor="n/a"
      read hwname < /sys/class/dmi/id/product_name ||
-@@ -905,9 +896,6 @@
+@@ -901,8 +901,8 @@
  exec 1>&2   # capture stdout, too. (prevents console spew)
  
  log powerd $powerd_version startup at $(date), on XO-$XO
 -log $(< /proc/version)
 -log olpc build: $(< /boot/olpc_build)
--
++#log $(< /proc/version)
++#log olpc build: $(< /boot/olpc_build)
  
- yes_or_true()
- {
+ # make a file pattern match of "foo*" to return nothing if foo* doesn't exist
+ shopt -s nullglob
 @@ -941,7 +929,7 @@
  # if we find none, wlan may be rfkilled, in which case choose eth0
  WLANIFACE=$(iwconfig 2>/dev/null |
