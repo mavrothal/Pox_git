@@ -670,8 +670,7 @@ ln -fs /usr/share/icons/hicolor/22x22/apps/* /var/local/icons/ 2>/dev/null
 ln -fs /usr/share/icons/hicolor/24x24/apps/* /var/local/icons/ 2>/dev/null
 ln -fs /usr/share/icons/hicolor/32x32/apps/* /var/local/icons/ 2>/dev/null
 ln -fs /usr/share/icons/hicolor/48x48/apps/* /var/local/icons/ 2>/dev/null
-ln -fs /usr/share/icons/gnome/48x48/apps/* /var/local/icons/ 2>/dev/null
-ln -fs /usr/share/icons/gnome/48x48/devices/* /var/local/icons/ 2>/dev/null
+ln -fs /usr/share/icons/hicolor/48x48/devices/* /var/local/icons/ 2>/dev/null
 ln -fs /usr/share/pixmaps/abiword.png /var/local/icons/ 2>/dev/null
 
 

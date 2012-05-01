@@ -5,6 +5,6 @@
  		<!-- Additional TaskList attribute: maxwidth -->
  		<TaskList/>
 +		
-+		<TrayButton popup="Mount devices" icon="/usr/share/icons/gnome/24x24/devices/gnome-dev-removable.png">exec:pmount</TrayButton>
++		<TrayButton popup="Mount devices" icon="/usr/share/icons/hicolor/24x24/devices/gnome-dev-removable.png">exec:pmount</TrayButton>
  
  		<Dock/>
