@@ -609,6 +609,19 @@ sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/ev
 
 # Saluki specific fixes
 case "$DISTRO_FILE_PREFIX" in
+
+slacko)
+# Change pager width
+sed -i "s/"maxwidth=\"25\""/"maxwidth=\"0\""/" $SFSROOT/root/.jwmrc-tray
+
+# Fix quickpet sfs list.
+# Careful. Is kernel specific
+cd $SFSROOT/etc/quickpet
+ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-2.6.35.13_xo1-20111214.0519.olpc.5d76efb_Aufs
+ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-2.6.35.13_xo1.5-20111214.0536.olpc.5d76efb_Aufs 
+cd $SFSROOT
+;;
+
 luki)
 # Fix font size for XFCE4 (Saluki 006+)
 sed -i 's/<property name="DPI" type="empty"\/>/<property name="DPI" type="int" value="140"\/>/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
