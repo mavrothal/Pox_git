@@ -879,7 +879,8 @@ y=$(printf "%s\n" "$XOSFS" | sed 's/[/]/\\&/g') # specific case
 find $XOSFS | sed s/$y//g >> $CWD/build.log
 
 echo "copying in the XO files"
-cp -arf $XOSFS/* ./
+cp -aRf $XOSFS/* ./
+cp -aRf $XOSFS/.[a-zA-Z0-9]* ./
 
 statusfunc $?
 
