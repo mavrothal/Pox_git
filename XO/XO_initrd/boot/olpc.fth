@@ -97,11 +97,19 @@ visible
    \ takes a long time to wake up after a USB reset, Puppy sometimes misses it,
    \ so it's better to avoid the search by telling Puppy where to find the files.  
    usb?  if
-      " PDEV1=sda1"
+	  xo-1? if
+	    " PDEV1=sda1 pfix=nocopy"  \ Do not coppy main sfs to RAM on XO-1
+	  else  
+        " PDEV1=sda1"
+      then
    else
-      sd?  if
+   	sd?  if
          slot1?  if
-            " PDEV1=mmcblk0p1"  \ External SD card
+            xo-1? if
+               " PDEV1=mmcblk0p1 pfix=nocopy"  \ External SD card. No copy to RAM 
+            else
+               " PDEV1=mmcblk0p1"
+            then
          else
             " PDEV1=mmcblk1p1"  \ Internal SD card
          then
