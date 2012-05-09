@@ -6,7 +6,7 @@ WIFISTATE=`cat /sys/class/rfkill/rfkill0/state`
 killwifi (){
 WIFISTATE=`cat /sys/class/rfkill/rfkill0/state`
 if [[ $WIFISTATE = 1 ]];then
-   ifconfig eth0 down
+   ifconfig wlan0 down
    echo 0 > /sys/class/rfkill/rfkill0/state
 #   mv /etc/powerd/postresume.d/reconnect.sh /etc/powerd 
    Xdialog --timeout 5 --msgbox "Wireless conectivity is off" 0 0 0
@@ -20,7 +20,7 @@ if [[ $WIFISTATE = 0 ]];then
    echo 1 > /sys/class/rfkill/rfkill0/state
 #  mv /etc/powerd/reconnect.sh /etc/powerd/postresume.d
    sleep 1
-   ifconfig eth0 up 2>/dev/null
+   ifconfig wlan0 up 2>/dev/null
    sleep 1
    /usr/local/apps/Connect/AppRun --connect &
    Xdialog --timeout 5 --msgbox "Wireless conectivity is on \n If your connection failed \nright click the network tray icon \n and select \"Reconnect to Network\"" 0 0 0

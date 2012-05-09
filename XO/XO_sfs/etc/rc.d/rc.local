@@ -35,12 +35,6 @@ if [ "$XOVER" = "xo1.5" ] ; then
 	modprobe via-camera &>/dev/null &
 fi
 
-# turn-off mesh in the XO-1
-if [ "$XOVER" = "xo1" ] ; then
-	echo 0 > /sys/class/net/wlan0/lbs_mesh
-fi
-
-
 # start kbdshim and powerd
 /usr/sbin/olpc-kbdshim-udev -f -l \
 	-b /usr/bin/olpc-brightness \

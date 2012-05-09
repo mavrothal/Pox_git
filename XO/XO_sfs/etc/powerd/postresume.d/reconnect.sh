@@ -5,8 +5,6 @@
 # First test if eth0 is up so if we do agressive suspend will not try to reconnect all the time
 TestEth=`ifconfig | grep wlan`
 if [  "$TestEth"  != "" ] ; then
-   # turnoff mesh while at it (for 2.6.35 kernel)
-   echo 0 > /sys/class/net/wlan0/lbs_mesh &
    exit 0
 fi
 
@@ -115,10 +113,8 @@ fi
 # Test if eth0 is realy up since some times fails after soft sleep
 sleep 20
 if [  "$TestEth"  != "" ] ; then
-   # turnoff mesh while at it (for 2.6.35 kernel)
-   echo 0 > /sys/class/net/wlan0/lbs_mesh &
    exit 0
-   else
+else
    cd /etc/powerd/postresume.d/
    ./reconnect.sh
 fi
