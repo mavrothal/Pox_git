@@ -1,0 +1,8 @@
+#/bin/sh
+if [ -d /root/.pup_event/drive_mmcblk0p1 ]; then
+	if [ "`cat /root/.pup_event/drive_mmcblk0p1/AppRun | grep \#CURPOSX=\\$\(\(`" = "" ] ; then
+		sed -i 's/CURPOSX=\$/#CURPOSX=\$/' /root/.pup_event/drive_mmcblk0p1/AppRun
+	else
+		exit 0
+	fi
+fi
