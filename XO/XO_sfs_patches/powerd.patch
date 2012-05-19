@@ -9,42 +9,26 @@
  
  VERSIONFILE=$DATADIR/version
  CONFIGFILE=$CONFIGDIR/powerd.conf
-@@ -710,8 +710,6 @@
-         set -x
+@@ -726,7 +726,7 @@
          debug=1
          : @ debug begun, $powerd_version
--        cat /proc/version >&2
+         cat /proc/version >&2
 -        cat /boot/olpc_build >&2
++        #cat /boot/olpc_build >&2
          ;;
      off)
          if [ "$tracing" ]
-@@ -769,13 +767,6 @@
- 
- read_hwinfo()
- {
--    if [ -x /usr/bin/olpc-hwinfo ]
--    then
--        hwvendor=OLPC
--        hwname=XO
--        hwversion=$(olpc-hwinfo model)
--        return
--    fi
-     read hwvendor < /sys/class/dmi/id/sys_vendor ||
-         hwvendor="n/a"
-     read hwname < /sys/class/dmi/id/product_name ||
-@@ -901,8 +901,8 @@
- exec 1>&2   # capture stdout, too. (prevents console spew)
+@@ -914,7 +914,7 @@
  
  log powerd $powerd_version startup at $(date), on XO-$XO
--log $(< /proc/version)
+ log $(< /proc/version)
 -log olpc build: $(< /boot/olpc_build)
-+#log $(< /proc/version)
 +#log olpc build: $(< /boot/olpc_build)
  
  # make a file pattern match of "foo*" to return nothing if foo* doesn't exist
  shopt -s nullglob
-@@ -941,7 +929,7 @@
- # if we find none, wlan may be rfkilled, in which case choose eth0
+@@ -951,7 +951,7 @@
+ # if we find none, wlan may be rfkilled, in which case choose eth0.
  WLANIFACE=$(iwconfig 2>/dev/null |
      sed -n -e 's/^\(eth\|wlan\)\([0-9]\+\).*/\1\2/p' | sed 1q)
 -: ${WLANIFACE:=eth0}
@@ -52,7 +36,7 @@
  
  
  splash()
-@@ -993,7 +981,7 @@
+@@ -1003,7 +1003,7 @@
      log shutting down due to $*
      leavesplash # kill the splasher (leaving splash visible)
      sleep .05s
@@ -61,57 +45,57 @@
      sleep 9999999
  }
  
-@@ -1772,7 +1760,7 @@
+@@ -1782,8 +1782,6 @@
      while : snooze loop
      do
  
 -        pwrlog_take_reading suspend
-+		#pwrlog_take_reading suspend
- 
+-
          trace until-sleep_type is $until-$sleep_type 
  
-@@ -1935,7 +1923,7 @@
+         case $until-$sleep_type in
+@@ -1945,8 +1943,6 @@
          trace got wakeup: $wakeupsource @ $lastwakeup, \
                  slept $(( lastwakeup - sleep_started ))
  
 -        pwrlog_take_reading resume-$wakeupsource
-+        #pwrlog_take_reading resume-$wakeupsource
- 
+-
          # if we don't know what woke us, and it was very close
          # to the alarm time, treat it as such.  (useful esp. during
-@@ -2453,11 +2441,6 @@
+         # development, when rtc driver doesn't yet support wakeup
+@@ -2464,12 +2460,6 @@
      config_CPU_IDLE_LIMIT=10
      config_MONITOR_NETWORK_ACTIVITY=yes
  
 -    config_PWRLOG_INTERVAL=0
 -    config_PWRLOG_DIR=/home/olpc/power-logs
+-    config_PWRLOG_OWNER=olpc:olpc
 -    config_PWRLOG_LOGSIZE=50            # Kbytes
 -    config_PWRLOG_LOGDIRSIZE=1000       # Kbytes
 -
      config_AMBIENT_BRIGHT=50    # low OLS sensor trigger level, for sunshine
      config_AMBIENT_NORMAL=80    # high trigger level, for shade or indoors
  }
-@@ -2832,7 +2815,7 @@
+@@ -2844,7 +2834,6 @@
  {
      [ -n "$powerd_dbus_pid" ] && kill $powerd_dbus_pid
      [ -n "$inotify_pid" ] && kill $inotify_pid
 -    pwrlog_take_reading shutdown
-+    #pwrlog_take_reading shutdown
      set_wakeupevents none
      unsplash
      dcon thaw
-@@ -2903,8 +2886,8 @@
+@@ -2918,9 +2907,7 @@
              continue
          fi
  
 -        pwrlog_take_reading $event-event $arg2 $arg3 $more
 -
-+		#pwrlog_take_reading $event-event $arg2 $arg3 $more
-+		
-         case $event in
+-        case $event in
++	case $event in
  
          powerbutton|fake_powerbutton)
-@@ -3134,30 +3117,6 @@
+             # sync, in case the user keeps holding the button.
+@@ -3149,30 +3136,6 @@
      done <&6  # from the fifo
  }
  
@@ -124,10 +108,11 @@
 -        pwrlog_inside_powerd=yes
 -
 -        mkdir -p $config_PWRLOG_DIR
--        chown olpc:olpc $config_PWRLOG_DIR
+-        chown $config_PWRLOG_OWNER $config_PWRLOG_DIR
 -
 -        . $LIBEXECDIR/power-logger
 -        pwrlog_init $config_PWRLOG_INTERVAL $config_PWRLOG_DIR \
+-            $config_PWRLOG_OWNER \
 -            $config_PWRLOG_LOGSIZE $config_PWRLOG_LOGDIRSIZE
 -
 -    else
@@ -138,10 +123,9 @@
 -        }
 -    fi
 -}
--
+ 
  # powerd runs "set -u".  variables that aren't initialized
  # naturally are set here.
- am_ebook=;
 @@ -3201,9 +3160,9 @@
  
  init_netactivity_tracking
