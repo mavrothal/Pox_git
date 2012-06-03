@@ -46,7 +46,6 @@ Usage:
 	-v|--version	display script version
 	-d|--download 	only download all the sources
 	-g|--get	Get binaries from OLPC builds
-	-s|--pets	Get specific pets
 	-b|--build 	download and build everything
 	-k|--kbdshim 	download and build olpc-kbdshim
 	-p|--powerd 	download and build olpc-powerd
@@ -67,50 +66,6 @@ case "$#" in
 0) usagefunc ;;
 [2-9])echo "too many arguments"; usagefunc ;;
 esac
-
-# Check if we have development tools installed
-if [ -f /etc/rc.d/BOOTCONFIG ] ; then
-	. /etc/rc.d/BOOTCONFIG
-	DEVX=`echo "$EXTRASFSLIST" | grep devx` 
-	if [ "$DEVX" = "" ] ; then
-		echo -e "\\0033[1;31m"
-		echo "You _must_ have devx loaded for this script to run properly"
-		echo "Please load the devx SFS and try again"
-		echo -en "\\0033[0;39m"
-		xoolpcfunc
-		exit 0
-	fi
-else
-	if [ "`which gcc | grep no\ `" != "" ] || [ "`which gcc`" = "" ] \
-	|| [ "`which make | grep no\ `" != "" ] || [ "`which make`" = "" ] ; then
-		echo -e "\\0033[1;31m"
-		echo "You _must_ have development tools  installed for this script"
-		echo " to run properly. Please install them and try again"
-		echo -en "\\0033[0;39m"
-		xoolpcfunc
-		exit 0
-	fi
-fi
-
-#Check if we have git
-if [ "`which git`" = "" ] ; then
-	echo -e "\\0033[1;31m"
-	echo "You _must_ have git  installed for this script"
-	echo " to run properly. Please install git and try again"
-	echo -en "\\0033[0;39m"
-	xoolpcfunc
-	exit 0
-fi
-
-# Check if we have rsync
-if [ "`which rsync`" = "" ] ; then
-	echo -e "\\0033[1;31m"
-	echo "You _must_ have rsync  installed for this script"
-	echo " to run properly. Please install rsync and try again"
-	echo -en "\\0033[0;39m"
-	xoolpcfunc
-	exit 0
-fi
 
 # Download/update olpc-kbdshim
 dnld_kbd()
@@ -253,6 +208,24 @@ check_dev()
 			xoolpcfunc
 			exit 0
 		fi
+	fi
+	#Check if we have git
+	if [ "`which git`" = "" ] ; then
+		echo -e "\\0033[1;31m"
+		echo "You _must_ have git  installed for this script"
+		echo " to run properly. Please install git and try again"
+		echo -en "\\0033[0;39m"
+		xoolpcfunc
+		exit 0
+	fi
+	# Check if we have rsync
+	if [ "`which rsync`" = "" ] ; then
+		echo -e "\\0033[1;31m"
+		echo "You _must_ have rsync  installed for this script"
+		echo " to run properly. Please install rsync and try again"
+		echo -en "\\0033[0;39m"
+		xoolpcfunc
+		exit 0
 	fi
 }
 export -f check_dev
@@ -549,15 +522,15 @@ case $1 in
 -v|--version) echo "$VER" && exit 0 ;;
 -xh|--extended-help) echo "Coming soon..." 
 					xoolpcfunc && exit 0 ;;	
--d|--download) dnld_kbd	&& dnld_powerd && dnld_chrome ;;
--g|--get) get_binaries && finished ;;
--s|--pets) get_pets && finished ;;
--b|--build) dnld_kbd && dnld_powerd && dnld_chrome
-			check_dev && bld_kbd  && bld_powerd && get_binaries
+-d|--download) check_dev && dnld_kbd	&& dnld_powerd && dnld_chrome ;;
+-g|--get) check_dev && get_binaries && finished ;;
+# -s|--pets) get_pets && finished ;;
+-b|--build) check_dev && dnld_kbd && dnld_powerd && dnld_chrome
+			 bld_kbd  && bld_powerd && get_binaries
 			bld_chrome && fix_mod && finished ;; # && get_pets
--k|--kbdshim) dnld_kbd && check_dev && bld_kbd && fix_mod && finished ;;	
--p|--powerd) dnld_powerd && check_dev && bld_powerd && fix_mod && finished ;;
--c|--chrome) dnld_chrome && check_dev && bld_chrome && fix_mod && finished ;; 
+-k|--kbdshim) check_dev && dnld_kbd && bld_kbd && fix_mod && finished ;;	
+-p|--powerd) check_dev && dnld_powerd  && bld_powerd && fix_mod && finished ;;
+-c|--chrome) check_dev && dnld_chrome && bld_chrome && fix_mod && finished ;; 
 esac
 
 		
