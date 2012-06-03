@@ -99,6 +99,15 @@ check_dev()
 			exit 0
 		fi
 	fi
+	
+	if [ "`which git`" = "" ] ; then
+		echo -e "\\0033[1;31m"
+		echo "You _must_ have git  installed for this script"
+		echo " to run properly. Please install git and try again"
+		echo -en "\\0033[0;39m"
+		xoolpcfunc
+		exit 0
+	fi
 }
 export -f check_dev	
 

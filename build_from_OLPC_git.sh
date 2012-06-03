@@ -68,6 +68,50 @@ case "$#" in
 [2-9])echo "too many arguments"; usagefunc ;;
 esac
 
+# Check if we have development tools installed
+if [ -f /etc/rc.d/BOOTCONFIG ] ; then
+	. /etc/rc.d/BOOTCONFIG
+	DEVX=`echo "$EXTRASFSLIST" | grep devx` 
+	if [ "$DEVX" = "" ] ; then
+		echo -e "\\0033[1;31m"
+		echo "You _must_ have devx loaded for this script to run properly"
+		echo "Please load the devx SFS and try again"
+		echo -en "\\0033[0;39m"
+		xoolpcfunc
+		exit 0
+	fi
+else
+	if [ "`which gcc | grep no\ `" != "" ] || [ "`which gcc`" = "" ] \
+	|| [ "`which make | grep no\ `" != "" ] || [ "`which make`" = "" ] ; then
+		echo -e "\\0033[1;31m"
+		echo "You _must_ have development tools  installed for this script"
+		echo " to run properly. Please install them and try again"
+		echo -en "\\0033[0;39m"
+		xoolpcfunc
+		exit 0
+	fi
+fi
+
+#Check if we have git
+if [ "`which git`" = "" ] ; then
+	echo -e "\\0033[1;31m"
+	echo "You _must_ have git  installed for this script"
+	echo " to run properly. Please install git and try again"
+	echo -en "\\0033[0;39m"
+	xoolpcfunc
+	exit 0
+fi
+
+# Check if we have rsync
+if [ "`which rsync`" = "" ] ; then
+	echo -e "\\0033[1;31m"
+	echo "You _must_ have rsync  installed for this script"
+	echo " to run properly. Please install rsync and try again"
+	echo -en "\\0033[0;39m"
+	xoolpcfunc
+	exit 0
+fi
+
 # Download/update olpc-kbdshim
 dnld_kbd()
 {
