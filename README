@@ -4,8 +4,9 @@ puppy ISO image and public sources
 
 There are 5 build scripts and several modified puppy-scripts.
   
-`XOpup_kernel_builder.sh' will build the XO-specific kernels from the 
-olpc-2.6 and Aufs2.2 gits, with patched puppy-specific config files.
+`XOpup_kernel_builder.sh' will build the 2.6.35.x or the 3.3.x  kernels for
+the XO-1 and/or the XO-1.5 from the olpc-2.6 and the Aufs gits, with patched 
+puppy-specific config files.
  
 `build_from_OLPC_git.sh' will download sources from the OLPC git patch them
 as needed and make the files relating to the XO power management, fetch the 
@@ -47,3 +48,7 @@ distro in the build to get full power management and keyboard functionality.
 
 We welcome patches and addition that will suit the XOs, either in the scripts 
 or the XO/XO_sfs/* files.
+
+Quick start: Clone or download Pox_git and from a level above the folder run
+`./Pox_git_foldername/make_build -b /full_path_to/puppy.iso'. 
+Make sure you have at least 1GB of free space if you are building the kernels.
