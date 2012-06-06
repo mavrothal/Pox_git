@@ -442,6 +442,66 @@ rm -rf $SFSROOT/usr/lib/x/*
 rm -f $SFSROOT/usr/lib/xorg/modules/input/synaptics_drv.so
 rm -f $SFSROOT/usr/X11R7/lib/xorg/modules/input/synaptics_drv.so
 
+# Check if we have the XO-1 geode video driver. Older puppies don't
+if [ "`ls $XORGDIR | grep geode`" = "" ] ; then
+	echo -e "\\0033[1;31m"
+	echo "You do not have the geode video driver. Your build will NOT "
+	echo "run on the XO-1.  Hit \"x\"  and then  \"enter\" to exit"
+	echo "or just \"enter\" to continue and try to built it"
+	echo -en "\\0033[0;39m"
+	read CONTINUE
+	if [ "$CONTINUE" = "x" ];then
+		rm -rf $SQDIR
+		rm -f $XODIR/initrd.gz
+		echo "No geode driver. Build aborted. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		exit 1
+	else
+		echo -e "\\0033[1;34m"
+		echo "Do you want to try to compile the geode video driver now? "
+		echo "WARNING. The build will be aborted if it fails."
+		echo ""
+		echo "Hit \"c\"  and then  \"enter\" to compile it"
+		echo "or just \"enter\" to continue without it"
+		echo -en "\\0033[0;39m"
+		read CONTINUE	
+		if  [ "$CONTINUE" = "c" ];then
+			cd $XODIR/XO_SFS_sources
+			wget -c http://xorg.freedesktop.org/releases/individual/driver/xf86-video-geode-2.11.13.tar.gz
+			if [ $? -ne 0 ]; then
+				echo -e "\\0033[1;31m"
+				echo "Error: failed to download the geode driver source"
+				echo "Check the connection and try again"
+				echo -en "\\0033[0;39m"
+				echo "Failed to dowanload the geode driver source. Aborting build $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				exit 1
+			fi
+			sync
+			tar xvzf xf86-video-geode-2.11.13.tar.gz
+			sync
+			rm -f xf86-video-geode-2.11.13.tar.gz
+			cd xf86-video-geode-2.11.13
+			./configure
+			sync
+			make
+			if [ $? -ne 0 ]; then
+				echo "Geode compilation failed. Aborting build." >> $CWD/build.log
+				echo "Try co compile from within the  xf86-video-geode-2.11.13 directory. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				exit 1
+			else
+				echo "geode_drv.so was compiled successfully. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			fi
+			strip -s src/.libs/*.so
+			cp -a src/.libs/*.so $XORGDIR 
+			cp -a src/.libs/*.so $XODIR/$DISTRO_FILE_PREFIX/xorg/modules/drivers # keep for futre builds
+			sync
+			make clean 
+			cd $SQDIR
+		else
+			echo "WARNING No geode driver. The build will NOT run on the XO-1. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		fi
+	fi
+fi
+
 echo "removing other useless stuff for XO..."
 # remove extra video stuff
 echo "extra video libs..."
