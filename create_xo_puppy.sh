@@ -616,9 +616,11 @@ sed -i "s/"maxwidth=\"25\""/"maxwidth=\"0\""/" $SFSROOT/root/.jwmrc-tray
 
 # Fix quickpet sfs list.
 # Careful. Is kernel specific
+KER1=`ls $XODIR/boot10 | grep config | sed 's/config-//'`
+KER15=`ls $XODIR/boot15 | grep config | sed 's/config-//'`
 cd $SFSROOT/etc/quickpet
-ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-2.6.35.13_xo1-20111214.0519.olpc.5d76efb_Aufs
-ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-2.6.35.13_xo1.5-20111214.0536.olpc.5d76efb_Aufs 
+ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-"$KER1"
+ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-"$KER15"
 cd $SFSROOT
 ;;
 
