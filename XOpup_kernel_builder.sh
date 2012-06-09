@@ -783,7 +783,7 @@ build_ARM()
 	make mrproper
 	cp arch/arm/configs/xo_175_defconfig .config
 	make zImage modules
-	if [ ! -f /etc/fedora-release ] && [ "`cat /etc/issue | grep -i fedora`" = "" ] ; then
+	if [ -f /etc/fedora-release ] || [ "`cat /etc/issue | grep -i fedora`" != "" ] ; then
 		kernel_ver=`cat include/config/kernel.release`
 	fi
 	cp .config $output/boot175/config-$kernel_ver
