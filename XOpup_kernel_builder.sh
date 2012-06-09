@@ -83,7 +83,7 @@ check_dev()
 	if [ -f /etc/rc.d/BOOTCONFIG ] ; then
 		. /etc/rc.d/BOOTCONFIG
 		DEVX=`echo "$EXTRASFSLIST" | grep devx` 
-		if [ "$DEVX" = "" ] ; then
+		if [ "$DEVX" = "" ] && [ "`cat /etc/issue | grep -i fatdog`" = "" ] ; then
 			echo -e "\\0033[1;31m"
 			echo "You _must_ have devx loaded for this script to run properly"
 			echo "Please load the devx SFS and try again"
@@ -695,7 +695,7 @@ build_ARM()
 	# Remove the "+" signed that is added at the end of the kernel extraversion
 	sed -rie 's/echo "\+"/#echo "\+"/' scripts/setlocalversion
 	# Cahnge "dirty" to "Aufs" in case we build in Fedora
-	sed -rie 's/dirty/Aufs/g' scripts/setlocalversion
+	sed -rie 's/dirty/olpc\.armv7\.Aufs/g' scripts/setlocalversion
 
 	sync
 
@@ -730,7 +730,7 @@ build_ARM()
 				echo " Pleas yum install gcc-arm-linux-gnu and run the script again."
 				echo -en "\\0033[0;39m"
 				exit 1
-			elif [ "`uname -m | grep x86_64`" = "" ] ; then
+			elif [ "`uname -m | grep x86_64`" != "" ] ; then
 				echo -e "\\0033[1;34m"
 				echo " Please download gcc-4.6.0-from-x86_64-to-armv7 from here"
 				echo " http://dev.laptop.org/~cjb/gcc-4.6.0-from-x86_64-to-armv7.tar.bz2"
@@ -753,22 +753,6 @@ build_ARM()
 	echo "Making XO-1.75 kernel"
 	echo -en "\\0033[0;39m"
 	
-	if [ ! -f /etc/fedora-release ] && [ "`cat /etc/issue | grep -i fedora`" = "" ] ; then	
-		KVER=`cat Makefile |grep ^VERSION | cut -f2 -d "=" | tr -d ' '`
-		KPATCH=`cat Makefile |grep ^PATCHLEVEL | cut -f2 -d "=" | tr -d ' '`
-		KSUB=`cat Makefile |grep ^SUBLEVEL | cut -f2 -d "=" | tr -d ' '`
-		kernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "=" | tr -d ' ' | cut -f1 -d "_"`
-		gitcommit=`cat .git/HEAD | awk '{print substr($0,1,7)}'`
-		kernel_ver=""$KVER"."$KPATCH"."$KSUB""$kernextr"_xo1.75-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS""
-		# Change kernel extra version
-		NOkernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "="`
-		if [ "$NOkernextr" = "" ] ; then  
-			sed -i "s/^EXTRAVERSION =/EXTRAVERSION = "$kernextr"_xo1.75-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS"/" Makefile
-		else
-			sed -i "s/^EXTRAVERSION = [.a-zA-Z0-9_-]*/EXTRAVERSION = "$kernextr"_xo1.75-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS"/" Makefile
-		fi
-	fi		
-	
 	if [ "`uname -m | grep -i armv7`" = "" ] ; then
 		if [ ! -f /etc/fedora-release ] && [ "`cat /etc/issue | grep -i fedora`" = "" ] ; then
 		 	export PATH=/opt/crosstool/gcc-4.6.0/bin:$PATH
@@ -783,9 +767,7 @@ build_ARM()
 	make mrproper
 	cp arch/arm/configs/xo_175_defconfig .config
 	make zImage modules
-	if [ -f /etc/fedora-release ] || [ "`cat /etc/issue | grep -i fedora`" != "" ] ; then
-		kernel_ver=`cat include/config/kernel.release`
-	fi
+	kernel_ver=`cat include/config/kernel.release`
 	cp .config $output/boot175/config-$kernel_ver
 	cp arch/arm/boot/zImage $output/boot175/vmlinuz
 	make INSTALL_MOD_PATH=$output_k/ modules_install
