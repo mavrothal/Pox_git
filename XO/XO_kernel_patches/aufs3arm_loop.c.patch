@@ -1,0 +1,22 @@
+--- a/patches/aufs3-loopback.patch	2012-06-07 19:01:38.253120001 +0300
++++ b/patches/aufs3-loopback.patch	2012-06-07 18:57:27.836120001 +0300
+@@ -166,13 +166,13 @@
+  
+  	if (lo->lo_state != Lo_bound)
+ @@ -1008,6 +1041,7 @@ static int loop_clr_fd(struct loop_device *lo, struct block_device *bdev)
+- 	kthread_stop(lo->lo_thread);
+- 
+- 	lo->lo_backing_file = NULL;
++	
++	spin_lock_irq(&lo->lo_lock);
++	lo->lo_backing_file = NULL;
+ +	lo->lo_backing_virt_file = NULL;
+- 
+- 	loop_release_xfer(lo);
+- 	lo->transfer = NULL;
++	spin_unlock_irq(&lo->lo_lock);
++	
++	loop_release_xfer(lo);
+ @@ -1045,6 +1079,8 @@ static int loop_clr_fd(struct loop_device *lo, struct block_device *bdev)
+  	 * bd_mutex which is usually taken before lo_ctl_mutex.
+  	 */

@@ -1,16 +1,18 @@
 #!/bin/bash
 # 
 # This script will build a kernel capable of running puppylinux
-# on the OLPC XO-1 and XO-1.5 laptops.
+# on the OLPC XO-1, XO-1.5 and XO-1.75 laptops.
 # Use in combination with the create_xo_puppy script to make any
 # flavor XOpup running an updated 2.6.35 OLPC kernel or the new
-# (and for now experimental) OLPC 3.3.0 kernel
+# (and for now experimental) OLPC 3.3.0 kernel or the armv7 3.0 kernel
+# You'll need Fedora 16/17 or an armv7 or an x86_64 machine 
+# for ARM kernel building
 #
 # GPL2 (see /usr/share/doc) (c) mavrothal, 01micko
 # NO WARRANTY
 
 #ver
-VER=13 
+VER=14 
 
 # fail-safe switch in case someone clicks the script in ROX 
 #echo -e "\\0033[1;34m"
@@ -52,7 +54,8 @@ Usage:
 	-d|--download 	only download the sources
 	-1|--xo1 	download and build the XO-1 kernel
 	-5|--xo15 	download and build the XO-1.5 kernel
-	-b|--build 	download and build everything  
+	-7|--xo175	download and build the XO-1.75 kernel
+	-b|--build 	download and build the XO-1 and XO-1.5 kernels 
 	
 	NOTE: The program will download ~600 MB of data and requires
 	at least 1 GB of free disk space. Make sure you have all the
@@ -609,6 +612,207 @@ make_XO15_kernel()
 }
 export -f make_XO15_kernel
 
+build_ARM()
+{
+	# Point aufs git to kernel version 3.0
+	cd $git_clone_aufs3
+	git reset --hard HEAD
+	git clean -fdx
+	git checkout origin/aufs3.0
+	if [ ! -d patches ] ; then 
+		mkdir patches
+		mv *.patch patches/
+	else
+		mv *.patch patches/
+	fi
+	
+	# Patch the loop.c patch for arm-3.0-wip ! 
+	patch -p1 < $patches/aufs3arm_loop.c.patch
+	if [ $? -ne 0 ]; then
+		echo -e "\\0033[1;31m"
+		echo "Error: failed to apply $patch on the kernel sources."
+		echo -en "\\0033[0;39m"
+		echo "Failed to apply $patch on aufs3. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			exit 1
+	else
+			echo "Patched aufs3-loopback.patch. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
+	
+	
+	# Patch the OLPC kernel
+	cd $git_clone
+	git reset --hard HEAD
+	git clean -fdx
+	git checkout origin/arm-3.0-wip
+	sync
+	
+	# Apply patches and aufs source in kernel
+	cp -aR $git_clone_aufs3/fs .
+	cp -aR $git_clone_aufs3/Documentation .
+	cp -a $git_clone_aufs3/include/linux/aufs_type.h include/linux/
+		 
+	for patch in $git_clone_aufs3/patches/*; do
+		echo "Applying $patch"
+		patch -p1 < $patch
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed to apply $patch on the kernel sources."
+			echo -en "\\0033[0;39m"
+			echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			exit 1
+		else
+			echo "Building ARM kernel 3.x with Aufs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			LAYERFS="Aufs"
+		fi
+	done
+	
+	# Apply config patches
+	for patch in $patches/3.arm/*; do
+		echo "Applying $patch"
+		patch -p1 < $patch
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed to apply $patch on the kernel sources."
+			echo -en "\\0033[0;39m"
+			echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+					exit 1
+		fi
+	done
+	
+	# Apply puppy patches
+	for patch in $patches/puppy/*; do
+		echo "Applying $patch"
+		patch -p1 < $patch
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed to apply $patch on the kernel sources."
+			echo -en "\\0033[0;39m"
+			echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			exit 1
+		fi
+	done
+		
+	# Remove the "+" signed that is added at the end of the kernel extraversion
+	sed -rie 's/echo "\+"/#echo "\+"/' scripts/setlocalversion
+	# Cahnge "dirty" to "Aufs" in case we build in Fedora
+	sed -rie 's/dirty/Aufs/g' scripts/setlocalversion
+
+	sync
+
+################ (cross) compile  the XO-1.75 ARM kernel  ####################
+	
+	# Make output dirs
+	output="$BASEDIR"
+	mkdir $output/XO175kernel
+	output_k=$output/XO175kernel
+	mkdir $output/boot175
+	
+	# Check if a build is there
+	if [ -f $output/boot175/vmlinuz ] ; then
+		echo -e "\\0033[1;31m"
+		echo " An XO-1.75 kernel is alreday build! "
+		echo " Please detete or move it and run again "		
+		echo -en "\\0033[0;39m"
+		xoolpcfunc
+		exit 0
+	fi
+	
+	# Check if we can compile in this machine
+	if [ "`uname -m | grep -i armv7`" = "" ] ; then
+		# Check if we have the armv7 cross-compile gcc
+		if [ ! -f /opt/crosstool/gcc-4.6.0/bin/armv7-unknown-linux-gnueabi-gcc-4.6.0 ] \
+		&& [ ! -f /usr/bin/arm-linux-gnu-gcc ] ; then
+			echo -e "\\0033[1;31m"
+			echo " You need to have an ARM cross compiler installed to compile the XO-1.75 ARM kernel."
+			echo -en "\\0033[0;39m"
+			if [ -f /etc/fedora-release ] && [ "`cat /etc/issue | grep -i fedora`" != "" ] ; then
+				echo -e "\\0033[1;34m"
+				echo " Pleas yum install gcc-arm-linux-gnu and run the script again."
+				echo -en "\\0033[0;39m"
+				exit 1
+			elif [ "`uname -m | grep x86_64`" = "" ] ; then
+				echo -e "\\0033[1;34m"
+				echo " Please download gcc-4.6.0-from-x86_64-to-armv7 from here"
+				echo " http://dev.laptop.org/~cjb/gcc-4.6.0-from-x86_64-to-armv7.tar.bz2"
+				echo " extract it in /opt/crosstool and run the script again"
+				echo -en "\\0033[0;39m"
+				exit 1
+			else 
+				echo -e "\\0033[1;31m"
+				echo " You need to be running an x86_64 OS or a recent Fedora build"
+				echo " for this script to work. Exiting..."
+				echo -en "\\0033[0;39m"
+				exit 1
+			fi	
+		fi			
+	fi
+	
+	
+	# Make XO-1.75 kernel
+	echo -e "\\0033[1;34m"
+	echo "Making XO-1.75 kernel"
+	echo -en "\\0033[0;39m"
+	
+	if [ ! -f /etc/fedora-release ] && [ "`cat /etc/issue | grep -i fedora`" = "" ] ; then	
+		KVER=`cat Makefile |grep ^VERSION | cut -f2 -d "=" | tr -d ' '`
+		KPATCH=`cat Makefile |grep ^PATCHLEVEL | cut -f2 -d "=" | tr -d ' '`
+		KSUB=`cat Makefile |grep ^SUBLEVEL | cut -f2 -d "=" | tr -d ' '`
+		kernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "=" | tr -d ' ' | cut -f1 -d "_"`
+		gitcommit=`cat .git/HEAD | awk '{print substr($0,1,7)}'`
+		kernel_ver=""$KVER"."$KPATCH"."$KSUB""$kernextr"_xo1.75-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS""
+		# Change kernel extra version
+		NOkernextr=`cat Makefile |grep ^EXTRAVERSION | cut -f2 -d "="`
+		if [ "$NOkernextr" = "" ] ; then  
+			sed -i "s/^EXTRAVERSION =/EXTRAVERSION = "$kernextr"_xo1.75-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS"/" Makefile
+		else
+			sed -i "s/^EXTRAVERSION = [.a-zA-Z0-9_-]*/EXTRAVERSION = "$kernextr"_xo1.75-"$(date "+%Y%m%d.%H%M")".olpc."$gitcommit"_"$LAYERFS"/" Makefile
+		fi
+	fi		
+	
+	if [ "`uname -m | grep -i armv7`" = "" ] ; then
+		if [ ! -f /etc/fedora-release ] && [ "`cat /etc/issue | grep -i fedora`" = "" ] ; then
+		 	export PATH=/opt/crosstool/gcc-4.6.0/bin:$PATH
+			export ARCH=arm
+			export CROSS_COMPILE=armv7-unknown-linux-gnueabi-
+		else 
+			export ARCH=arm
+			export CROSS_COMPILE=arm-linux-gnu-
+		fi
+	fi
+	make clean distclean
+	make mrproper
+	cp arch/arm/configs/xo_175_defconfig .config
+	make zImage modules
+	if [ ! -f /etc/fedora-release ] && [ "`cat /etc/issue | grep -i fedora`" = "" ] ; then
+		kernel_ver=`cat include/config/kernel.release`
+	fi
+	cp .config $output/boot175/config-$kernel_ver
+	cp arch/arm/boot/zImage $output/boot175/vmlinuz
+	make INSTALL_MOD_PATH=$output_k/ modules_install
+	# Pack kernel firmware with kernel headers
+	mkdir -p $output_k/kernel-headers-$kernel_ver/lib
+	mv $output_k/lib/firmware $output_k/kernel-headers-$kernel_ver/lib/
+	# Fix the modules.dep since without full path do not work in puppy's initrd
+	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output_k/lib/modules/$kernel_ver/modules.dep
+	# Fix symlinks
+	rm $output_k/lib/modules/$kernel_ver/build
+	rm $output_k/lib/modules/$kernel_ver/source 
+	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/build
+	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/source
+	make headers_check
+	mkdir -p $output_k/kernel-headers-$kernel_ver/usr
+	make INSTALL_HDR_PATH=$output_k/kernel-headers-$kernel_ver/usr headers_install
+	find $output_k/kernel-headers-$kernel_ver/usr/include \( -name .install -o -name ..install.cmd \) -delete
+	make clean distclean
+	sync
+	package_source
+	cd $output_k/
+	dir_2_pet kernel-headers-$kernel_ver/
+	cd $git_clone
+	echo "XO-1.75 kernel build finished. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
+}
+export -f build_ARM
+
 package_source()
 {
 	echo -e "\\0033[1;34m"
@@ -715,6 +919,8 @@ case $1 in
 		patch_sources && make_XO1_kernel && finished ;;
 -5|--xo15)check_dev && check_space && get_sources
 		patch_sources && make_XO15_kernel && finished ;;
+-7|--xo175)check_dev && check_space && get_sources
+		build_ARM && finished ;;
 -b|--build)check_dev && check_space && get_sources
 		patch_sources && make_XO1_kernel
 		make_XO15_kernel && finished ;;
