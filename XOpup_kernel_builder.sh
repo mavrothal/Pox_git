@@ -28,7 +28,11 @@ git_clone_aufs2="$sources/aufs2-standalone"
 git_clone_aufs3="$sources/aufs3-standalone"
 union_patch="$sources/unionfs-2.5.11_for_3.3.*.diff"
 patches="$BASEDIR/XO_kernel_patches"
-CPUs=`cat /proc/cpuinfo | grep "model name" | wc -l`
+if [ "`uname -m | grep -i armv7`" = "" ] ; then
+	CPUs=`cat /proc/cpuinfo | grep "model name" | wc -l`
+else
+	CPUs=`cat /proc/cpuinfo | grep Processor | wc -l`
+fi
 
 #bit of fun! (curtesy of 01micko)
 clear
