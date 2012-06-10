@@ -695,7 +695,7 @@ build_ARM()
 	# Remove the "+" signed that is added at the end of the kernel extraversion
 	sed -rie 's/echo "\+"/#echo "\+"/' scripts/setlocalversion
 	# Cahnge "dirty" to "Aufs" in case we build in Fedora
-	sed -rie 's/dirty/olpc\.armv7\.Aufs/g' scripts/setlocalversion
+	sed -rie 's/\-dirty/\.olpc\.\"\$\(date \"+\%Y\%m\%d\.\%H\%M\"\)\"\.armv7\.Aufs/g' scripts/setlocalversion
 
 	sync
 
