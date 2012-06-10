@@ -28,6 +28,7 @@ git_clone_aufs2="$sources/aufs2-standalone"
 git_clone_aufs3="$sources/aufs3-standalone"
 union_patch="$sources/unionfs-2.5.11_for_3.3.*.diff"
 patches="$BASEDIR/XO_kernel_patches"
+CPUs=`cat /proc/cpuinfo | grep "model name" | wc -l`
 
 #bit of fun! (curtesy of 01micko)
 clear
@@ -522,7 +523,7 @@ make_XO1_kernel()
 	mkdir -p $output_k/kernel-headers-$kernel_ver/usr 
 	make INSTALL_HDR_PATH=$output_k/kernel-headers-$kernel_ver/usr headers_install
 	find $output_k/kernel-headers-$kernel_ver/usr/include \( -name .install -o -name ..install.cmd \) -delete
-	make bzImage modules
+	make -j $CPUs bzImage modules
 	cp .config $output/boot10/config-$kernel_ver
 	cp arch/x86/boot/bzImage $output/boot10/vmlinuz
 	make INSTALL_MOD_PATH=$output_k/ modules_install
@@ -588,7 +589,7 @@ make_XO15_kernel()
 	mkdir -p $output_k/kernel-headers-$kernel_ver/usr
 	make INSTALL_HDR_PATH=$output_k/kernel-headers-$kernel_ver/usr headers_install
 	find $output_k/kernel-headers-$kernel_ver/usr/include \( -name .install -o -name ..install.cmd \) -delete
-	make bzImage modules
+	make -j $CPUs bzImage modules
 	cp .config $output/boot15/config-$kernel_ver
 	cp arch/x86/boot/bzImage $output/boot15/vmlinuz
 	make INSTALL_MOD_PATH=$output_k/ modules_install
@@ -766,7 +767,7 @@ build_ARM()
 	make clean distclean
 	make mrproper
 	cp arch/arm/configs/xo_175_defconfig .config
-	make zImage modules
+	make -j $CPUs zImage modules
 	kernel_ver=`cat include/config/kernel.release`
 	cp .config $output/boot175/config-$kernel_ver
 	cp arch/arm/boot/zImage $output/boot175/vmlinuz
