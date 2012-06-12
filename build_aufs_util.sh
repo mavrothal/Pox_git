@@ -158,6 +158,10 @@ bld_utils ()
 	else 
 		echo "Aufs utilities were build sucessfully. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
+	if [ "`uname -m | grep -i armv7`" != "" ] ; then
+		export CFLAGS="$CFLAGS -fPIC"
+		export CXXFLAGS="$CXXFLAGS -fPIC"
+	fi	
 	make install
 	make clean
 }
