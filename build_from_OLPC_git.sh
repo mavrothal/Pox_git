@@ -238,6 +238,7 @@ bld_kbd()
 	
 	cd $XO_sources/olpc-kbdshim
 	git reset --hard HEAD
+	git checkout origin/master
 	# feeze to version 19 for now
 	# git checkout cf77c1b19fa002b309cc9ccb8a3dc16ef35ef687
 	make clean
@@ -277,8 +278,16 @@ bld_powerd()
 	
 	cd $XO_sources/powerd
 	git reset --hard HEAD
-	# Feeze to v42 during development
-	# git checkout f61b0feb40bff536fc86126468626b4585fe3c3d
+	git checkout origin/master
+	# check what kernel are we using
+	KERVER1=`ls $BASEDIR/boot10/ | grep config | cut -f 2 -d '-' | cut -f1 -d'.'`
+	KERVER2=`ls $BASEDIR/boot10/ | grep config | cut -f 2 -d '-' | cut -f1 -d'.'`
+	if [ "$KERVER1" = "2" ] || [ "$KERVER2" = "2" ] ; then
+		git checkout f61b0feb40bff536fc86126468626b4585fe3c3d
+		cp $patches/powerd_42.patch $patches/powerd.patch
+	else
+		cp $patches/powerd_master.patch $patches/powerd.patch
+	fi
 	make clean
 	make olpc-switchd
 	if [ $? -ne 0 ]; then
@@ -300,16 +309,18 @@ bld_powerd()
 		echo "Compiled pnmto565fb. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
 	fi
 	strip -s pnmto565fb
-	make usblist
-	if [ $? -ne 0 ]; then
-		echo -e "\\0033[1;31m"
-		echo "Error: failed compile usblist."
-		echo -en "\\0033[0;39m"
-		echo "Error: failed compile usblist. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	else
-		echo "Compiled usblist. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
+	if [ -f usblist.c ] ; then
+		make usblist
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed compile usblist."
+			echo -en "\\0033[0;39m"
+			echo "Error: failed compile usblist. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		else
+			strip -s usblist
+			echo "Compiled usblist. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
+		fi
 	fi
-	strip -s usblist
 	patch -p1 < $patches/powerd.patch 
 	if [ $? -ne 0 ]; then
 		echo "Failed to patch powerd. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log

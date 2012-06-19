@@ -1,0 +1,144 @@
+--- a/powerd	2012-02-22 19:39:23.000000000 +0200
++++ b/powerd	2012-02-23 20:03:05.000000000 +0200
+@@ -718,8 +718,6 @@
+         set -x
+         debug=1
+         : @ debug begun, $powerd_version
+-        cat /proc/version >&2
+-        cat /boot/olpc_build >&2
+         ;;
+     off)
+         if [ "$tracing" ]
+@@ -777,13 +775,6 @@
+ 
+ read_hwinfo()
+ {
+-    if [ -x /usr/bin/olpc-hwinfo ]
+-    then
+-        hwvendor=OLPC
+-        hwname=XO
+-        hwversion=$(olpc-hwinfo model)
+-        return
+-    fi
+     read hwvendor < /sys/class/dmi/id/sys_vendor ||
+         hwvendor="n/a"
+     read hwname < /sys/class/dmi/id/product_name ||
+@@ -845,9 +836,6 @@
+ exec 1>&2   # capture stdout, too. (prevents console spew)
+ 
+ log powerd $powerd_version startup at $(date), on XO-$XO
+-log $(< /proc/version)
+-log olpc build: $(< /boot/olpc_build)
+-
+ 
+ yes_or_true()
+ {
+@@ -880,8 +868,8 @@
+ # pull the (first) wlan interface name from the output of iwconfig
+ # if we find none, wlan may be rfkilled, in which case choose eth0
+ WLANIFACE=$(iwconfig 2>/dev/null |
+-    sed -n -e 's/^\(eth[0-9]\+\).*/\1/p' | sed 1q)
+-: ${WLANIFACE:=eth0}
++    sed -n -e 's/^\(wlan[0-9]\+\).*/\1/p' | sed 1q)
++: ${WLANIFACE:=wlan0}
+ 
+ 
+ splash()
+@@ -933,7 +921,7 @@
+     log shutting down due to $*
+     leavesplash # kill the splasher (leaving splash visible)
+     sleep .05s
+-    /sbin/poweroff &
++    /usr/bin/wmpoweroff &
+     sleep 9999999
+ }
+ 
+@@ -1575,8 +1563,6 @@
+     while : snooze loop
+     do
+ 
+-        pwrlog_take_reading suspend
+-
+         trace until-sleep_type is $until-$sleep_type 
+ 
+         case $until-$sleep_type in
+@@ -1729,8 +1715,6 @@
+         trace got wakeup: $wakeupsource @ $lastwakeup, \
+                 slept $(( lastwakeup - sleep_started ))
+ 
+-        pwrlog_take_reading resume-$wakeupsource
+-
+         case $wakeupsource in
+         "powerbutton")
+             trace power button during $until
+@@ -2235,11 +2219,6 @@
+     config_CPU_IDLE_LIMIT=10
+     config_MONITOR_NETWORK_ACTIVITY=yes
+ 
+-    config_PWRLOG_INTERVAL=0
+-    config_PWRLOG_DIR=/home/olpc/power-logs
+-    config_PWRLOG_LOGSIZE=50            # Kbytes
+-    config_PWRLOG_LOGDIRSIZE=1000       # Kbytes
+-
+     config_AMBIENT_BRIGHT=50    # low OLS sensor trigger level, for sunshine
+     config_AMBIENT_NORMAL=80    # high trigger level, for shade or indoors
+ }
+@@ -2597,7 +2576,6 @@
+ exit_actions()
+ {
+     [ -n "$powerd_dbus_pid" ] && kill $powerd_dbus_pid
+-    pwrlog_take_reading shutdown
+     set_wakeupevents none
+     unsplash
+     dcon thaw
+@@ -2665,8 +2643,6 @@
+             continue
+         fi
+ 
+-        pwrlog_take_reading $event-event $arg2 $arg3 $more
+-
+         case $event in
+ 
+         powerbutton|fake_powerbutton)
+@@ -2887,30 +2863,6 @@
+     done <&6  # from the fifo
+ }
+ 
+-configure_pwrlog()
+-{
+-    if [ $config_PWRLOG_INTERVAL -gt 30 -a \
+-            -s $CONFIGDIR/olpc-pwr-log.sh \
+-            -a -z "$no_battery" ]
+-    then
+-        pwrlog_inside_powerd=yes
+-
+-        mkdir -p $config_PWRLOG_DIR
+-        chown olpc:olpc $config_PWRLOG_DIR
+-
+-        . $CONFIGDIR/olpc-pwr-log.sh
+-        pwrlog_init $config_PWRLOG_INTERVAL $config_PWRLOG_DIR \
+-            $config_PWRLOG_LOGSIZE $config_PWRLOG_LOGDIRSIZE
+-
+-    else
+-        # install a null handler
+-        pwrlog_take_reading()
+-        {
+-            trace pwrlog unconfigured, or unavailable
+-        }
+-    fi
+-}
+-
+ netactivity_snapshot()
+ {
+     iptables --list netactivity --verbose --exact --numeric
+@@ -3010,10 +2962,6 @@
+ 
+ init_netactivity_tracking
+ 
+-configure_pwrlog
+-
+-pwrlog_take_reading startup
+-
+ sched_unfreezetimer
+ 
+ trap "exit_actions" 0
