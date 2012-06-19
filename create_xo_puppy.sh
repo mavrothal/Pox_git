@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #a universal script to make an XO-1 and XO-1.5 compatible Puppy 
 #from any woof (almost any) based Puppy Iso
 #Please expand this outside of a pupsave if using Puppy.

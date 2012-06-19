@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # The master script that will make an OLPC XO compatible puppylinux build.
 # from the content of this git repository, public sources, and a puppylinux 
