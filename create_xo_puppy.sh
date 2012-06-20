@@ -25,6 +25,17 @@ VER=1.0
 PWD="`pwd`"
 CWD="$PWD"
 
+INSIDE=`echo $PWD | grep Pox_git`
+if [ "$INSIDE" != "" ] ; then
+	echo -e "\\0033[1;31m"
+	echo "Running this script from within the Pox_git folder will fail"
+	echo "Run it from the XO_build directory that make_build generates"
+	echo -en "\\0033[0;39m"
+	sleep 5
+	exit 0
+fi
+
+
 #read config
 . $CWD/pkgs_remrc
 

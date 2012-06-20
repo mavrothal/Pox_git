@@ -21,6 +21,17 @@ VER=14
 
 BASEDIR=`pwd`
 CWD="$BASEDIR" 
+
+INSIDE=`echo $BASEDIR | grep Pox_git`
+if [ "$INSIDE" != "" ] ; then
+	echo -e "\\0033[1;31m"
+	echo "Running this script from within the Pox_git folder will fail"
+	echo "Run it from the XO_build directory that make_build generates"
+	echo -en "\\0033[0;39m"
+	sleep 5
+	exit 0
+fi
+
 mkdir $BASEDIR/kernel_sources
 sources="$BASEDIR/kernel_sources"
 git_clone="$sources/olpc-2.6"

@@ -85,7 +85,7 @@ fi
 prepare()
 {
 NOWDIR=`pwd`
-INSIDE=`echo $NOWDIR | grep Pxo_git`
+INSIDE=`echo $NOWDIR | grep Pox_git`
 if [ "$INSIDE" != "" ] ; then
 	echo -e "\\0033[1;31m"
 	echo "Run this script form _1_ level above the Pox_git folder"
