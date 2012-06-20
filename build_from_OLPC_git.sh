@@ -291,7 +291,7 @@ bld_powerd()
 	git checkout origin/master
 	# check what kernel are we using
 	KERVER1=`ls $BASEDIR/boot10/ | grep config | cut -f 2 -d '-' | cut -f1 -d'.'`
-	KERVER2=`ls $BASEDIR/boot10/ | grep config | cut -f 2 -d '-' | cut -f1 -d'.'`
+	KERVER2=`ls $BASEDIR/boot15/ | grep config | cut -f 2 -d '-' | cut -f1 -d'.'`
 	if [ "$KERVER1" = "2" ] || [ "$KERVER2" = "2" ] ; then
 		git checkout f61b0feb40bff536fc86126468626b4585fe3c3d
 		cp $patches/powerd_42.patch $patches/powerd.patch
