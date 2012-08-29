@@ -1,0 +1,36 @@
+--- a/usr/sbin/dotpup	2012-02-01 08:33:04.000000000 +0200
++++ b/usr/sbin/dotpup	2012-08-29 22:23:07.657894360 +0300
+@@ -46,30 +46,11 @@
+ DLG1="
+ <window title=\"$(gettext 'Install')\">
+  <vbox>
+- <text><label>`gettext \"The word 'install' can mean two different things, either to install additional applications in the current Puppy, or to install Puppy to some other media. Take your pick!\"`</label></text>
++ <text><label>`gettext \"The word 'install' can mean two different things, either to install additional applications in the current Puppy, or to install Puppy to some other media.\"`</label></text>
+  
+  <frame $(gettext 'Install Puppy')>
+-  <text><label>$(gettext 'Puppy can be installed to just about anything, including internal hard drive, USB drive, and Zip/LS120 diskette. If for example you are now running Puppy from live-CD and fancy booting Puppy off a USB Flash drive, this is the right place. There are two tools, the Puppy Universal Installer, and BootFlash -- the first is recommended, BootFlash is your second choice, a specialised tool if you cannot get the computer to boot from a USB drive.')</label></text>
+-  <hbox>
+-   <text><label>$(gettext 'Click button to run the Universal Installer:')</label></text>
+-   <vbox>
+-    <button>
+-     <input file>/usr/local/lib/X11/mini-icons/mini-ray.xpm</input>
+-     <action>/usr/sbin/puppyinstaller &</action>
+-     <action>EXIT:14</action>
+-    </button>
+-   </vbox>
+-  </hbox>
+-  <hbox>
+-   <text><label>$(gettext 'Click button to run BootFlash USB installer:')</label></text>
+-   <vbox>
+-    <button>
+-     <input file>/usr/local/lib/X11/mini-icons/mini-ray.xpm</input>
+-     <action>/usr/sbin/bootflash &</action>
+-     <action>EXIT:14</action>
+-    </button>
+-   </vbox>
+-  </hbox>
++  <text><label>$(gettext 'Not applicable and INACTIVATED in the XO builds.')</label></text>
++  
+  </frame>
+ 
+  <frame $(gettext 'Install applications')>

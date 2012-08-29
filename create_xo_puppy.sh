@@ -625,6 +625,16 @@ else
 	echo "Patched rc.shutdown. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
 
+# Patch dotpup
+echo "patching dotpup"
+patch -p1 < $patches/dotpup.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch dotpup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f etc/rc.d/dotpup.{orig,rej}
+else
+	echo "Patched dotpup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
+
 # Remove xload from tray. Wastes CPU cycles
 echo "removing xload from tray"
 case "$DISTRO_FILE_PREFIX" in
