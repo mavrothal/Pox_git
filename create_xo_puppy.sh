@@ -585,16 +585,6 @@ fi
 
 fi
 
-# Patch PPM
-echo "patching 0setup"
-patch -p1 < $patches/0setup.patch
-if [ $? -ne 0 ]; then
-	echo "Failed to patch 0setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/local/petget/0setup.{orig,rej}
-else
-	echo "Patched 0setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-fi
-
 # Patch snapmerge
 echo "patching snapmergepuppy"
 patch -p1 < $patches/snapmerge.patch
