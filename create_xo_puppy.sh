@@ -620,9 +620,15 @@ echo "patching dotpup"
 patch -p1 < $patches/dotpup.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch dotpup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f etc/rc.d/dotpup.{orig,rej}
+	rm -f usr/sbin/dotpup.{orig,rej}
 else
 	echo "Patched dotpup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
+
+# add /run and /run/udev directories for 3.3 kernels
+if [ "`ls $CWD/boot1* | grep '3.3'`" != "" ] ; then
+	mkdir -p tmp/udev
+	ln -sf tmp run
 fi
 
 # Remove xload from tray. Wastes CPU cycles
@@ -961,10 +967,16 @@ statusfunc $?
 BNAME=`echo "$ISO" | sed 's/\.iso//'`
 gzip -c $CWD/build.log > $SFSROOT/usr/local/share/$BNAME-XO_build.log.gz
 
+# compress main sfs
 cd $SQDIR
 sync
 echo "now compressing the NEW $MAINSFS..."
 mksquashfs squashfs-root/ "$MAINSFS"
+sync
+# add id string into the main sfs
+echo -n "$DISTRO_IDSTRING" >> "$MAINSFS"
+sync
+
 statusfunc $?
 echo "removing expanded filesystem"
 rm -rf $SFSROOT 
@@ -975,6 +987,7 @@ if [ -d $SQDIR/extras ] ; then
 	cd $SQDIR
 	echo "now compressing the \"extras.sfs\"..."
 	mksquashfs extras extras.sfs
+	sync
 	statusfunc $?
 	rm -rf extras
 	sync
@@ -1038,7 +1051,7 @@ fi
 rm -f build/initrd*
 rm -f $INITDIR/boot*/initrd*
 statusfunc $?
-
+sync
 #cleanup
 echo "removing working dirs"
 rm -rf $SQDIR
