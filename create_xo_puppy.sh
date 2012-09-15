@@ -840,7 +840,16 @@ cat << EOF > $SFSROOT/root/.jwmrc-tray2
 </JWM>
 EOF
 ;;
-*) echo "Not Saluki" ;;
+precise)
+if [ "`ls $extra_pets | grep risbee`" != "" ] ; then
+	chmod 000 $SFSROOT/root/Startup/network_tray
+	cat << EOF > $SFSROOT/usr/local/bin/defaultconnect
+#!/bin/sh
+exec Frisbee
+EOF
+fi
+;;
+*) echo "Nothing Special" ;;
 esac
 
 
