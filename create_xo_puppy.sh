@@ -1066,6 +1066,13 @@ echo "removing working dirs"
 rm -rf $SQDIR
 rm -rf initramfs
 
+#workaround a strange race (?) issue with libertas and 3.3 kernel 
+KERVER1=`ls $CWD/boot10/ | grep config | cut -f 2 -d '-' | cut -f1 -d'.'`
+KERVER2=`ls $CWD/boot15/ | grep config | cut -f 2 -d '-' | cut -f1 -d'.'`
+if [ "$KERVER1" = "3" ] || [ "$KERVER2" = "3" ] ; then
+	sed -i 's/\" expand\$ to boot-file/ loglevel=7\" expand\$ to boot-file/' build/boot/olpc.fth
+fi
+
 # option to install to a usb drive
 echo -e "\\0033[1;34m"
 echo "Would you like to copy the build files to a USBstick/SDcard?"
