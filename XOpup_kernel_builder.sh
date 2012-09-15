@@ -353,7 +353,7 @@ patch_sources()
 			sync
 			
 			# Crude hack. Revert commit	4a1131673365581f9ae1ae5ce8244972b697f59f. 
-			# Brakes Libertas after rc.update is run Puppy.			
+			# Brakes Libertas after rc.update is run in Puppy.			
 			git revert -n 4a1131673365581f9ae1ae5ce8244972b697f59f
 			if [ $? -ne 0 ]; then
 				echo -e "\\0033[1;31m"

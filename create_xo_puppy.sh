@@ -5,7 +5,7 @@
 #gpl3 (see /usr/share/doc) (c) mavrothal, 01micko
 #NO WARRANTY
 
-#bit of fun!
+# bit of fun!
 clear
 echo "Welcome to Create XO Puppy"
 xoolpcfunc()
@@ -18,10 +18,10 @@ echo ""
 export -f xoolpcfunc
 xoolpcfunc
 
-#version
+# version
 VER=1.0
 
-#workdir
+# workdir
 PWD="`pwd`"
 CWD="$PWD"
 
@@ -36,7 +36,7 @@ if [ "$INSIDE" != "" ] ; then
 fi
 
 
-#read config
+# read config
 . $CWD/pkgs_remrc
 
 #ok, we exit on most errors, error function
@@ -48,7 +48,7 @@ statusfunc()
 }
 export -f statusfunc
 
-#clear old build
+# clear old build
 if [ -d build ];then
 	echo -e "\\0033[1;31m"
 	echo "A previuos build has been detected" 
@@ -67,7 +67,7 @@ if [ -d build ];then
 	fi
 fi
 
-#usage
+# usage
 usagefunc()
 {
 	cat <<_USAGE
@@ -125,8 +125,8 @@ case $1 in
 esac
 
 #==============================================================================
-#test we are compatible Puppy #changed to any distro by mavrothal 110824
-#put in a check for mksquashfs, ..Ubuntu doesn't ship with it. 110825 01micko
+# test we are compatible Puppy #changed to any distro by mavrothal 110824
+# put in a check for mksquashfs, ..Ubuntu doesn't ship with it. 110825 01micko
 if [ -f /etc/DISTRO_SPECS ];then 
 	. /etc/DISTRO_SPECS
 else 
@@ -146,7 +146,7 @@ else
 	fi
 fi
 
-#test kernel for squash 4 support
+# test kernel for squash 4 support
 KERNEL="`uname -r`"
 KERNELMAJ="`echo $KERNEL|head -c1`"
 KERNELMIN="`echo $KERNEL|cut -d '.' -f3`"
@@ -155,11 +155,11 @@ if [[ "$KERNELMAJ" -eq "2" && "$KERNELMIN" -ge "29" ]] || [[ "$KERNELMAJ" -eq "3
 	else echo "kernel too old, exiting" && exit 0
 fi
 
-#test for free space
+# test for free space
 BASEDISK="`echo $CWD|cut -d '/' -f 1,2,3`" #returns eg "/mnt/sda1"
 BASEPART="`echo $CWD|cut -d '/' -f 3`" #returns eg "sda1" if not in pupsave
 DF="`df -m|grep $BASEPART|awk '{print $4}'`"
-#puppy specific
+# puppy specific
 if [ -f /etc/DISTRO_SPECS ];then #puppy test only added 110825 01micko
 	. /etc/rc.d/PUPSTATE
 	if [[ "$PUPMODE" = "7" || "$PUPMODE" = "13" ]];then
@@ -171,7 +171,7 @@ if [ -f /etc/DISTRO_SPECS ];then #puppy test only added 110825 01micko
 	 echo "Hit enter to continue"
 	 read goon
 	fi
-#cheat!
+# cheat!
 	if [ "`echo $BASEDISK|grep "root"`" != "" ];then 
 	 DF="`cat /tmp/pup_event_sizefreem`"
 	fi
@@ -184,7 +184,7 @@ if test "$DF" -lt "500" ;then EXIT=1
 fi
 statusfunc $EXIT
 
-#set vars
+# set vars
 XODIR="$CWD"
 [ ! -d $XODIR/squashdir/squashfs-root ] && mkdir -p $XODIR/squashdir/squashfs-root
 SQDIR="$XODIR/squashdir"
@@ -196,7 +196,7 @@ MNTDIR=""
 
 #==============================================================================
 
-#Get stuff off iso
+# Get stuff off iso
 if [ "$ISOPATH" != "" ];then 
 	[ ! -d  $CWD/mntiso ] && mkdir $CWD/mntiso
 	MNTDIR="$CWD/mntiso"
@@ -241,7 +241,7 @@ if [ "$ISOPATH" != "" ];then
 fi
 
 #==============================================================================
-#mod main sfs
+# mod main sfs
 NUMBER="`ls $SQDIR/*.sfs|wc -l`"
 if [ "$NUMBER" -gt "3" ];then echo "Something is wrong! $NUMBER sfs files"
 	echo "Should not be more than 3 ... aborting..." && statusfunc 1
@@ -410,18 +410,18 @@ else
 fi
 
 cd $SQDIR
-#delete old kernel
+# delete old kernel
 rm -rf $SFSROOT/lib/modules/* 
 echo "deleting old kernel"
-#delete not needed firmware
+# delete not needed firmware
 rm -rf $SFSROOT/lib/firmware/* 
 echo "deleting not needed firmware"
 
 echo "removing unneeded xorg drivers"
 
-#sort video drivers
-#We can compile more drivers for separate distro and store in
-#drake, wary, squezze, lupu whatever dir
+# Sort video drivers
+# We can compile more drivers for separate distro and store in
+# drake, wary, squezze, lupu whatever dir
 case "$DISTRO_FILE_PREFIX" in
 wary|racy|luki)   XORGDIR="$SFSROOT/usr/X11R7/lib/xorg/modules/drivers" 
 		XORGLIBDIR="$SFSROOT/usr/X11R7/lib/"	
@@ -439,13 +439,13 @@ esac
 XMODULES="`ls $XORGDIR \
 	|grep -iE -v "chrome|geode|openchrome|sisusb|ztv_drv|v4l"`"
 
-#remove unneeded xorg drivers #are they right?
+# remove unneeded xorg drivers #are they right?
 for drv in $XMODULES
 do 
 	rm -f $XORGDIR/$drv
  	echo "removing $drv"
 done
-#some puppies have additonal drivers elsewhere
+# some puppies have additonal drivers elsewhere
 rm -rf $SFSROOT/usr/lib/xorg/modules/drivers-*
 rm -rf $SFSROOT/usr/lib/x/*
 
@@ -521,7 +521,7 @@ do
 	echo "removing $v"
  	rm -f $XORGLIBDIR/$v
 done
-#remove puppy scripts
+# remove puppy scripts
 echo "unneeded puppy scripts..." 
 cd $SFSROOT 
 for s in $WOOFSCRIPTS
@@ -536,7 +536,7 @@ do
  	rm root/Startup/$i
 done
 
-#..and DOT desktops
+# ...and DOT desktops
 echo "unneeded .desktop files..." 
 for desk in $WOOFDESK
 do 
@@ -654,7 +654,7 @@ slacko)
 	;;
 esac
 
-#Add support for the XO internal drives in fstab
+# Add support for the XO internal drives in fstab
 echo "Adjusting /etc/fstab for XO internal drives..."
 cat << EOF >> $SFSROOT/etc/fstab
 /dev/mtdblock0		/.xo-nand	jffs2	defaults,noauto	  0 0
@@ -726,7 +726,7 @@ fi
 sed -i 's/\/etc\/acpi\/hibernate\.sh/powerd-config =gotosleep/' $SFSROOT/usr/bin/shutdown-gui
 sed -i 's/\/etc\/acpi\/sleep\.sh/powerd-config =dark-suspend/' $SFSROOT/usr/bin/shutdown-gui
 
-#Add support for the XO internal drives in fstab
+# Add support for the XO internal drives in fstab
 cat << EOF >> $SFSROOT/etc/fstab.d/static_entries
 /dev/mtdblock0		/.xo-nand	jffs2	defaults,noauto	  0 0
 /dev/mmcblk1p2		/.intSD	    ext4	defaults,noauto	  0 0
@@ -783,7 +783,7 @@ exit 0
 EOF
 chmod 755 $SFSROOT/usr/sbin/variconlinks_luki
 
-#Patch fixmenus to use variconlinks_luki
+# Patch fixmenus to use variconlinks_luki
 patch -p1 < $patches/fixmenus.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to Patch fixmenus for Saluki . $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
@@ -819,7 +819,7 @@ else
 	echo "Patched xwin. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
 
-#Add a second JWM tary on top
+# Add a second JWM tary on top
 cat << EOF > $SFSROOT/root/.jwmrc-tray2
 <JWM>
 <Tray autohide="true"  insert="right" halign="center" x="-1" y="0" border="2" height="54" layout="horizontal" >
@@ -841,6 +841,7 @@ cat << EOF > $SFSROOT/root/.jwmrc-tray2
 EOF
 ;;
 precise)
+# Check if we installed Frisbee and make it default
 if [ "`ls $extra_pets | grep risbee`" != "" ] ; then
 	chmod 000 $SFSROOT/root/Startup/network_tray
 	cat << EOF > $SFSROOT/usr/local/bin/defaultconnect
@@ -873,7 +874,7 @@ for i in $PACKAGES_REM
 				rm $x
 			fi
 			done
-			#fix root/.packages/woof-installed-packages
+			# fix root/.packages/woof-installed-packages
 		grep -v "$PKG" $SFSROOT/root/.packages/woof-installed-packages| \
 			while read LINE
 				do 
@@ -922,7 +923,7 @@ if [ "$CONTINUE" = "m" ];then
 					mv $x $MOVEPATH
 				fi
 				done
-			#fix root/.packages/woof-installed-packages
+			# fix root/.packages/woof-installed-packages
 			grep -v "$PKG" $SFSROOT/root/.packages/woof-installed-packages| \
 				while read LINE
 					do 
@@ -1005,7 +1006,7 @@ fi
 
 #==============================================================================
 
-#mod the initrd
+# mod the initrd
 cd $INITDIR
 for DIR in XO*
 
@@ -1048,7 +1049,7 @@ cd ..
 
 #==============================================================================
 
-#move everything to top level
+# move everything to top level
 [ ! -d build ] && mkdir build
 echo "copying files into build"
 cp -arf $INITDIR/boot* build
@@ -1061,12 +1062,13 @@ rm -f build/initrd*
 rm -f $INITDIR/boot*/initrd*
 statusfunc $?
 sync
-#cleanup
+
+# cleanup
 echo "removing working dirs"
 rm -rf $SQDIR
 rm -rf initramfs
 
-#workaround a strange race (?) issue with libertas and 3.3 kernel 
+# workaround a strange race (?) issue with libertas and 3.3 kernel 
 KERVER1=`ls $CWD/boot10/ | grep config | cut -f 2 -d '-' | cut -f1 -d'.'`
 KERVER2=`ls $CWD/boot15/ | grep config | cut -f 2 -d '-' | cut -f1 -d'.'`
 if [ "$KERVER1" = "3" ] || [ "$KERVER2" = "3" ] ; then
