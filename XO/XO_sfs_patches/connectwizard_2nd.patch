@@ -1,0 +1,57 @@
+--- a/usr/sbin/connectwizard_2nd	2012-02-01 14:16:05.000000000 +0800
++++ b/usr/sbin/connectwizard_2nd	2012-09-16 14:46:08.323058532 +0800
+@@ -29,6 +29,21 @@
+ "
+ fi
+ 
++FRISBEE=""
++if [ -d /usr/local/Frisbee ];then
++ FRISBEE="<frame $(gettext 'Frisbee') >  <hbox>
++   <text><label>$(gettext 'This is the Frisbee network setup tool created by Jemimah. It is recommended for XO puppy builds')</label></text>
++   <vbox>
++   <button>
++    <input file>/usr/local/lib/X11/mini-icons/pc-2x.xpm</input>
++    <action type=\"exit\">FLAGFRISBEE</action>
++   </button>
++   </vbox>
++  </hbox>
++  </frame>
++"
++fi
++
+ PWIRELESS=""
+ if [ -d /usr/local/Pwireless2 ];then #Jemimah's wireless connection gui.
+  PWIRELESS="<frame Pwireless2>  <hbox>
+@@ -78,7 +93,8 @@
+ <window title=\"$(gettext 'Network Connection Wizard')\" icon-name=\"gtk-connect\">
+ <vbox>
+  <text><label>$(gettext 'This build of Puppy has the following choices of GUI tool that you can use to connect to a network (and Internet)...')</label></text>
+-
++ 
++ ${FRISBEE}
+  ${SNS}
+  ${PWIRELESS}
+  ${NETWIZARD}
+@@ -105,6 +121,12 @@
+    NWEXEC='Pwireless2'
+    NWCHOICE="Jemimah's Pwireless2"
+   ;;
++  FLAGFRISBEE)
++   /etc/init.d/Frisbee start
++   /usr/local/bin/Frisbee > /dev/null
++   NWEXEC='Frisbee'
++   NWCHOICE="Jemimah's Frisbee"
++  ;;
+   FLAGNETWIZARD) #net-setup.sh
+    /usr/sbin/net-setup.sh > /dev/null 2>&1
+    NWEXEC='net-setup.sh'
+@@ -140,6 +162,9 @@
+    Pwireless2)
+     CURRCHOICE="Jemimah's Pwireless2"
+    ;;
++   Frisbee)
++    CURRCHOICE="Jemimah's Frisbee"
++   ;;
+    net-setup.sh)
+     CURRCHOICE="Dougal's Network Wizard"
+    ;;

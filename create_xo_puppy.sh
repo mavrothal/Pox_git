@@ -849,6 +849,16 @@ if [ "`ls $extra_pets | grep risbee`" != "" ] ; then
 exec Frisbee
 EOF
 fi
+
+# ...and patch connectwizard_2nd
+echo "patching connectwizard_2nd for Frisbee"
+patch -p1 < $patches/connectwizard_2nd.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch connectwizard_2nd for Frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/sbin/connectwizard_2nd.{orig,rej}
+else
+	echo "Patched connectwizard_2nd for frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+fi
 ;;
 *) echo "Nothing Special" ;;
 esac
