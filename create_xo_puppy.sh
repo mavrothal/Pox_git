@@ -316,7 +316,7 @@ esac
 
 # Include extra pets in the build 
 # Do it early in case pets have unneeded components
-if [ ! -f $extra_pets/*.pet ] ; then
+if [ "`ls $extra_pets | grep '.pet'`" = "" ] ; then
 	echo -e "\\0033[1;34m"
 	echo "If you want any additional pets in the build"
 	echo "add them NOW in the \"extra_pets\" folder and then"
@@ -325,7 +325,8 @@ if [ ! -f $extra_pets/*.pet ] ; then
 	echo -en "\\0033[0;39m"
 	read CONTINUE
 		if [ "$CONTINUE" = "a" ];then
-			echo "including extra pets in the build"
+			echo "including the following pets in the build
+`ls $extra_pets`"
 			echo "The following pets were included in the build" >> $CWD/build.log
 			cd $extra_pets
 			for p in ./* 
@@ -367,7 +368,8 @@ if [ ! -f $extra_pets/*.pet ] ; then
 			done
 		fi
 else
-	echo "including extra pets in the build"
+	echo  "including the following pets in the build
+`ls $extra_pets`"
 	echo "The following pets were included in the build" >> $CWD/build.log
 	cd $extra_pets
 	for p in ./* 
@@ -543,6 +545,9 @@ do
 	echo "removing $desk"
  	rm -f usr/share/applications/$desk
 done 
+
+# Remove xcalc
+rm -f usr/bin/xcalc
 
 # Patch xorgwizard
 patches="$CWD/XO_sfs_patches"
@@ -927,7 +932,7 @@ if [ "$CONTINUE" = "m" ];then
 					mkdir -p $SQDIR/extras"$LINE"
 					MOVEPATH=$SQDIR/extras"$LINE"/
 					x=`echo $LINE|sed 's%^\/%%'`
-					cd $$SFSROOT/$x
+					cd $SFSROOT/$x
 				else
 					x="$LINE"
 					mv $x $MOVEPATH

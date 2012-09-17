@@ -352,6 +352,7 @@ patch_sources()
 			cd $git_clone
 			git checkout origin/x86-3.3
 			sync
+			KER_V3="true"
 			
 			# Apply patches and aufs source in kernel
 			cp -aR $git_clone_aufs3/fs .
@@ -590,7 +591,7 @@ make_XO15_kernel()
 			echo -en "\\0033[0;39m"
 			echo "Failed to reverted commit 4a1131673365581f9ae1ae5ce8244972b697f59f $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		else
-			echo "Reverted commit 4a1131673365581f9ae1ae5ce8244972b697f59f $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			echo "Reverted commit 4a1131673365581f9ae1ae5ce8244972b697f59f in the XO-1.5 kernel$(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			sync
 		fi
 	fi 
