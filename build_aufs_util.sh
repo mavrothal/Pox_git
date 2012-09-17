@@ -56,6 +56,21 @@ if [ ! -f /usr/include/linux/aufs_type.h ] ; then
 	exit 1
 fi
 
+#Warn if we build in another kernel
+if [ "`ls $CWD/boot10 | grep 'config' | sed 's/config\-//'`" != "`uname -r`" ] && [ "`ls $CWD/boot15 | grep 'config' | sed 's/config\-//'`" != "`uname -r`" ] ; then
+	echo -e "\\0033[1;34m"
+	echo "You are not building Aufs-utils against an XO kernel"
+	echo "Hit \"c\"  and then  \"enter\" to take your chances"
+	echo "or just \"enter\" to quit building aufs utils"	
+	echo -en "\\0033[0;39m"
+	read CONTINUE
+	if [ "$CONTINUE" = "c" ];then
+		echo "Build Aufs-util against the `uname -r` kernel. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	else
+		exit 0
+	fi
+fi
+
 if [ ! -d $BASEDIR/XO_SFS_sources ] ; then 
 	mkdir $BASEDIR/XO_SFS_sources
 fi
