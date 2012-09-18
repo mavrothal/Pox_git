@@ -96,7 +96,7 @@ download3 ()
 		fi
 	else  
 		cd $XO_sources/aufs-util
-		git reset --hard HEAD
+		git reset --hard HEAD@{2}
 		git fetch
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"
@@ -134,7 +134,7 @@ download2 ()
 		fi
 	else  
 		cd $XO_sources/aufs2-util
-		git reset --hard HEAD
+		git reset --hard HEAD@{2}
 		git fetch
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"
