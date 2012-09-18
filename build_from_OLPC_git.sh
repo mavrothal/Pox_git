@@ -93,7 +93,7 @@ dnld_kbd()
 		sync
 	else 
 		cd olpc-kbdshim
-		git reset --hard HEAD@{2}
+		git reset --hard HEAD@{1}
 		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
@@ -132,7 +132,7 @@ dnld_powerd()
 		sync
 	else 
 		cd powerd
-		git reset --hard HEAD@{2}
+		git reset --hard HEAD@{1}
 		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
@@ -171,7 +171,7 @@ dnld_chrome()
 		sync
 	else 
 		cd xf86-video-chrome
-		git reset --hard HEAD@{2}
+		git reset --hard HEAD@{1}
 		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
@@ -247,7 +247,7 @@ bld_kbd()
 	mkdir -p $output/usr/sbin
 	
 	cd $XO_sources/olpc-kbdshim
-	git reset --hard HEAD@{2}
+	git reset --hard HEAD@{1}
 	git checkout origin/master
 	# feeze to version 19 for now
 	# git checkout cf77c1b19fa002b309cc9ccb8a3dc16ef35ef687
@@ -287,7 +287,7 @@ bld_powerd()
 	mkdir -p $output/etc/powerd/presuspend.d/
 	
 	cd $XO_sources/powerd
-	git reset --hard HEAD@{2}
+	git reset --hard HEAD@{1}
 	git checkout origin/master
 	# check what kernel are we using
 	KERVER1=`ls $BASEDIR/boot10/ | grep config | cut -f 2 -d '-' | cut -f1 -d'.'`
@@ -370,7 +370,7 @@ bld_chrome()
 	. /etc/DISTRO_SPECS
 	
 	cd $XO_sources/xf86-video-chrome
-	git reset --hard HEAD@{2}
+	git reset --hard HEAD@{1}
 	chmod 755 autogen.sh
 	CORRECT=`echo $BUILDNAME | grep $DISTRO_FILE_PREFIX`
 	echo $BUILDNAME
@@ -396,7 +396,7 @@ bld_chrome()
 
 	mkdir -p $BASEDIR/"$DISTRO_FILE_PREFIX"/xorg/modules/drivers
 	
-	git reset --hard HEAD@{2}
+	git reset --hard HEAD@{1}
 	make clean
 	chmod 755 autogen.sh
 	./autogen.sh

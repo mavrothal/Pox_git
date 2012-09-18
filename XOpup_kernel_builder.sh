@@ -183,7 +183,7 @@ get_sources()
 		fi
 	else 
 		cd $git_clone
-		git reset --hard HEAD@{2}
+		git reset --hard HEAD@{1}
 		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
@@ -220,7 +220,7 @@ get_sources()
 		fi
 	else  
 		cd $git_clone_aufs2
-		git reset --hard HEAD@{2}
+		git reset --hard HEAD@{1}
 		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
@@ -254,7 +254,7 @@ get_sources()
 		fi
 	else  
 		cd $git_clone_aufs3
-		git reset --hard HEAD@{2}
+		git reset --hard HEAD@{1}
 		git clean -fdx
 		git fetch
 		if [ $? -ne 0 ]; then
@@ -651,7 +651,7 @@ build_ARM()
 {
 	# Point aufs git to kernel version 3.0
 	cd $git_clone_aufs3
-	git reset --hard HEAD@{2}
+	git reset --hard HEAD@{1}
 	git clean -fdx
 	git checkout origin/aufs3.0
 	if [ ! -d patches ] ; then 
@@ -676,7 +676,7 @@ build_ARM()
 	
 	# Patch the OLPC kernel
 	cd $git_clone
-	git reset --hard HEAD@{2}
+	git reset --hard HEAD@{1}
 	git clean -fdx
 	git checkout origin/arm-3.0-wip
 	sync
@@ -903,11 +903,11 @@ finished()
 {
 	if [ -f $output_k/kernel-headers-$kernel_ver.pet ] ; then
 		cd $git_clone_aufs2
-		git reset --hard HEAD@{2}
+		git reset --hard HEAD@{1}
 		cd $git_clone_aufs3
-		git reset --hard HEAD@{2} 
+		git reset --hard HEAD@{1} 
 		cd $git_clone
-		git reset --hard HEAD@{2}
+		git reset --hard HEAD@{1}
 		echo -e "\\0033[1;34m"
 		echo " Done! "
 		echo "Find kernels in the "$output" folder"
