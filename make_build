@@ -139,10 +139,7 @@ fi
 cd $WDIR
 cp -a $NOWDIR/*Pox_git*/*.sh .
 cp -a $NOWDIR/*Pox_git*/pkgs_remrc .
-cp -aR $NOWDIR/*Pox_git*/XO/XO_sfs* .
-cp -aR $NOWDIR/*Pox_git*/XO/extra_pets .
-cp -aR $NOWDIR/*Pox_git*/XO/XO_initrd/* .
-cp -aR $NOWDIR/*Pox_git*/XO/XO_kernel_patches .
+cp -aR $NOWDIR/*Pox_git*/XO/* .
 chmod 755 *.sh
 sync
 # and remove the .gitignore files
