@@ -274,45 +274,6 @@ get_sources()
 		fi	
 	fi
 	sync 
-	
-	if [ ! -f $union_patch ] ; then
-		cd $sources
-		wget -c ftp://ftp.filesystems.org/pub/unionfs/unionfs-2.x-latest/unionfs-2.5.11_for_3.3.*.diff.gz
-		if [ $? -ne 0 ]; then
-			echo -e "\\0033[1;31m"
-			echo "Error: failed to download the unionfs patch."
-			echo "Check the connection and try again"
-			echo -en "\\0033[0;39m"
-			echo "Unionfs source dowanload failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-			exit 1
-		fi
-		sync
-		gzip -d unionfs-2.5.11_for_3.3.*.diff.gz		
-	else
-		echo -e "\\0033[1;34m"
-		echo "A unionfs patch already exits."
-		echo "Hit \"c\"  and then  \"enter\" to delete and re-download"
-		echo "or just \"enter\" to use the old one"
-		echo -en "\\0033[0;39m"
-		read CONTINUE
-		if [ "$CONTINUE" = "c" ];then
-			cd $sources
-			rm -f $union_patch*
-			wget -c ftp://ftp.filesystems.org/pub/unionfs/unionfs-2.x-latest/unionfs-2.5.11_for_3.3.*.diff.gz
-			if [ $? -ne 0 ]; then
-				echo -e "\\0033[1;31m"
-				echo "Error: failed to download the unionfs patch."
-				echo "Check the connection and try again"
-				echo -en "\\0033[0;39m"
-				echo "Unionfs source dowanload failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-				exit 1
-			fi
-			sync
-			gzip -d unionfs-2.5.11_for_3.3.*.diff.gz			
-		else
-			echo "Using preexisting Unionfs patch. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		fi
-	fi
 }
 export -f get_sources
 
@@ -329,105 +290,55 @@ patch_sources()
 	echo "or just \"enter\" to build the 2.6.35 kernel"
 	echo -en "\\0033[0;39m"
 	read CONTINUE
-	if [ "$CONTINUE" = "3" ];then
-		echo
-		echo -e "\\0033[1;34m"
-		echo "To build the 3.3 kernel with Unionfs "
-		echo "hit \"u\"  and then  \"enter\" "
-		echo "or just \"enter\" to build with Aufs"
-		echo -en "\\0033[0;39m"
-		read CONTINUE
-		if [ "$CONTINUE" != "u" ];then	
-			# Point aufs git to kernel version 3.3
-			cd $git_clone_aufs3
-			git checkout origin/aufs3.3
-			if [ ! -d patches ] ; then 
-				mkdir patches
-				mv *.patch patches/
-			else
-				mv *.patch patches/
-			fi	
+	if [ "$CONTINUE" = "3" ];then	
+		# Point aufs git to kernel version 3.3
+		cd $git_clone_aufs3
+		git checkout origin/aufs3.3
+		if [ ! -d patches ] ; then 
+			mkdir patches
+			mv *.patch patches/
+		else
+			mv *.patch patches/
+		fi	
 
-			# Patch the OLPC kernel
-			cd $git_clone
-			git checkout origin/x86-3.3
-			sync
+		# Patch the OLPC kernel
+		cd $git_clone
+		git checkout origin/x86-3.3
+		sync
 			KER_V3="true"
 			
-			# Apply patches and aufs source in kernel
-			cp -aR $git_clone_aufs3/fs .
-			cp -aR $git_clone_aufs3/Documentation .
-			cp -a $git_clone_aufs3/include/linux/aufs_type.h include/linux/
+		# Apply patches and aufs source in kernel
+		cp -aR $git_clone_aufs3/fs .
+		cp -aR $git_clone_aufs3/Documentation .
+		cp -a $git_clone_aufs3/include/linux/aufs_type.h include/linux/
 		 
-			for patch in $git_clone_aufs3/patches/*; do
-				echo "Applying $patch"
-				patch -p1 < $patch
-				if [ $? -ne 0 ]; then
-					echo -e "\\0033[1;31m"
-					echo "Error: failed to apply $patch on the kernel sources."
-					echo -en "\\0033[0;39m"
-					echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-					exit 1
-				else
-					echo "Building kernel 3.x with Aufs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-					LAYERFS="Aufs"
-				fi
-			done
-
-			# Apply config patches
-			for patch in $patches/3.3/*; do
-				echo "Applying $patch"
-				patch -p1 < $patch
-				if [ $? -ne 0 ]; then
-					echo -e "\\0033[1;31m"
-					echo "Error: failed to apply $patch on the kernel sources."
-					echo -en "\\0033[0;39m"
-					echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-					exit 1
-				fi
-			done
-		else
-			# Patch the OLPC kernel with unionfs
-			cd $git_clone
-			git checkout origin/x86-3.3
-			sync
-			NUMBER=`ls -l $union_patch | wc -l | tr -d ' '`
-			if [ "$NUMBER" != "1" ] ; then 
+		for patch in $git_clone_aufs3/patches/*; do
+			echo "Applying $patch"
+			patch -p1 < $patch
+			if [ $? -ne 0 ]; then
 				echo -e "\\0033[1;31m"
-				echo "There are more than one unionfs patches in $sources "
-				echo "Please delete or move the ones you do not need and try again"
+				echo "Error: failed to apply $patch on the kernel sources."
 				echo -en "\\0033[0;39m"
-				echo "Too many Unionfs patches. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				exit 1
+			else
+				echo "Building kernel 3.x with Aufs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+					LAYERFS="Aufs"
+			fi
+		done
+
+		# Apply config patches
+		for patch in $patches/3.3/*; do
+			echo "Applying $patch"
+			patch -p1 < $patch
+			if [ $? -ne 0 ]; then
+				echo -e "\\0033[1;31m"
+				echo "Error: failed to apply $patch on the kernel sources."
+				echo -en "\\0033[0;39m"
+				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
 			fi
-			patch -RNp1 < $union_patch 
-			if [ $? -ne 0 ]; then
-				patch -Np1 < $union_patch
-				if [ $? -ne 0 ]; then
-					echo -e "\\0033[1;31m"
-					echo "Error: failed to apply Unionfs patch on the kernel sources."
-					echo -en "\\0033[0;39m"
-					echo "Failed to apply Unionfs patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-					exit 1
-				else
-					echo "Building kernel 3.x with Unionfs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-					LAYERFS="Unionfs"
-				fi
-			fi
-			
-			# Apply config patches
-			for patch in $patches/3.3_union/*; do
-				echo "Applying $patch"
-				patch -p1 < $patch
-				if [ $? -ne 0 ]; then
-					echo -e "\\0033[1;31m"
-					echo "Error: failed to apply $patch on the kernel sources."
-					echo -en "\\0033[0;39m"
-					echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-					exit 1
-				fi
-			done
-		fi
+		done
 	else	
 		# Point aufs git to kernel version 2.6.35
 		cd $git_clone_aufs2
