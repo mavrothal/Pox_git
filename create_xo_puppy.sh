@@ -630,11 +630,10 @@ else
 	echo "Patched dotpup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
 
-# add /run and /run/udev directories for 3.3 kernels
-if [ "`ls $CWD/boot1* | grep '3.3'`" != "" ] ; then
-	mkdir -p tmp/udev
-	ln -sf tmp run
-fi
+# add /run and /run/udev directories for newer udev and didtros
+mkdir -p tmp/udev
+ln -sf tmp run
+
 
 # Remove xload from tray. Wastes CPU cycles
 echo "removing xload from tray"
@@ -846,6 +845,8 @@ cat << EOF > $SFSROOT/root/.jwmrc-tray2
 EOF
 ;;
 precise)
+# Remove libLLVM
+rm -f $SFSROOT/usr/lib/libLLVM*
 # Check if we installed Frisbee and make it default
 if [ "`ls $extra_pets | grep risbee`" != "" ] ; then
 	chmod 000 $SFSROOT/root/Startup/network_tray
@@ -958,6 +959,7 @@ if [ "$CONTINUE" = "m" ];then
 
 	cd $SQDIR
 	
+	# Change default text editor
 	if [ ! -f $SFSROOT/usr/bin/geany ] ; then
 		if [ -f $SFSROOT/usr/bin/leafpad ] ; then
 			sed -i 's/geany/leafpad/' $SFSROOT/usr/local/bin/defaulttexteditor
@@ -965,11 +967,22 @@ if [ "$CONTINUE" = "m" ];then
 			sed -i 's/geany/nicoedit/' $SFSROOT/usr/local/bin/defaulttexteditor
 		fi
 	fi
+	
+	# Change default browser
+	if [ ! -f $SFSROOT/usr/bin/seamonkey ] && [ -f $SFSROOT/usr/bin/midori ] ; then
+		sed -i 's/gtkmoz/midori/' $SFSROOT/usr/local/bin/defaulthtmlviewer
+		sed -i 's/mozstart/midori/' $SFSROOT/usr/local/bin/defaultbrowser
+		if [ ! -f $SFSROOT/usr/lib/libnotify.so.1 ] ; then
+			cd $SFSROOT/usr/lib/
+			ln -sf libnotify.so.[2-4] libnotify.so.1
+			cd $SQDIR
+		fi
+	fi
+	
 else
 	echo "Nothing moved out of the main sfs"
 	echo "Nothing was moved into the extras.sfs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
-
 
 cd $SFSROOT
 
