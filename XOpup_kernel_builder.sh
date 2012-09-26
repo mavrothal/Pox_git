@@ -280,7 +280,6 @@ export -f get_sources
 patch_sources() 
 {
 	output="$BASEDIR"
-	KER_V3=""
 	
 	# Sellect kernel to build
 	echo
@@ -305,7 +304,6 @@ patch_sources()
 		cd $git_clone
 		git checkout origin/x86-3.3
 		sync
-			KER_V3="true"
 			
 		# Apply patches and aufs source in kernel
 		cp -aR $git_clone_aufs3/fs .
@@ -491,23 +489,6 @@ make_XO15_kernel()
 		xoolpcfunc
 		exit 0
 	fi
-	
-	# Crude hack. Revert commit	4a1131673365581f9ae1ae5ce8244972b697f59f. 
-	# Brakes Libertas after rc.update is run in Puppy.
-	if [ "$KER_V3" = "true" ] ; then			
-		git revert -n 4a1131673365581f9ae1ae5ce8244972b697f59f
-		if [ $? -ne 0 ]; then
-			echo -e "\\0033[1;31m"
-			echo "Error: failed to reverted commit 4a1131673365581f9ae1ae5ce8244972b697f59f"
-			echo -en "\\0033[0;39m"
-			echo "Failed to reverted commit 4a1131673365581f9ae1ae5ce8244972b697f59f $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		else
-			echo "Reverted commit 4a1131673365581f9ae1ae5ce8244972b697f59f in the XO-1.5 kernel$(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-			sync
-		fi
-	fi 
-
-
 	
 	# Make XO-1.5 kernel
 	echo -e "\\0033[1;34m"
