@@ -124,7 +124,7 @@ case $1 in
 		;;
 esac
 
-#==============================================================================
+#========================== Check and setup =================================
 # test we are compatible Puppy #changed to any distro by mavrothal 110824
 # put in a check for mksquashfs, ..Ubuntu doesn't ship with it. 110825 01micko
 if [ -f /etc/DISTRO_SPECS ];then 
@@ -194,9 +194,7 @@ XOSFS="$XODIR/XO_sfs"
 extra_pets="$XODIR/extra_pets"
 MNTDIR=""
 
-#==============================================================================
-
-# Get stuff off iso
+#========================= Get files from iso ===============================
 if [ "$ISOPATH" != "" ];then 
 	[ ! -d  $CWD/mntiso ] && mkdir $CWD/mntiso
 	MNTDIR="$CWD/mntiso"
@@ -240,8 +238,7 @@ if [ "$ISOPATH" != "" ];then
 	sync
 fi
 
-#==============================================================================
-# mod main sfs
+#============================= mod main sfs ================================== 
 NUMBER="`ls $SQDIR/*.sfs|wc -l`"
 if [ "$NUMBER" -gt "3" ];then echo "Something is wrong! $NUMBER sfs files"
 	echo "Should not be more than 3 ... aborting..." && statusfunc 1
@@ -688,7 +685,29 @@ for i in $SFSROOT/root/.jwm/themes/*-jwmrc
 # Fix driver spacing to fit SDcard long name
 sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/eventmanager
 
-# Saluki specific fixes
+# Add support for JWM second tray if we installed it
+if [ -f $SFSROOT/usr/local/jwmconfig2/app_tray_config ] ; then
+	sed -i "s/\/root\/\.jwmrc-tray<\/Include>/\/root\/\.jwmrc-tray<\/Include> \n \t\t<Include>\/root\/\.jwmrc-tray2<\/Include>/" $SFSROOT/etc/xdg/templates/_root_.jwmrc
+	cat << EOF > $SFSROOT/root/.jwmrc-tray2
+<JWM>
+<Tray autohide="true"  insert="right" halign="center" x="-1" y="0" border="2" height="48" layout="horizontal" >
+<!-- Additional TrayButton attribute: label -->
+<TrayButton popup="File browser" icon="home48.png">exec:rox</TrayButton>
+<TrayButton popup="Web Browser" icon="www48.png">exec:defaultbrowser</TrayButton>
+<TrayButton popup="Text editor" icon="edit48.png">exec:defaulttexteditor</TrayButton>
+<TrayButton popup="Media Player" icon="multimedia48.png">exec:defaultmediaplayer</TrayButton>
+<TrayButton popup="Word processor" icon="word48.png">exec:defaultwordprocessor</TrayButton>
+<TrayButton popup="Screen capture" icon="mini-camera.xpm">exec:mtpaintsnapshot.sh</TrayButton>
+<TrayButton popup="XArchive archiver" icon="archive48.png">exec:xarchive</TrayButton>
+<TrayButton popup="Terminal" icon="console48.png">exec:urxvt</TrayButton>
+<TrayButton popup="Puppy Package Manager" icon="pet48.png">exec:/usr/local/petget/pkg_chooser.sh</TrayButton>
+<TrayButton popup="Configure your puppy" icon="configuration48.png">exec:wizardwizard</TrayButton>
+</Tray>
+</JWM>
+EOF
+fi
+
+#============================= Pupplet specific fixes ========================
 case "$DISTRO_FILE_PREFIX" in
 
 slacko)
@@ -872,6 +891,8 @@ esac
 
 statusfunc 0
 
+#========================= Remove/move packages ==============================
+
 echo "The following buildin packages have been removed from the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 for i in $PACKAGES_REM
 	do 
@@ -1032,7 +1053,7 @@ if [ -d $SQDIR/extras ] ; then
 	statusfunc $?
 fi
 
-#==============================================================================
+#============================== Mod initrd ===================================
 
 # mod the initrd
 cd $INITDIR
@@ -1075,7 +1096,7 @@ done
 cd $SQDIR
 cd ..
 
-#==============================================================================
+#========================== Finish/cleanup/copy build ========================
 
 # move everything to top level
 [ ! -d build ] && mkdir build
