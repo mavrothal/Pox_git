@@ -280,7 +280,7 @@ fi
 # driver freezes the mouse/keyboard in the XO-1.5. Get them.
 . $SFSROOT/etc/DISTRO_SPECS
 case "$DISTRO_FILE_PREFIX" in
-wary|racy|luki) 
+wary|racy|luki|lina) 
 	if [ ! -f $extra_pets/udev_luki_racy-167-i486.pet ] ; then 
 		wget -c -P $extra_pets\
 	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/udev_luki_racy-167-i486.pet
@@ -292,7 +292,7 @@ wary|racy|luki)
 	else 
 		echo "The T2 udev.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
-	if [ "$DISTRO_FILE_PREFIX" = "luki" ] ; then
+	if [ "$DISTRO_FILE_PREFIX" = "luki" ] || [ "$DISTRO_FILE_PREFIX" = "lina" ]; then
 		if [ ! -f $extra_pets/jwm-578-deco-luki-2-i486.pet ] ; then 
 			wget -c -P $extra_pets\
 	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/jwm-578-deco-luki-2-i486.pet
@@ -422,9 +422,9 @@ echo "removing unneeded xorg drivers"
 # We can compile more drivers for separate distro and store in
 # drake, wary, squezze, lupu whatever dir
 case "$DISTRO_FILE_PREFIX" in
-wary|racy|luki)   XORGDIR="$SFSROOT/usr/X11R7/lib/xorg/modules/drivers" 
+wary|racy|luki|lina)   XORGDIR="$SFSROOT/usr/X11R7/lib/xorg/modules/drivers" 
 		XORGLIBDIR="$SFSROOT/usr/X11R7/lib/"	
-		cp -af $XODIR/{wary,racy,luki}/xorg/modules/drivers/* \
+		cp -af $XODIR/{wary,racy,luki,lina}/xorg/modules/drivers/* \
 		$SFSROOT/usr/X11R7/lib/xorg/modules/drivers/
 		;; 
 *) 
@@ -724,7 +724,7 @@ ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-"$KER15"
 cd $SFSROOT
 ;;
 
-luki)
+luki|lina)
 # Fix font size for XFCE4 (Saluki 006+)
 sed -i 's/<property name="DPI" type="empty"\/>/<property name="DPI" type="int" value="140"\/>/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 sed -i 's/<\/channel>//' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
