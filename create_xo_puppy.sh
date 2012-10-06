@@ -725,7 +725,7 @@ cd $SFSROOT
 ;;
 
 luki|lina)
-# Fix font size for XFCE4 (Saluki 006+)
+# Fix font size for XFCE4 (Saluki 006+/Calorina 001+)
 sed -i 's/<property name="DPI" type="empty"\/>/<property name="DPI" type="int" value="140"\/>/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 sed -i 's/<\/channel>//' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 cat << EOF >> $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
@@ -734,6 +734,8 @@ cat << EOF >> $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.x
   </property>
 </channel>
 EOF
+sed -i 's/Bold,14/Bold,10/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+sed -i 's/16/11/' $SFSROOT/root/.config/Terminal/terminalrc
 
 # Patch frontend_d which differs in Saluki
 echo "patching pup_event_frontend_d"
