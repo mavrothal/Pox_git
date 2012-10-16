@@ -638,10 +638,13 @@ case "$DISTRO_FILE_PREFIX" in
 slacko)
 	patch -p1 < $patches/jwmrc-tray_slacko.patch
 	if [ $? -ne 0 ]; then
-		echo "Failed to patch jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		rm -f root/.jwmrc-tray.{orig,rej}
-	else
-		echo "Patched jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		patch -p1 < $patches/jwmrc-tray_slacko2.patch
+		if [ $? -ne 0 ]; then
+			echo "Failed to patch jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			rm -f root/.jwmrc-tray.{orig,rej}
+		else
+			echo "Patched jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		fi
 	fi
 	;;
 *)
