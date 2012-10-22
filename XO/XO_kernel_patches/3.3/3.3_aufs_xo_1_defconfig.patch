@@ -99,13 +99,7 @@
  
  #
  # Disk-On-Chip Device Drivers
-@@ -988,12 +996,13 @@
- # CONFIG_PARPORT is not set
- CONFIG_BLK_DEV=y
- # CONFIG_BLK_DEV_FD is not set
-+# CONFIG_BLK_DEV_PCIESSD_MTIP32XX is not set
- # CONFIG_BLK_CPQ_DA is not set
- # CONFIG_BLK_CPQ_CISS_DA is not set
+@@ -988,7 +996,7 @@
  # CONFIG_BLK_DEV_DAC960 is not set
  # CONFIG_BLK_DEV_UMEM is not set
  # CONFIG_BLK_DEV_COW_COMMON is not set
