@@ -869,6 +869,8 @@ cat << EOF > $SFSROOT/root/.jwmrc-tray2
 EOF
 ;;
 precise)
+# Remove puminstall from the root of the sfs
+rm -f $SFSROOT/puninstall.sh
 # Remove libLLVM
 rm -f $SFSROOT/usr/lib/libLLVM*
 # Check if we installed Frisbee and make it default
