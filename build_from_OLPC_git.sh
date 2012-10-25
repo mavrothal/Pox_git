@@ -368,7 +368,7 @@ bld_chrome()
 	# It fails in lupu-528 for example, but OK in slacko
 	
 	. /etc/DISTRO_SPECS
-	
+	BLDCHROME=""
 	cd $XO_sources/xf86-video-chrome
 	git reset --hard HEAD@{1}
 	chmod 755 autogen.sh
@@ -394,7 +394,11 @@ bld_chrome()
 		fi
 	fi
 
-	mkdir -p $BASEDIR/"$DISTRO_FILE_PREFIX"/xorg/modules/drivers
+	if [ "$DISTRO_FILE_PREFIX" != "" ] ; then 
+		mkdir -p $BASEDIR/"$DISTRO_FILE_PREFIX"/xorg/modules/drivers
+	else 
+		mkdir -p $BASEDIR/CHROME_DRIVER/xorg/modules/drivers
+	fi
 	
 	git reset --hard HEAD@{1}
 	make clean
@@ -413,6 +417,7 @@ bld_chrome()
 	strip -s src/.libs/chrome_drv.so	
 	sync
 	cp -a src/.libs/chrome_drv.so $BASEDIR/$DISTRO_FILE_PREFIX/xorg/modules/drivers
+	BLDCHROME="yes"
 }
 export -f  bld_chrome
 
@@ -527,6 +532,17 @@ finished()
 		echo "The files have been places in their respective directories," 
 		echo "within the the $output folder."
 		echo "They are ready to be copied to the sfs_root of you XO-specific puppy build."
+		[ "$BLDCHROME" = "yes" ] && [ "$CORRECT" = "" ] && [ ! -d $BASEDIR/CHROME_DRIVER ] && echo -e "\\0033[1;31m"
+		echo "However, it would appear you built chrome driver in another pupplet"
+		echo "Please rename $output/$DISTRO_FILE_PREFIX" 
+		echo "to the appropriate \"DISTRO_FILE_PREFIX\"  for your target puppy NOW." 
+		echo "so it will be included in your XO build." 
+		echo "Then hit \"enter\" to continue"
+		read CONINUE
+		if [ "$CONTINUE" = "c" ];then 
+			echo -e "\\0033[1;34m"
+			echo "OK"
+		fi
 		echo -en "\\0033[0;39m"
 		xoolpcfunc
 		echo "Finished making SFS files. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log

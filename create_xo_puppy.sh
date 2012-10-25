@@ -424,13 +424,13 @@ echo "removing unneeded xorg drivers"
 case "$DISTRO_FILE_PREFIX" in
 wary|racy|luki|lina)   XORGDIR="$SFSROOT/usr/X11R7/lib/xorg/modules/drivers" 
 		XORGLIBDIR="$SFSROOT/usr/X11R7/lib/"	
-		cp -af $XODIR/{wary,racy,luki,lina}/xorg/modules/drivers/* \
+		cp -af $XODIR/{wary,racy,luki,lina,CHROME_DRIVER}/xorg/modules/drivers/* \
 		$SFSROOT/usr/X11R7/lib/xorg/modules/drivers/
 		;; 
 *) 
 		XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
 		XORGLIBDIR="$SFSROOT/usr/lib/"
-		cp -af $XODIR/"$DISTRO_FILE_PREFIX"/xorg/modules/drivers/* \
+		cp -af $XODIR/{"$DISTRO_FILE_PREFIX",CHROME_DRIVER}/xorg/modules/drivers/* \
 		$SFSROOT/usr/lib/xorg/modules/drivers/ 
 		;;		
 esac
