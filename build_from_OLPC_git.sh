@@ -372,8 +372,8 @@ bld_chrome()
 	cd $XO_sources/xf86-video-chrome
 	git reset --hard HEAD@{1}
 	chmod 755 autogen.sh
+	[ "$BUILDNAME" = "" ] && BUILDNAME=`pwd`
 	CORRECT=`echo $BUILDNAME | grep $DISTRO_FILE_PREFIX`
-	echo $BUILDNAME
 	if [ "$CORRECT" = "" ] ; then
 		echo -e "\\0033[1;34m"
 		echo "The chrome driver is NOT compatible with all puppies."
@@ -532,16 +532,18 @@ finished()
 		echo "The files have been places in their respective directories," 
 		echo "within the the $output folder."
 		echo "They are ready to be copied to the sfs_root of you XO-specific puppy build."
-		[ "$BLDCHROME" = "yes" ] && [ "$CORRECT" = "" ] && [ ! -d $BASEDIR/CHROME_DRIVER ] && echo -e "\\0033[1;31m"
-		echo "However, it would appear you built chrome driver in another pupplet"
-		echo "Please rename $output/$DISTRO_FILE_PREFIX" 
-		echo "to the appropriate \"DISTRO_FILE_PREFIX\"  for your target puppy NOW." 
-		echo "so it will be included in your XO build." 
-		echo "Then hit \"enter\" to continue"
-		read CONINUE
-		if [ "$CONTINUE" = "c" ];then 
-			echo -e "\\0033[1;34m"
-			echo "OK"
+		if [ "$BLDCHROME" = "yes" ] && [ "$CORRECT" = "" ] && [ ! -d $BASEDIR/CHROME_DRIVER ] ; then
+			echo -e "\\0033[1;31m"
+			echo "However, it would appear you built chrome driver in another distro or pupplet"
+			echo "Please rename $output/$DISTRO_FILE_PREFIX" 
+			echo "to the appropriate \"DISTRO_FILE_PREFIX\"  for your target puppy NOW" 
+			echo "so it will be included in your XO build." 
+			echo "Then hit \"enter\" to continue"
+			read CONTINUE 
+			if [ "$CONTINUE" = "" ];then 
+				echo -e "\\0033[1;34m"
+				echo "OK"
+			fi
 		fi
 		echo -en "\\0033[0;39m"
 		xoolpcfunc
