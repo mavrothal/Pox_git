@@ -1087,6 +1087,9 @@ sync
 # Replace kernel modules with OLPC_Puppy ones
 rm -rf lib/modules/*
 cp -arf ../$DIR/lib/* lib/ 
+# The default puppy init looks for files only in the folder where vmlinuz is.
+# it does not work with our boot10/15 setup 
+sed -i "s/PSUBDIR=\"\`dirname \$ONEPUPFILE\`\"/PSUBDIR=\"\"/" init
 # modprobe vfat if we are booting from  vfat formatted media
 sed -i "s/vfat)/vfat) \\n   modprobe vfat/" init 
 sync
@@ -1116,6 +1119,12 @@ if [ -f $SQDIR/extras.sfs ] ; then
 fi
 rm -f build/initrd*
 rm -f $INITDIR/boot*/initrd*
+
+# Append IDSTRING to kernel. Needed when saving to the entire partition
+for i in `ls build/boot*/vmlinuz`
+	do
+		echo -n "$DISTRO_IDSTRING" >> $i
+	done
 statusfunc $?
 sync
 
