@@ -554,9 +554,11 @@ if [ "$DISTRO_FILE_PREFIX" = "lupu" ]; then
 	patch -p1 < $patches/xorgwizard.sh.patch
 	if [ $? -ne 0 ]; then
 		echo "Failed to patch xorgwizard.sh. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/sbin/xorgwizard.sh.{orig,rej}
+	rm -f usr/sbin/xorgwizard.sh.rej
+	mv -f usr/sbin/xorgwizard.sh.orig usr/sbin/xorgwizard.sh
 	else
 		echo "Patched xorgwizard.sh. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		rm -f usr/sbin/xorgwizard.sh.orig
 	fi
 
 else
@@ -564,25 +566,31 @@ else
 patch -p1 < $patches/xorgwizard.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch xorgwizard. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/sbin/xorgwizard.{orig,rej}
+	rm -f usr/sbin/xorgwizard.rej
+	mv -f usr/sbin/xorgwizard.orig usr/sbin/xorgwizard
 	# New woof uses gettext in scripts so old patches may not work fully
 	patch -p1 < $patches/xorgwizard_lng.patch
 	if [ $? -ne 0 ]; then
 		echo "Failed to patch xorgwizard with _lng patch too. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		rm -f usr/sbin/xorgwizard.{orig,rej}
+		rm -f usr/sbin/xorgwizard.rej
+		mv -f usr/sbin/xorgwizard.orig usr/sbin/xorgwizard
 		# some puppies have xorg-setup instead
 		patch -p1 usr/sbin/xorg-setup < $patches/xorgwizard.patch
 		if [ $? -ne 0 ]; then
 			echo "Failed to patch xorg-setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-			rm -f usr/sbin/xorg-setup.{orig,rej}
+			rm -f usr/sbin/xorg-setup.rej
+			mv -f usr/sbin/xorg-setup.orig usr/sbin/xorg-setup
 		else
 			echo "Patched xorg-setup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			rm -f usr/sbin/xorg-setup.orig
 		fi
 	else
-		echo "Patched xorgwizard with _lng patch. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log		
+		echo "Patched xorgwizard with _lng patch. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log	
+		rm -f usr/sbin/xorgwizard.orig	
 	fi
 else
 	echo "Patched xorgwizard. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/sbin/xorgwizard.orig
 fi
 
 fi
@@ -592,9 +600,11 @@ echo "patching snapmergepuppy"
 patch -p1 < $patches/snapmerge.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch snapmergepuppy. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/sbin/snapmergepuppy.{orig,rej}
+	rm -f usr/sbin/snapmergepuppy.rej
+	mv -f usr/sbin/snapmergepuppy.orig usr/sbin/snapmergepuppy
 else
 	echo "Patched snapmergepuppy. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/sbin/snapmergepuppy.orig
 fi
 
 # Patch frontend_d
@@ -602,9 +612,11 @@ echo "patching pup_event_frontend_d"
 patch -p1 < $patches/frontend_d.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch pup_event_frontend_d. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f sbin/pup_event_frontend_d.{orig,rej}
+	rm -f sbin/pup_event_frontend_d.rej
+	mv -f sbin/pup_event_frontend_d.orig sbin/pup_event_frontend_d
 else
 	echo "Patched pup_event_frontend_d. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f sbin/pup_event_frontend_d.orig
 fi
 
 # Patch rc.shutdown
@@ -612,9 +624,11 @@ echo "patching rc.shutdown"
 patch -p1 < $patches/rc.shutdown.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch rc.shutdown. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f etc/rc.d/rc.shutdown.{orig,rej}
+	rm -f etc/rc.d/rc.shutdown.rej
+	mv -f etc/rc.d/rc.shutdown.orig etc/rc.d/rc.shutdown
 else
 	echo "Patched rc.shutdown. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f etc/rc.d/rc.shutdown.orig
 fi
 
 # Patch dotpup
@@ -622,9 +636,11 @@ echo "patching dotpup"
 patch -p1 < $patches/dotpup.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch dotpup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/sbin/dotpup.{orig,rej}
+	rm -f usr/sbin/dotpup.rej
+	mv -f usr/sbin/dotpup.orig usr/sbin/dotpup
 else
 	echo "Patched dotpup. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/sbin/dotpup.orig
 fi
 
 # add /run and /run/udev directories for newer udev and didtros
@@ -641,9 +657,11 @@ slacko)
 		patch -p1 < $patches/jwmrc-tray_slacko2.patch
 		if [ $? -ne 0 ]; then
 			echo "Failed to patch jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-			rm -f root/.jwmrc-tray.{orig,rej}
+			rm -f root/.jwmrc-tray.rej
+			mv -f root/.jwmrc-tray.orig root/.jwmrc-tray
 		else
 			echo "Patched jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			rm -f root/.jwmrc-tray.orig
 		fi
 	fi
 	;;
@@ -651,9 +669,11 @@ slacko)
 	patch -p1 < $patches/jwmrc-tray.patch
 	if [ $? -ne 0 ]; then
 		echo "Failed to patch jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		rm -f root/.jwmrc-tray.{orig,rej}
+		rm -f root/.jwmrc-tray.rej
+		mv -f root/.jwmrc-tray.orig root/.jwmrc-tray
 	else
 		echo "Patched jwmrc-tray. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		rm -f root/.jwmrc-tray.orig
 	fi
 	;;
 esac
@@ -745,7 +765,8 @@ echo "patching pup_event_frontend_d"
 patch -p1 < $patches/frontend_d-luki.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch pup_event_frontend_d in Saluki. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f sbin/pup_event_frontend_d.{orig,rej}
+	rm -f sbin/pup_event_frontend_d.rej
+	mv -f sbin/pup_event_frontend_d.orig sbin/pup_event_frontend_d
 else
 	echo "Patched pup_event_frontend_d in Saluki. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
@@ -765,16 +786,20 @@ echo "patching jwmrc"
 patch -p1 < $patches/jwmrc.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to Patch jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f root/.jwmrc.{orig,rej}
+	rm -f root/.jwmrc.rej
+	mv -f root/.jwmrc.orig root/.jwmrc
 else
 	echo "Patched jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f root/.jwmrc.orig
 fi
 patch -p1 < $patches/etc_jwmrc.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to Patch _root_.jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f etc/xdg/templates/_root_.jwmrc.{orig,rej}
+	rm -f etc/xdg/templates/_root_.jwmrc.rej
+	mv -f etc/xdg/templates/_root_.jwmrc.orig etc/xdg/templates/_root_.jwmrc
 else
 	echo "Patched _root_.jwmrc. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f etc/xdg/templates/_root_.jwmrc.orig
 fi
 
 cat << EOF > $SFSROOT/usr/sbin/variconlinks_luki
@@ -815,18 +840,22 @@ chmod 755 $SFSROOT/usr/sbin/variconlinks_luki
 patch -p1 < $patches/fixmenus.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to Patch fixmenus for Saluki . $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/sbin/fixmenus.{orig,rej}
+	rm -f usr/sbin/fixmenus.rej
+	mv -f usr/sbin/fixmenus.orig usr/sbin/fixmenus
 else
 	echo "Patched fixmenus for Saluki. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/sbin/fixmenus.orig
 fi
 
 #Add pmount in the tray
 patch -p1 < $patches/jwmrc-tray_luki.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to Patch .jwmrc-tray for Saluki . $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f root/.jwmrc-tray.{orig,rej}
+	rm -f root/.jwmrc-tray.rej
+	mv -f root/.jwmrc-tray.orig root/.jwmrc-tray
 else
 	echo "Patched .jwmrc-tray for Saluki. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f root/.jwmrc-tray.orig
 fi
 
 # reload instead of restart JWM
@@ -842,9 +871,11 @@ echo "patching xwin"
 patch -p1 < $patches/xwin.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch xwin. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/bin/xwin.{orig,rej}
+	rm -f usr/bin/xwin.rej
+	mv -f usr/bin/xwin.orig usr/bin/xwin
 else
 	echo "Patched xwin. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f  usr/bin/xwin.orig
 fi
 
 # Add a second JWM tary on top
@@ -887,9 +918,11 @@ echo "patching connectwizard_2nd for Frisbee"
 patch -p1 < $patches/connectwizard_2nd.patch
 if [ $? -ne 0 ]; then
 	echo "Failed to patch connectwizard_2nd for Frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/sbin/connectwizard_2nd.{orig,rej}
+	rm -f usr/sbin/connectwizard_2nd.rej
+	mv -f usr/sbin/connectwizard_2nd.orig usr/sbin/connectwizard_2nd
 else
 	echo "Patched connectwizard_2nd for frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/sbin/connectwizard_2nd.orig
 fi
 ;;
 *) echo "Nothing Special" ;;
@@ -964,7 +997,7 @@ if [ "$CONTINUE" = "m" ];then
 					cd $SFSROOT/$x
 				else
 					x="$LINE"
-					mv $x $MOVEPATH
+					mv -f $x $MOVEPATH
 				fi
 				done
 			# fix root/.packages/woof-installed-packages
