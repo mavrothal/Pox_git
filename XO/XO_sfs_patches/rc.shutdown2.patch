@@ -1,0 +1,16 @@
+--- a/etc/rc.d/rc.shutdown   2012-07-17 19:51:39.000000000 +0900
++++ b/etc/rc.d/rc.shutdown   2012-10-30 13:56:51.366572134 +0900
+@@ -599,10 +599,13 @@
+ if [ "`busybox mount | grep "$ABSPUPHOME"`" != "" ];then
+  #BADPIDS="`fuser -v -m $ABSPUPHOME | grep -v --extended-regexp 'kernel|COMMAND|^$' | tr -s ' ' | cut -f 3 -d ' ' | tr '\n' ' '`"
+  BADPIDS="`fuser -m $ABSPUPHOME 2>/dev/null`" #100107
++ PSRESULT=$(ps -al)
++ PSRESULT=$(echo "$PSRESULT"| tr -s ' ' | cut -f4,5,14 -d' ')
+  for ONEBAD in $BADPIDS
+  do
+   [ "$ONEBAD" = "$MYPID" ] && continue #120514 precaution.
+   [ "$ONEBAD" = "$PARENT" ] && continue #120514 precaution.
++  echo "$PSRESULT" | grep -w "$ONEBAD" | grep -qw -E "$PARENT|poweroff|reboot" && continue
+   #echo "`eval_gettext \"Killing process \\\${ONEBAD}...\"`"
+   echo "Killing process $ONEBAD..."
+   kill $ONEBAD

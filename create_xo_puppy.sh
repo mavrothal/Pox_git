@@ -631,6 +631,18 @@ else
 	rm -f etc/rc.d/rc.shutdown.orig
 fi
 
+# Patch rc.shutdown so will not hung in "save to partition" installs.
+echo "patching rc.shutdown"
+patch -p1 < $patches/rc.shutdown2.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch rc.shutdown for SAVE TO PARTITION. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f etc/rc.d/rc.shutdown.rej
+	mv -f etc/rc.d/rc.shutdown.orig etc/rc.d/rc.shutdown
+else
+	echo "Patched rc.shutdown for SAVE TO PARTITION. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f etc/rc.d/rc.shutdown.orig
+fi
+
 # Patch dotpup
 echo "patching dotpup"
 patch -p1 < $patches/dotpup.patch
