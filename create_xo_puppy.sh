@@ -705,6 +705,19 @@ for i in $SFSROOT/root/.jwm/themes/*-jwmrc
 		sed -i 's/Height>[0-9][0-9]/Height>30/' $i  
 	done
 
+# Make JWM windows decoration bigger
+sed -i "s/<\/JWM>//" $SFSROOT/etc/xdg/templates/_root_.jwmrc
+cat << EOF >> $SFSROOT/etc/xdg/templates/_root_.jwmrc
+
+   <!-- window buttons -->
+   <ButtonClose>/usr/share/pixmaps/close.xbm</ButtonClose>
+   <ButtonMax>/usr/share/pixmaps/max.xbm</ButtonMax>
+   <ButtonMaxActive>/usr/share/pixmaps/maxact.xbm</ButtonMaxActive>
+   <ButtonMin>/usr/share/pixmaps/min.xbm</ButtonMin>
+
+</JWM>
+EOF
+
 # Fix driver spacing to fit SDcard long name
 sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/eventmanager
 
