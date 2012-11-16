@@ -705,7 +705,7 @@ for i in $SFSROOT/root/.jwm/themes/*-jwmrc
 		sed -i 's/Height>[0-9][0-9]/Height>30/' $i  
 	done
 
-# Make JWM windows decoration bigger
+# Make JWM windows decoration and clock fonts bigger
 sed -i "s/<\/JWM>//" $SFSROOT/etc/xdg/templates/_root_.jwmrc
 cat << EOF >> $SFSROOT/etc/xdg/templates/_root_.jwmrc
 
@@ -714,6 +714,12 @@ cat << EOF >> $SFSROOT/etc/xdg/templates/_root_.jwmrc
    <ButtonMax>/usr/share/pixmaps/max.xbm</ButtonMax>
    <ButtonMaxActive>/usr/share/pixmaps/maxact.xbm</ButtonMaxActive>
    <ButtonMin>/usr/share/pixmaps/min.xbm</ButtonMin>
+   
+   <ClockStyle>
+ 	 <!--Background>#000000</Background-->
+ 	 <Font>Sans-13:bold</Font>
+ 	 <!--Foreground>#00DB2C</Forground-->
+   </ClockStyle>
 
 </JWM>
 EOF
