@@ -706,8 +706,8 @@ for i in $SFSROOT/root/.jwm/themes/*-jwmrc
 	done
 
 # Make JWM windows decoration and clock fonts bigger
-sed -i "s/<\/JWM>//" $SFSROOT/etc/xdg/templates/_root_.jwmrc
-cat << EOF >> $SFSROOT/etc/xdg/templates/_root_.jwmrc
+sed -i "s/<\/JWM>//" $SFSROOT/root/.jwm/jwmrc-personal
+cat << EOF >> $SFSROOT/root/.jwm/jwmrc-personal
 
    <!-- window buttons -->
    <ButtonClose>/usr/share/pixmaps/close.xbm</ButtonClose>
@@ -724,12 +724,16 @@ cat << EOF >> $SFSROOT/etc/xdg/templates/_root_.jwmrc
 </JWM>
 EOF
 
-# Fix driver spacing to fit SDcard long name
-sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/eventmanager
-
 # Add support for JWM second tray if we installed it
 if [ -f $SFSROOT/usr/local/jwmconfig2/app_tray_config ] ; then
-	sed -i "s/\/root\/\.jwmrc-tray<\/Include>/\/root\/\.jwmrc-tray<\/Include> \n \t\t<Include>\/root\/\.jwmrc-tray2<\/Include>/" $SFSROOT/etc/xdg/templates/_root_.jwmrc
+	sed -i "s/<\/JWM>//" $SFSROOT/root/.jwm/jwmrc-personal
+	cat << EOF >> $SFSROOT/root/.jwm/jwmrc-personal
+	
+	<Include>/root/.jwmrc-tray2</Include>
+	
+</JWM>
+EOF
+
 	cat << EOF > $SFSROOT/root/.jwmrc-tray2
 <JWM>
 <Tray autohide="true"  insert="right" halign="center" x="-1" y="0" border="2" height="48" layout="horizontal" >
@@ -748,6 +752,9 @@ if [ -f $SFSROOT/usr/local/jwmconfig2/app_tray_config ] ; then
 </JWM>
 EOF
 fi
+
+# Fix driver spacing to fit SDcard long name
+sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/eventmanager
 
 #============================= Pupplet specific fixes ========================
 case "$DISTRO_FILE_PREFIX" in
