@@ -724,6 +724,9 @@ cat << EOF >> $SFSROOT/root/.jwm/jwmrc-personal
 </JWM>
 EOF
 
+# Remove JWM Submenus
+sed -i '0,/0/s/0//' $SFSROOT/root/.jwm/JWMRC
+
 # Add support for JWM second tray if we installed it
 if [ -f $SFSROOT/usr/local/jwmconfig2/app_tray_config ] ; then
 	sed -i "s/<\/JWM>//" $SFSROOT/root/.jwm/jwmrc-personal
