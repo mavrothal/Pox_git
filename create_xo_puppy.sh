@@ -408,6 +408,12 @@ else
 	done
 fi
 
+# Check if we include a service pack pet so we update DISTRO_SPECS on the initrd
+SERVPACK="`ls $extra_pets | grep service_pack`"
+if [ "$SERVPACK" != "" ] ; then 
+	. $SFSROOT/etc/DISTRO_SPECS
+fi
+
 cd $SQDIR
 # delete old kernel
 rm -rf $SFSROOT/lib/modules/* 
@@ -1094,10 +1100,10 @@ statusfunc $?
 # Add the build log in the sfs
 BNAME=`echo "$ISO" | sed 's/\.iso//'`
 gzip -c $CWD/build.log > $SFSROOT/usr/local/share/$BNAME-XO_build.log.gz
-
 # compress main sfs
 cd $SQDIR
 sync
+[ "$SERVPACK" != "" ] && cp $SFSROOT/etc/DISTRO_SPECS $CWD/ && MAINSFS="$DISTRO_PUPPYSFS" #service_pack in build
 echo "now compressing the NEW $MAINSFS..."
 mksquashfs squashfs-root/ "$MAINSFS"
 sync
@@ -1149,6 +1155,7 @@ sync
 # Replace kernel modules with OLPC_Puppy ones
 rm -rf lib/modules/*
 cp -arf ../$DIR/lib/* lib/ 
+[ "$SERVPACK" != "" ] && cp -f $CWD/DISTRO_SPECS . #service_pack in build
 # The default puppy init looks for files only in the folder where vmlinuz is.
 # it does not work with our boot10/15 setup 
 sed -i "s/PSUBDIR=\"\`dirname \$ONEPUPFILE\`\"/PSUBDIR=\"\"/" init
@@ -1194,6 +1201,7 @@ sync
 echo "removing working dirs"
 rm -rf $SQDIR
 rm -rf initramfs
+[ "$SERVPACK" != "" ] && rm -f $CWD/DISTRO_SPECS #service_pack in build
 
 # workaround a strange race (?) issue with libertas and 3.3 kernel 
 if [ "`ls $CWD/boot1* | grep '3.3'`" != "" ] ; then
