@@ -212,9 +212,9 @@ if [ "$ISOPATH" != "" ];then
 	ZSFS=`echo $SFSTHERE|grep "zdrv"`
 	if [ "$ZSFS" != "" ];then
 		echo -e "\\0033[1;34m"
-		echo  "a zdrv is present, you can manually search it"
-		echo  "for stuff needed or delete it. Hit \"d\" to delete"
-		echo  "and enter or just \"enter\" to continue"
+		echo  "A zdrv is present. You can manually search it for stuff needed "
+		echo  "but is STRONGLY suggested to delete it. Hit \"d\" and enter to delete"
+		echo  "or just \"enter\" to continue and merge it into the main SFS"
 		echo -en "\\0033[0;39m"
 		read ZDEL
 		[ "$ZDEL" != "d" ] && cp zdrv*.sfs $SQDIR #why do we keep it?
@@ -222,9 +222,11 @@ if [ "$ISOPATH" != "" ];then
 	ASFS=`echo $SFSTHERE|grep "adrv"`
 	if [ "$ASFS" != "" ];then
 		echo -e "\\0033[1;34m"
-		echo  "a adrv is present, you can manually search it"
-		echo  "for stuff needed or delete it. Hit \"d\" to delete"
-		echo  "and enter or just \"enter\" to continue"
+		echo  "An adrv is present, you can manually search it for stuff needed"
+		echo  "or delete it. Hit \"d\" and enter to delete or just \"enter\" "
+		echo  "to continue and merge it into the main SFS."
+		echo
+		echo  "If you delete it now you can still include it in the XO build at the end."
 		echo -en "\\0033[0;39m"
 		read ADEL
 		[ "$ADEL" != "d" ] && cp adrv*.sfs $SQDIR
@@ -1189,6 +1191,28 @@ fi
 rm -f build/initrd*
 rm -f $INITDIR/boot*/initrd*
 
+# Offer to add adrv if omitted
+if [ "$ASFS" != "" ] && [ "$ADEL" = "d" ];then
+		echo -e "\\0033[1;34m"
+		echo  "The adrv of this puppy was excluded from the main SFS"
+		echo  "Do you want to add it now in the XO build?"
+		echo  "Hit \"a\" and enter to add it or just \"enter\" to ommit it"
+		echo -en "\\0033[0;39m"
+		read ADDADRV
+		if [ "$ADDADRV" = "a" ];then
+			[ ! -d  $CWD/mntiso ] && mkdir $CWD/mntiso
+			echo "mounting $ISO"
+			mount $ISOPATH $MNTDIR -o loop
+			statusfunc $?
+			cp $MNTDIR/adrv*.sfs build
+			sync
+			umount $MNTDIR
+			rm -rf $MNTDIR
+		else
+			echo "ok"
+		fi
+fi
+
 # Append IDSTRING to kernel. Needed when saving to the entire partition
 for i in `ls build/boot*/vmlinuz`
 	do
@@ -1223,8 +1247,7 @@ if [ "$COPY" = "c" ];then
 	read TRANSFER
 		if [ "$TRANSFER" = "t" ];then
 			rm -rf $DEVICE/boot*
-			rm -rf $DEVICE/$MAINSFS
-			cp -aR build/* $DEVICE/
+			cp -aR --remove-destination build/* $DEVICE/
 			sync
 		else
 			echo "Copy all files in the ./build directory to USB media/SD card"
