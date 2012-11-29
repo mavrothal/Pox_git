@@ -226,7 +226,8 @@ if [ "$ISOPATH" != "" ];then
 		echo  "or delete it. Hit \"d\" and enter to delete or just \"enter\" "
 		echo  "to continue and merge it into the main SFS."
 		echo
-		echo  "If you delete it now you can still include it in the XO build at the end."
+		echo  "If you delete it now you can still include it in the XO build at the"
+		echo  "end, though it may over-write some of the changes in the main SFS."
 		echo -en "\\0033[0;39m"
 		read ADEL
 		[ "$ADEL" != "d" ] && cp adrv*.sfs $SQDIR
@@ -294,7 +295,7 @@ wary|racy|luki|lina)
 	else 
 		echo "The T2 udev.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
-	if [ "$DISTRO_FILE_PREFIX" = "luki" ] || [ "$DISTRO_FILE_PREFIX" = "lina" ]; then
+	if [ "$DISTRO_FILE_PREFIX" = "luki" ] ; then
 		if [ ! -f $extra_pets/jwm-578-deco-luki-2-i486.pet ] ; then 
 			wget -c -P $extra_pets\
 	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/jwm-578-deco-luki-2-i486.pet
@@ -794,8 +795,10 @@ cat << EOF >> $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.x
   </property>
 </channel>
 EOF
-sed -i 's/Bold,14/Bold,10/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+sed -i 's/Bold,14/Bold,11/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+sed -i 's/24/32/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 sed -i 's/16/11/' $SFSROOT/root/.config/Terminal/terminalrc
+sed -i 's/Droid Sans 12/Droid Sans 10/' $SFSROOT/root/.gtkrc-2.0
 
 # Patch frontend_d which differs in Saluki
 echo "patching pup_event_frontend_d"
@@ -806,6 +809,7 @@ if [ $? -ne 0 ]; then
 	mv -f sbin/pup_event_frontend_d.orig sbin/pup_event_frontend_d
 else
 	echo "Patched pup_event_frontend_d in Saluki. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f sbin/pup_event_frontend_d.orig
 fi
 
 # Fix the suspend/hibernate calls (Saluki)
@@ -818,6 +822,10 @@ cat << EOF >> $SFSROOT/etc/fstab.d/static_entries
 /dev/mmcblk1p2		/.intSD	    ext4	defaults,noauto	  0 0
 EOF
 
+# Further increase font size
+sed -i 's/108/130/' $XOSFS/root/.Xresources
+;;
+luki)
 #Fix JWM 
 echo "patching jwmrc"
 patch -p1 < $patches/jwmrc.patch
@@ -899,9 +907,6 @@ fi
 sed -i "s/jwm -restart/jwm -reload/" $SFSROOT/usr/local/petget/installpreview.sh 
 sed -i "s/jwm -restart/jwm -reload/" $SFSROOT/usr/local/petget/removepreview.sh  
 sed -i "s/jwm -restart/jwm -reload/" $SFSROOT/usr/local/petget/petget 
-
-# Further increase font size
-sed -i 's/108/130/' $XOSFS/root/.Xresources
 
 # Show file/folder icons in Thunar when in JWM
 echo "patching xwin"
