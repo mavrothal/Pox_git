@@ -208,7 +208,7 @@ if [ "$ISOPATH" != "" ];then
 	statusfunc $?
 	
 	SFSTHERE=`ls|grep "sfs$"`
-	MAINSFS="`ls $SFSTHERE|grep "sfs$" | grep -v "^z"|grep -v "^a"`"
+	MAINSFS="`ls $SFSTHERE|grep "sfs$" | grep -v "^zdrv"|grep -v "^adrv"`"
 	ZSFS=`echo $SFSTHERE|grep "zdrv"`
 	if [ "$ZSFS" != "" ];then
 		echo -e "\\0033[1;34m"
@@ -966,6 +966,29 @@ else
 	echo "Patched connectwizard_2nd for frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	rm -f usr/sbin/connectwizard_2nd.orig
 fi
+;;
+arch)
+sed -i '/^rdate/d' $SFSROOT/root/.start
+sed -i '/^exit/d' $SFSROOT/root/.start
+cat << EOF >> $SFSROOT/root/.start
+exec /root/Startup/0check_ker_ver &
+sleep 0.5s
+exec /root/Startup/freeramdaemon.sh &
+sleep 0.5s
+exec /root/Startup/powerdfix &
+sleep 0.5s
+exec /root/Startup/udev_check.sh &
+sleep 0.5s
+exec /root/Startup/powerapplet*xo &
+sleep 0.5s
+exec /root/Startup/pup_ver.sh &
+sleep 0.5s
+mkdir -p /dev/pts
+mount /dev/pts 
+rdate -s tick.greyware.com &
+exit
+
+EOF
 ;;
 *) echo "Nothing Special" ;;
 esac

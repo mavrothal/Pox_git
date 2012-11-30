@@ -9,6 +9,17 @@ if [ ! -f /lib/udev/collect ] ; then
 	Install=$?
 	if [ $Install -eq 0 ]; then
 		petget /usr/local/share/no-udev-powerd.pet
+		if [ $? -ne 0 ]; then
+			HERE=`pwd`
+			tar xvzf /usr/local/share/no-udev-powerd.pet
+			cp -aR  $HERE/no-udev-powerd/* /
+			exec $HERE/no-udev-powerd/pinstall.sh &
+			sleep 1s
+			rm -rf $HERE/no-udev-powerd
+			rm -f /pinstall.sh
+			rm -f /puninstall.sh
+			rm -f /pet.specs
+		fi
 	fi
 fi
 
