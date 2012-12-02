@@ -10,8 +10,9 @@ if [ ! -f /lib/udev/collect ] ; then
 	Xdialog  --title "$(gettext 'UDEV Missing')" --ok-label "$(gettext 'Install')" --yesno "$(gettext 'Please add the full udev package (with extras), version 151+, \nfrom the binary compatible distro, so keyboard and \npower management will work properly. \n\nAlternativelly you can restore most of the functionaluty \ninstalling the included no-udev-powerd.pet. \nMake sure you install it AFTER you have created a savefile')"  0 0 
 	Install=$?
 	if [ $Install -eq 0 ]; then
-		petget /usr/local/share/no-udev-powerd.pet
-		if [ $? -ne 0 ]; then
+		if [ "`which petget`" != "" ]; then
+			petget /usr/local/share/no-udev-powerd.pet
+		else
 			HERE=`pwd`
 			tar xvzf /usr/local/share/no-udev-powerd.pet
 			cp -aR  $HERE/no-udev-powerd/* /

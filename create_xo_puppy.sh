@@ -775,14 +775,20 @@ slacko)
 # Change pager width
 sed -i "s/"maxwidth=\"25\""/"maxwidth=\"0\""/" $SFSROOT/root/.jwmrc-tray
 
-# Fix quickpet sfs list.
-# Careful. Is kernel specific
-KER1=`ls $XODIR/boot10 | grep config | sed 's/config-//'`
-KER15=`ls $XODIR/boot15 | grep config | sed 's/config-//'`
-cd $SFSROOT/etc/quickpet
-ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-"$KER1"
-ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-"$KER15"
-cd $SFSROOT
+if [ "$DISTRO_COMPAT_VERSION" = "13.37" ] ; then
+	# Fix quickpet sfs list.
+	# Careful. Is kernel specific
+	KER1=`ls $XODIR/boot10 | grep config | sed 's/config-//'`
+	KER15=`ls $XODIR/boot15 | grep config | sed 's/config-//'`
+	cd $SFSROOT/etc/quickpet
+	ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-"$KER1"
+	ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-"$KER15"
+	cd $SFSROOT
+fi
+
+if [ "$DISTRO_COMPAT_VERSION" = "14.0" ] ; then
+	rm -f $SFSROOT/puninstall.sh
+fi
 ;;
 
 luki|lina)
