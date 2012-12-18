@@ -1,0 +1,20 @@
+--- a/usr/bin/archpupx	2012-11-28 13:42:02.000000000 +0200
++++ b/usr/bin/archpupx	2012-12-18 21:26:26.000000000 +0200
+@@ -1,5 +1,17 @@
+ #!/bin/sh
+ 
++if [ "`cat /sys/class/dmi/id/product_version`" = "1.5" ] \
++		&& [ "`cat /etc/X11/xorg.conf | grep VX855`" = "" ] ; then
++	cat /usr/local/share/xorg_1.5_arch >> /etc/X11/xorg.conf
++   sed -i 's/Oxygen 13/Oxygen 8/' /root/.gtkrc-2.0
++   sed -i 's/10/6/' /root/.conkyrc
++   sed -i 's/9/6/g' /root/.conkyrc
++   sed -i 's/8/6/g' /root/.conkyrc
++   sed -i 's/13/8/g' /root/.config/openbox/rc.xml
++   sed -i 's/14/8/g' /root/.config/openbox/rc.xml
++   sed -i 's/15/8/g' /root/.config/openbox/rc.xml
++fi
++
+ xinit $HOME/.xinitrc -- -br -nolisten tcp > /tmp/xerrs.log 2>&1
+ 
+ if [ -f /tmp/reboot ]; then reboot; fi

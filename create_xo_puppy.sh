@@ -974,6 +974,59 @@ else
 fi
 ;;
 arch)
+# Fix xorg for XO-1.5
+cat << EOF >$SFSROOT/usr/local/share/xorg_1.5_arch
+
+Section "Monitor"
+       Identifier       "LCD"
+       Option  "PanelSize"     "1200x900"
+       DisplaySize 152 114
+       VertRefresh 49-51 
+       Option "DiPort" "DFP_HIGHLOW,DVP1"
+EndSection
+	
+Section "Modes"
+	Identifier "Modes0"
+	#modes0modeline0
+EndSection
+
+Section "Device"
+	#BusID       "PCI:0:1:0"
+	Driver      "chrome"
+	VendorName  "VIA Tech"
+	BoardName   "VX855"
+    Identifier      "Configured Video Device"
+    # Option "MigrationHeuristic" "greedy"
+    # Option "SWCursor"
+EndSection
+
+Section "Screen"
+	Identifier "Screen0"
+	Device     "Card0"
+	Monitor    "Monitor0"
+	DefaultDepth 24
+	#Option         "metamodes" "1200x900_60 +0+0" #METAMODES_0
+	Subsection "Display"
+		Virtual     1200 1200
+		Depth       24
+		Modes       "1200x900"
+	EndSubsection
+EndSection
+
+EOF
+
+patch -p1 < $patches/archpupx.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch archpupx. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/bin/archpupx.rej
+	mv -f usr/bin/archpupx.orig etc/rc.d/archpupx
+else
+	echo "Patched archpupx. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/bin/archpupx.orig
+fi
+
+
+# Add XO apps in start
 sed -i '/^rdate/d' $SFSROOT/root/.start
 sed -i '/^exit/d' $SFSROOT/root/.start
 cat << EOF >> $SFSROOT/root/.start
@@ -989,8 +1042,6 @@ exec /root/Startup/powerapplet*xo &
 sleep 0.5s
 exec /root/Startup/pup_ver.sh &
 sleep 0.5s
-mkdir -p /dev/pts
-mount /dev/pts 
 rdate -s tick.greyware.com &
 exit
 
