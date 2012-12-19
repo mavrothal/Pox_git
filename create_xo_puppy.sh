@@ -1026,7 +1026,8 @@ else
 fi
 
 
-# Add XO apps in start
+# Add XO apps in start and do not start conky
+sed -i '/^conky/d' $SFSROOT/root/.start
 sed -i '/^rdate/d' $SFSROOT/root/.start
 sed -i '/^exit/d' $SFSROOT/root/.start
 cat << EOF >> $SFSROOT/root/.start
@@ -1046,6 +1047,11 @@ rdate -s tick.greyware.com &
 exit
 
 EOF
+
+# Remove custom puppy Xdefaults/Xresources. Fix Xdefaults
+rm -f $XOSFS/root/.X*
+sed -i 's/17/19/' $SFSROOT/root/.Xdefaults
+sed -i 's/86/108/' $SFSROOT/root/.Xdefaults
 ;;
 *) echo "Nothing Special" ;;
 esac
