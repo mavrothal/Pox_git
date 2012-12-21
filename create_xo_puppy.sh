@@ -283,7 +283,7 @@ fi
 # driver freezes the mouse/keyboard in the XO-1.5. Get them.
 . $SFSROOT/etc/DISTRO_SPECS
 case "$DISTRO_FILE_PREFIX" in
-wary|racy|luki|lina) 
+wary|racy|luki|lina|arch) 
 	if [ ! -f $extra_pets/udev_luki_racy-167-i486.pet ] ; then 
 		wget -c -P $extra_pets\
 	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/udev_luki_racy-167-i486.pet
@@ -306,6 +306,19 @@ wary|racy|luki|lina)
 			fi
 		else 
 			echo "The jwm-578-deco-luki-2-i486.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		fi
+	fi
+	if [ "$DISTRO_FILE_PREFIX" = "arch" ] ; then
+		if [ ! -f $extra_pets/archdialogs-1.pet ] ; then 
+			wget -c -P $extra_pets\
+	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/archdialogs-1.pet
+			if [ $? -ne 0 ]; then
+				echo "Failed to download archdialogs-1.pet. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			else
+				echo "The archdialogs-1.pet was added in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			fi
+		else 
+			echo "The archdialogs-1.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	fi
 	;;
@@ -1040,7 +1053,7 @@ fi
 
 # Add XO apps in start and fix .start
 sed -i '/^conky/d' $SFSROOT/root/.start
-sed -i '/^numlokx/d' $SFSROOT/root/.start
+sed -i '/^numlockx/d' $SFSROOT/root/.start
 sed -i '/^rdate/d' $SFSROOT/root/.start
 sed -i '/^exit/d' $SFSROOT/root/.start
 cat << EOF >> $SFSROOT/root/.start
