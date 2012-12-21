@@ -426,9 +426,15 @@ get_binaries()
 {	
 	mkdir -p $output/lib/firmware
 	mkdir -p $output/usr/sbin
-	echo "rsyncing from OLPC"
+	echo "Getting the wireless firmware etc from OLPC"
+	rsync --list-only rsync://updates.laptop.org/ > /tmp/avail_builds
+	if [ "`cat /tmp/avail_builds | grep 'xo1-885'`" = "" ] || [ "`cat /tmp/avail_builds | grep 'xo1.5-885'`" = "" ] ; then
+		echo "The builds are not currently in the rsync server. "
+		echo "Will take 5 to 10 minutes to be pulled in the server." 
+		echo "Be patient..."
+	fi
 	# Get wireless firmware
-	rsync -a rsync://updates.laptop.org/build-874/root/lib/firmware/usb8388.bin \
+	rsync -a rsync://updates.laptop.org/build-official_xo1-885/root/lib/firmware/usb8388.bin \
 		"$output"/lib/firmware/
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"
@@ -447,7 +453,7 @@ get_binaries()
 		else 
 			echo "Downloaded usb8388.bin. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
-	rsync -a rsync://updates.laptop.org/build-official_xo1.5-874/root/lib/firmware/sd8686* \
+	rsync -a rsync://updates.laptop.org/build-official_xo1.5-885/root/lib/firmware/sd8686* \
 		"$output"/lib/firmware/
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"
@@ -467,7 +473,7 @@ get_binaries()
 			echo "Downloaded sd8686* . $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	# Get the full version of rtcwake
-	rsync -a rsync://updates.laptop.org/build-874/root/usr/sbin/rtcwake \
+	rsync -a rsync://updates.laptop.org/build-official_xo1-885/root/usr/sbin/rtcwake \
 		"$output"/usr/sbin/
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"

@@ -208,13 +208,13 @@ if [ "$ISOPATH" != "" ];then
 	statusfunc $?
 	
 	SFSTHERE=`ls|grep "sfs$"`
-	MAINSFS="`ls $SFSTHERE|grep "sfs$" | grep -v "^z"|grep -v "^a"`"
+	MAINSFS="`ls $SFSTHERE|grep "sfs$" | grep -v "^zdrv"|grep -v "^adrv"`"
 	ZSFS=`echo $SFSTHERE|grep "zdrv"`
 	if [ "$ZSFS" != "" ];then
 		echo -e "\\0033[1;34m"
-		echo  "a zdrv is present, you can manually search it"
-		echo  "for stuff needed or delete it. Hit \"d\" to delete"
-		echo  "and enter or just \"enter\" to continue"
+		echo  "A zdrv is present. You can manually search it for stuff needed "
+		echo  "but is STRONGLY suggested to delete it. Hit \"d\" and enter to delete"
+		echo  "or just \"enter\" to continue and merge it into the main SFS"
 		echo -en "\\0033[0;39m"
 		read ZDEL
 		[ "$ZDEL" != "d" ] && cp zdrv*.sfs $SQDIR #why do we keep it?
@@ -222,9 +222,12 @@ if [ "$ISOPATH" != "" ];then
 	ASFS=`echo $SFSTHERE|grep "adrv"`
 	if [ "$ASFS" != "" ];then
 		echo -e "\\0033[1;34m"
-		echo  "a adrv is present, you can manually search it"
-		echo  "for stuff needed or delete it. Hit \"d\" to delete"
-		echo  "and enter or just \"enter\" to continue"
+		echo  "An adrv is present, you can manually search it for stuff needed"
+		echo  "or delete it. Hit \"d\" and enter to delete or just \"enter\" "
+		echo  "to continue and merge it into the main SFS."
+		echo
+		echo  "If you delete it now you can still include it in the XO build at the"
+		echo  "end, though it may over-write some of the changes in the main SFS."
 		echo -en "\\0033[0;39m"
 		read ADEL
 		[ "$ADEL" != "d" ] && cp adrv*.sfs $SQDIR
@@ -292,7 +295,7 @@ wary|racy|luki|lina)
 	else 
 		echo "The T2 udev.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
-	if [ "$DISTRO_FILE_PREFIX" = "luki" ] || [ "$DISTRO_FILE_PREFIX" = "lina" ]; then
+	if [ "$DISTRO_FILE_PREFIX" = "luki" ] ; then
 		if [ ! -f $extra_pets/jwm-578-deco-luki-2-i486.pet ] ; then 
 			wget -c -P $extra_pets\
 	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/jwm-578-deco-luki-2-i486.pet
@@ -406,6 +409,12 @@ else
 		rm -f /tmp/"$PNAME".files
 		sed -i 's/^\.//' $SFSROOT/root/.packages/builtin_files/$PNAME
 	done
+fi
+
+# Check if we include a service pack pet so we update DISTRO_SPECS on the initrd
+SERVPACK="`ls $extra_pets | grep service_pack`"
+if [ "$SERVPACK" != "" ] ; then 
+	. $SFSROOT/etc/DISTRO_SPECS
 fi
 
 cd $SQDIR
@@ -717,12 +726,38 @@ for i in $SFSROOT/root/.jwm/themes/*-jwmrc
 		sed -i 's/Height>[0-9][0-9]/Height>30/' $i  
 	done
 
-# Fix driver spacing to fit SDcard long name
-sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/eventmanager
+# Make JWM windows decoration and clock fonts bigger
+sed -i "s/<\/JWM>//" $SFSROOT/root/.jwm/jwmrc-personal
+cat << EOF >> $SFSROOT/root/.jwm/jwmrc-personal
+
+   <!-- window buttons -->
+   <ButtonClose>/usr/share/pixmaps/close.xbm</ButtonClose>
+   <ButtonMax>/usr/share/pixmaps/max.xbm</ButtonMax>
+   <ButtonMaxActive>/usr/share/pixmaps/maxact.xbm</ButtonMaxActive>
+   <ButtonMin>/usr/share/pixmaps/min.xbm</ButtonMin>
+   
+   <ClockStyle>
+ 	 <!--Background>#000000</Background-->
+ 	 <Font>Sans-13:bold</Font>
+ 	 <!--Foreground>#00DB2C</Forground-->
+   </ClockStyle>
+
+</JWM>
+EOF
+
+# Remove JWM Submenus
+sed -i '0,/0/s/0//' $SFSROOT/root/.jwm/JWMRC
 
 # Add support for JWM second tray if we installed it
 if [ -f $SFSROOT/usr/local/jwmconfig2/app_tray_config ] ; then
-	sed -i "s/\/root\/\.jwmrc-tray<\/Include>/\/root\/\.jwmrc-tray<\/Include> \n \t\t<Include>\/root\/\.jwmrc-tray2<\/Include>/" $SFSROOT/etc/xdg/templates/_root_.jwmrc
+	sed -i "s/<\/JWM>//" $SFSROOT/root/.jwm/jwmrc-personal
+	cat << EOF >> $SFSROOT/root/.jwm/jwmrc-personal
+	
+	<Include>/root/.jwmrc-tray2</Include>
+	
+</JWM>
+EOF
+
 	cat << EOF > $SFSROOT/root/.jwmrc-tray2
 <JWM>
 <Tray autohide="true"  insert="right" halign="center" x="-1" y="0" border="2" height="48" layout="horizontal" >
@@ -742,6 +777,9 @@ if [ -f $SFSROOT/usr/local/jwmconfig2/app_tray_config ] ; then
 EOF
 fi
 
+# Fix driver spacing to fit SDcard long name
+sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/eventmanager
+
 #============================= Pupplet specific fixes ========================
 case "$DISTRO_FILE_PREFIX" in
 
@@ -749,14 +787,20 @@ slacko)
 # Change pager width
 sed -i "s/"maxwidth=\"25\""/"maxwidth=\"0\""/" $SFSROOT/root/.jwmrc-tray
 
-# Fix quickpet sfs list.
-# Careful. Is kernel specific
-KER1=`ls $XODIR/boot10 | grep config | sed 's/config-//'`
-KER15=`ls $XODIR/boot15 | grep config | sed 's/config-//'`
-cd $SFSROOT/etc/quickpet
-ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-"$KER1"
-ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-"$KER15"
-cd $SFSROOT
+if [ "$DISTRO_COMPAT_VERSION" = "13.37" ] ; then
+	# Fix quickpet sfs list.
+	# Careful. Is kernel specific
+	KER1=`ls $XODIR/boot10 | grep config | sed 's/config-//'`
+	KER15=`ls $XODIR/boot15 | grep config | sed 's/config-//'`
+	cd $SFSROOT/etc/quickpet
+	ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-"$KER1"
+	ln -sf Sfs-puppy-spup-official-2.6.37.6 Sfs-puppy-spup-official-"$KER15"
+	cd $SFSROOT
+fi
+
+if [ "$DISTRO_COMPAT_VERSION" = "14.0" ] ; then
+	rm -f $SFSROOT/puninstall.sh
+fi
 ;;
 
 luki|lina)
@@ -769,8 +813,10 @@ cat << EOF >> $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.x
   </property>
 </channel>
 EOF
-sed -i 's/Bold,14/Bold,10/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+sed -i 's/Bold,14/Bold,11/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+sed -i 's/24/32/' $SFSROOT/root/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 sed -i 's/16/11/' $SFSROOT/root/.config/Terminal/terminalrc
+sed -i 's/Droid Sans 12/Droid Sans 10/' $SFSROOT/root/.gtkrc-2.0
 
 # Patch frontend_d which differs in Saluki
 echo "patching pup_event_frontend_d"
@@ -781,6 +827,7 @@ if [ $? -ne 0 ]; then
 	mv -f sbin/pup_event_frontend_d.orig sbin/pup_event_frontend_d
 else
 	echo "Patched pup_event_frontend_d in Saluki. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f sbin/pup_event_frontend_d.orig
 fi
 
 # Fix the suspend/hibernate calls (Saluki)
@@ -793,6 +840,10 @@ cat << EOF >> $SFSROOT/etc/fstab.d/static_entries
 /dev/mmcblk1p2		/.intSD	    ext4	defaults,noauto	  0 0
 EOF
 
+# Further increase font size
+sed -i 's/108/130/' $XOSFS/root/.Xresources
+;;
+luki)
 #Fix JWM 
 echo "patching jwmrc"
 patch -p1 < $patches/jwmrc.patch
@@ -875,9 +926,6 @@ sed -i "s/jwm -restart/jwm -reload/" $SFSROOT/usr/local/petget/installpreview.sh
 sed -i "s/jwm -restart/jwm -reload/" $SFSROOT/usr/local/petget/removepreview.sh  
 sed -i "s/jwm -restart/jwm -reload/" $SFSROOT/usr/local/petget/petget 
 
-# Further increase font size
-sed -i 's/108/130/' $XOSFS/root/.Xresources
-
 # Show file/folder icons in Thunar when in JWM
 echo "patching xwin"
 patch -p1 < $patches/xwin.patch
@@ -936,6 +984,86 @@ else
 	echo "Patched connectwizard_2nd for frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	rm -f usr/sbin/connectwizard_2nd.orig
 fi
+;;
+arch)
+# Fix xorg for XO-1.5
+cat << EOF >$SFSROOT/usr/local/share/xorg_1.5_arch
+
+Section "Monitor"
+       Identifier       "LCD"
+       Option  "PanelSize"     "1200x900"
+       DisplaySize 152 114
+       VertRefresh 49-51 
+       Option "DiPort" "DFP_HIGHLOW,DVP1"
+EndSection
+	
+Section "Modes"
+	Identifier "Modes0"
+	#modes0modeline0
+EndSection
+
+Section "Device"
+	#BusID       "PCI:0:1:0"
+	Driver      "chrome"
+	VendorName  "VIA Tech"
+	BoardName   "VX855"
+    Identifier      "Configured Video Device"
+    # Option "MigrationHeuristic" "greedy"
+    # Option "SWCursor"
+EndSection
+
+Section "Screen"
+	Identifier "Screen0"
+	Device     "Card0"
+	Monitor    "Monitor0"
+	DefaultDepth 24
+	#Option         "metamodes" "1200x900_60 +0+0" #METAMODES_0
+	Subsection "Display"
+		Virtual     1200 1200
+		Depth       24
+		Modes       "1200x900"
+	EndSubsection
+EndSection
+
+EOF
+
+patch -p1 < $patches/archpupx.patch
+if [ $? -ne 0 ]; then
+	echo "Failed to patch archpupx. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/bin/archpupx.rej
+	mv -f usr/bin/archpupx.orig etc/rc.d/archpupx
+else
+	echo "Patched archpupx. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	rm -f usr/bin/archpupx.orig
+fi
+
+
+# Add XO apps in start and do not start conky
+sed -i '/^conky/d' $SFSROOT/root/.start
+sed -i '/^rdate/d' $SFSROOT/root/.start
+sed -i '/^exit/d' $SFSROOT/root/.start
+cat << EOF >> $SFSROOT/root/.start
+exec /root/Startup/0check_ker_ver &
+sleep 0.5s
+exec /root/Startup/freeramdaemon.sh &
+sleep 0.5s
+exec /root/Startup/powerdfix &
+sleep 0.5s
+exec /root/Startup/udev_check.sh &
+sleep 0.5s
+exec /root/Startup/powerapplet*xo &
+sleep 0.5s
+exec /root/Startup/pup_ver.sh &
+sleep 0.5s
+rdate -s tick.greyware.com &
+exit
+
+EOF
+
+# Remove custom puppy Xdefaults/Xresources. Fix Xdefaults
+rm -f $XOSFS/root/.X*
+sed -i 's/17/19/' $SFSROOT/root/.Xdefaults
+sed -i 's/86/108/' $SFSROOT/root/.Xdefaults
 ;;
 *) echo "Nothing Special" ;;
 esac
@@ -1077,10 +1205,10 @@ statusfunc $?
 # Add the build log in the sfs
 BNAME=`echo "$ISO" | sed 's/\.iso//'`
 gzip -c $CWD/build.log > $SFSROOT/usr/local/share/$BNAME-XO_build.log.gz
-
 # compress main sfs
 cd $SQDIR
 sync
+[ "$SERVPACK" != "" ] && cp $SFSROOT/etc/DISTRO_SPECS $CWD/ && MAINSFS="$DISTRO_PUPPYSFS" #service_pack in build
 echo "now compressing the NEW $MAINSFS..."
 mksquashfs squashfs-root/ "$MAINSFS"
 sync
@@ -1132,6 +1260,7 @@ sync
 # Replace kernel modules with OLPC_Puppy ones
 rm -rf lib/modules/*
 cp -arf ../$DIR/lib/* lib/ 
+[ "$SERVPACK" != "" ] && cp -f $CWD/DISTRO_SPECS . #service_pack in build
 # The default puppy init looks for files only in the folder where vmlinuz is.
 # it does not work with our boot10/15 setup 
 sed -i "s/PSUBDIR=\"\`dirname \$ONEPUPFILE\`\"/PSUBDIR=\"\"/" init
@@ -1165,6 +1294,28 @@ fi
 rm -f build/initrd*
 rm -f $INITDIR/boot*/initrd*
 
+# Offer to add adrv if omitted
+if [ "$ASFS" != "" ] && [ "$ADEL" = "d" ];then
+		echo -e "\\0033[1;34m"
+		echo  "The adrv of this puppy was excluded from the main SFS"
+		echo  "Do you want to add it now in the XO build?"
+		echo  "Hit \"a\" and enter to add it or just \"enter\" to ommit it"
+		echo -en "\\0033[0;39m"
+		read ADDADRV
+		if [ "$ADDADRV" = "a" ];then
+			[ ! -d  $CWD/mntiso ] && mkdir $CWD/mntiso
+			echo "mounting $ISO"
+			mount $ISOPATH $MNTDIR -o loop
+			statusfunc $?
+			cp $MNTDIR/adrv*.sfs build
+			sync
+			umount $MNTDIR
+			rm -rf $MNTDIR
+		else
+			echo "ok"
+		fi
+fi
+
 # Append IDSTRING to kernel. Needed when saving to the entire partition
 for i in `ls build/boot*/vmlinuz`
 	do
@@ -1177,6 +1328,7 @@ sync
 echo "removing working dirs"
 rm -rf $SQDIR
 rm -rf initramfs
+[ "$SERVPACK" != "" ] && rm -f $CWD/DISTRO_SPECS #service_pack in build
 
 # workaround a strange race (?) issue with libertas and 3.3 kernel 
 if [ "`ls $CWD/boot1* | grep '3.3'`" != "" ] ; then
@@ -1198,8 +1350,7 @@ if [ "$COPY" = "c" ];then
 	read TRANSFER
 		if [ "$TRANSFER" = "t" ];then
 			rm -rf $DEVICE/boot*
-			rm -rf $DEVICE/$MAINSFS
-			cp -aR build/* $DEVICE/
+			cp -aR --remove-destination build/* $DEVICE/
 			sync
 		else
 			echo "Copy all files in the ./build directory to USB media/SD card"

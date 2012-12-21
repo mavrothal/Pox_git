@@ -1,0 +1,14 @@
+--- a/usr/bin/archpupx	2012-11-28 13:42:02.000000000 +0200
++++ b/usr/bin/archpupx	2012-12-18 21:26:26.000000000 +0200
+@@ -1,5 +1,11 @@
+ #!/bin/sh
+ 
++if [ "`cat /sys/class/dmi/id/product_version`" = "1.5" ] \
++		&& [ "`cat /etc/X11/xorg.conf | grep VX855`" = "" ] ; then
++	cat /usr/local/share/xorg_1.5_arch >> /etc/X11/xorg.conf
++   sleep 1
++fi
++
+ xinit $HOME/.xinitrc -- -br -nolisten tcp > /tmp/xerrs.log 2>&1
+ 
+ if [ -f /tmp/reboot ]; then reboot; fi

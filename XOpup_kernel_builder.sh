@@ -385,6 +385,18 @@ patch_sources()
 				exit 1
 			fi
 		done
+		
+		# Patch arch/x86/include/asm/ptrace.h if we compile with gcc 4.7.x
+		if [ "`gcc --version | grep ' 4.7.'`" != "" ] ; then
+			patch -p1 < $patches/gcc47x.patch
+			if [ $? -ne 0 ]; then
+				echo -e "\\0033[1;31m"
+				echo "Error: failed to apply gcc47x.patch on the kernel sources."
+				echo -en "\\0033[0;39m"
+				echo "Failed to apply gcc47x.patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				exit 1
+			fi
+		fi
 	fi
 	
 	# Apply puppy patches

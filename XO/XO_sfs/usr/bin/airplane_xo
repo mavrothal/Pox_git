@@ -2,6 +2,8 @@
 #olpc rfkill script
 #turns off wifi so you can use in a plane or use a 3G modem
 #20101003 gpl 01mick@gmail.com
+. gettext.sh
+export TEXTDOMAIN=airplain_xo
 WIFISTATE=`cat /sys/class/rfkill/rfkill0/state`
 killwifi (){
 WIFISTATE=`cat /sys/class/rfkill/rfkill0/state`
@@ -9,8 +11,8 @@ if [[ $WIFISTATE = 1 ]];then
    ifconfig wlan0 down
    echo 0 > /sys/class/rfkill/rfkill0/state
 #   mv /etc/powerd/postresume.d/reconnect.sh /etc/powerd 
-   Xdialog --timeout 5 --msgbox "Wireless conectivity is off" 0 0 0
-      else Xdialog --timeout 5 --msgbox "Your wireless conectivity is already off"  0 0 0
+   Xdialog --timeout 5 --msgbox "$(gettext 'Wireless conectivity is off')" 0 0 0
+      else Xdialog --timeout 5 --msgbox "$(gettext 'Your wireless conectivity is already off')"  0 0 0
 fi
 }
 export -f killwifi
@@ -23,8 +25,8 @@ if [[ $WIFISTATE = 0 ]];then
    ifconfig wlan0 up 2>/dev/null
    sleep 1
    /usr/local/apps/Connect/AppRun --connect &
-   Xdialog --timeout 5 --msgbox "Wireless conectivity is on \n If your connection failed \nright click the network tray icon \n and select \"Reconnect to Network\"" 0 0 0
-      else Xdialog --timeout 5 --msgbox "Your wireless conectivity is already on" 0 0 0
+   Xdialog --timeout 5 --msgbox "$(gettext 'Wireless conectivity is on \n If your connection failed \nright click the network tray icon \n and select "Reconnect to Network"')" 0 0 0
+      else Xdialog --timeout 5 --msgbox "$(gettext 'Your wireless conectivity is already on')" 0 0 0
 fi
 }
 export -f startwifi

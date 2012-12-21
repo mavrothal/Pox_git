@@ -1,19 +1,22 @@
 #!/bin/sh
 
+. gettext.sh
+export TEXTDOMAIN=XOpad_conf.sh
+
 XOVER=`cat /sys/class/dmi/id/product_version`
 if [ "$XOVER" != "1" ] ; then
 	gtkdialog-splash -fontsize large -bg hotpink -icon gtk-dialog-error -timeout 5 -text \
- "This app is only for the XO-1" &
+ "$(gettext 'This app is only for the XO-1')" &
 	exit 0
 fi
 
 export Toucpad_configuration="
-<window height-request=\"200\" title=\"XO-1 Touchpad Configuration\">
+<window height-request=\"200\" title=\"$(gettext 'XO-1 Touchpad Configuration')\">
  <vbox>
  <frame>
   <hbox width-request=\"580\"> 
    <vbox>
-   <text width-request=\"500\"><label>\"This is the default XO-1 touchpad (the jumpy one in first generation XO-1s :)\"</label></text>
+   <text width-request=\"500\"><label>\"$(gettext 'This is the default XO-1 touchpad (the jumpy one in first generation XO-1s :)')\"</label></text>
   </vbox>
   <vbox>
     <button>
@@ -26,7 +29,7 @@ export Toucpad_configuration="
 
  <hbox width-request=\"580\">
  <vbox>
-  <text width-request=\"500\"><label>\"This is for wide area resistive touchpad. You must use it with a stylus (no jumping though ;)\"</label></text>
+  <text width-request=\"500\"><label>\"$(gettext 'This is for wide area resistive touchpad. You must use it with a stylus (no jumping though ;)')\"</label></text>
   </vbox>
   <vbox>
    <button>

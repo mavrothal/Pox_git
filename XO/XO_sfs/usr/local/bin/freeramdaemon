@@ -6,25 +6,33 @@
 #20100907 changed from percentage to 32M RAM left for warning, 8M left for critical
 #20110301 added mkswap-file.sh to gui
 #20110301 GM: swap yesno defaults and edit the dialog texts. Added $PUPMODE 12
-ver=0.3-1
+ver=0.3-3
+
+export TEXTDOMAIN=freeramdaemon
+export TEXTDOMAINDIR=/usr/share/locale
+export OUTPUT_CHARSET=UTF-8
+eval_gettext () {
+  local myMESSAGE=$(gettext "$1")
+  eval echo \"$myMESSAGE\"
+}
 
 splashgui(){
 	if [[ "`which pprocess`" != "" ]];then PROCESSCHECK='pprocess' #is pprocess installed? if not use top
-		THEDIALOG="\nYou can create a swapfile or kill running \nprocesses with Pprocess. Press 'mkSwap' \nto generate a swapfile or 'KillApps' to start Pprocess \nor just close this window to do none of the two"
+		THEDIALOG="$(gettext '\nYou can create a swapfile or kill running \nprocesses with Pprocess. Press "mkSwap" \nto generate a swapfile or "KillApps" to start Pprocess \nor just close this window to do none of the two')"
 		else PROCESSCHECK='rxvt -e top'
-		THEDIALOG="\nYou can create a swapfile or check processes \nwith 'top'. Press 'mkSwap' to generate a swapfile \nor 'KillApps' to start top and kill apps manually \nor just close this window to do none of the two"
+		THEDIALOG="$(gettext '\nYou can create a swapfile or check processes \nwith "top". Press "mkSwap" to generate a swapfile \nor "KillApps" to start top and kill apps manually \nor just close this window to do none of the two')"
 	fi
 	
 	. /etc/rc.d/PUPSTATE  #test for saveback to cd/dvd or usb install
 	case $PUPMODE in
 	7|12|13|77)
-	SAVEDIALOG="\nWhen done click the 'Save' icon on the Desktop"
+	SAVEDIALOG="$(gettext '\nWhen done click the "Save" icon on the Desktop')"
 	;;
 	*)
 	SAVEDIALOG=""
 	;;
 	esac
-	Xdialog --title "RAM relief" --help "By clicking 'mkSwap' a swapfile will be created in the \nroot of your boot drive. Puppy will detect this and use it. \n\nClicking 'KillApps' will bring up Pprocess or top \nwhere you can manually stop processes and services,  \nIn this case make sure that you know what you are doing \nsince you may break your system!" --ok-label "mkSwap" --cancel-label "KillApps" --yesno "You are running low in free memory (RAM) \nShut down any applications \nsuch as browsers and wordprocessors \nand save your work ${SAVEDIALOG} \nOR ${THEDIALOG} " 0 0 0
+	Xdialog --title "$(gettext 'RAM relief')" --help "$(gettext 'By clicking mkSwap a swapfile will be created in the \nroot of your boot drive. Puppy will detect this and use it. \n\nClicking "KillApps" will bring up Pprocess or top \nwhere you can manually stop processes and services,  \nIn this case make sure that you know what you are doing \nsince you may break your system!')" --ok-label "$(gettext 'mkSwap')" --cancel-label "$(gettext 'KillApps')" --yesno "`eval_gettext \"You are running low in free memory (RAM) \nShut down any applications \nsuch as browsers and wordprocessors \nand save your work \\\${SAVEDIALOG} \nOR \\\${THEDIALOG} \"`" 0 0 0
 		case $? in 
 		0) rxvt -bg yellow -e mkswap-file.sh & ;;
 		1) exec $PROCESSCHECK & ;;
