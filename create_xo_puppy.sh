@@ -1038,8 +1038,9 @@ else
 fi
 
 
-# Add XO apps in start and do not start conky
+# Add XO apps in start and fix .start
 sed -i '/^conky/d' $SFSROOT/root/.start
+sed -i '/^numlokx/d' $SFSROOT/root/.start
 sed -i '/^rdate/d' $SFSROOT/root/.start
 sed -i '/^exit/d' $SFSROOT/root/.start
 cat << EOF >> $SFSROOT/root/.start
@@ -1059,6 +1060,9 @@ rdate -s tick.greyware.com &
 exit
 
 EOF
+
+#Fix conky if we do not use it be default ;)
+sed -i 's/eth0/wlan0/g' $SFSROOT/root/.conkyrc
 
 # Remove custom puppy Xdefaults/Xresources. Fix Xdefaults
 rm -f $XOSFS/root/.X*
