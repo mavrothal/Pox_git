@@ -1057,18 +1057,11 @@ sed -i '/^numlockx/d' $SFSROOT/root/.start
 sed -i '/^rdate/d' $SFSROOT/root/.start
 sed -i '/^exit/d' $SFSROOT/root/.start
 cat << EOF >> $SFSROOT/root/.start
-exec /root/Startup/0check_ker_ver &
-sleep 0.5s
-exec /root/Startup/freeramdaemon.sh &
-sleep 0.5s
-exec /root/Startup/powerdfix &
-sleep 0.5s
-exec /root/Startup/udev_check.sh &
-sleep 0.5s
-exec /root/Startup/powerapplet*xo &
-sleep 0.5s
-exec /root/Startup/pup_ver.sh &
-sleep 0.5s
+for i in `ls /root/Startup`
+do 
+ exec /root/Startup/$i &
+ sleep 0.5s 
+done
 rdate -s tick.greyware.com &
 exit
 
@@ -1081,6 +1074,10 @@ sed -i 's/eth0/wlan0/g' $SFSROOT/root/.conkyrc
 rm -f $XOSFS/root/.X*
 sed -i 's/17/19/' $SFSROOT/root/.Xdefaults
 sed -i 's/86/108/' $SFSROOT/root/.Xdefaults
+
+# Remove udev-175 libudev
+rm -f $SFSROOT/lib/libudev.so.0.13.0
+echo "ln -sf /lib/libudev.so.0.11.1 /lib/libudev.so.1" >> $XOSFS/etc/rc.d/rc.local
 ;;
 *) echo "Nothing Special" ;;
 esac
