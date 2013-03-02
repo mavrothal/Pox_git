@@ -1210,6 +1210,8 @@ echo "The following XO-specific files where included in the build" >> $CWD/build
 y=$(printf "%s\n" "$XOSFS" | sed 's/[/]/\\&/g') # specific case
 find $XOSFS | sed s/$y//g >> $CWD/build.log
 
+# Do not overwrite rtcwake if present. May overwrite busybox!
+[ -f usr/sbin/rtcwake ] && rm -f $XOSFS/usr/sbin/rtcwake 
 echo "copying in the XO files"
 cp -aRf $XOSFS/* ./
 cp -aRf $XOSFS/.[a-zA-Z0-9]* ./
