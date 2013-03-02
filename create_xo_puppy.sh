@@ -813,6 +813,8 @@ fi
 
 if [ "$DISTRO_COMPAT_VERSION" = "14.0" ] ; then
 	rm -f $SFSROOT/puninstall.sh
+	#Part of the 'BUG' hack in slacko. We do not need it and messes up kernver
+	sed -i '/^KERNVER=\$/d' $SFSROOT/etc/rc.d/rc.sysinit
 fi
 ;;
 
