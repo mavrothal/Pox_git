@@ -322,8 +322,28 @@ wary|racy|luki|lina|arch)
 		fi
 	fi
 	;;
+slacko)
+	if [ "$DISTRO_COMPAT_VERSION" = "14.0" ] ; then
+		if [ ! -f $extra_pets/udev-175-i486.pet ] ; then 
+			wget -c -P /tmp \
+			http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/udev-175_Slacko14.tar.gz
+			if [ $? -ne 0 ]; then
+				echo "Failed to download udev-175. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			else
+				sync
+				tar xvzf /tmp/udev-175_Slacko14.tar.gz -C /tmp/
+				cp /tmp/udev-175_Slacko14/udev-175-i486.pet $extra_pets/
+				rm -rf /tmp/udev-175_Slacko14*
+				sync
+				echo "udev-175-i486.pet for slacko was added in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			fi
+		else 
+			echo "udev-175-i486.pet for slacko  was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		fi
+	fi
+	;;
 *)  
-	echo "Not a T2-based puppy"
+	echo "Nothing special"
 	;;
 esac
 
