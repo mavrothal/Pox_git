@@ -365,7 +365,7 @@ if [ "`ls $extra_pets | grep '.pet'`" = "" ] ; then
 			for p in ./* 
 				do 
 				PNAME=`echo $p | sed 's/\.pet//'`
-				tar xzf $p 2>/dev/null 
+				tar xf $p 2>/dev/null 
 				cd $PNAME
 				cat *.spec* >> $SFSROOT/root/.packages/woof-installed-packages
 				rm -f *.sh *.spec* 2>/dev/null
@@ -408,7 +408,7 @@ else
 	for p in ./* 
 		do 
 		PNAME=`echo $p | sed 's/\.pet//'`
-		tar xzf $p 2>/dev/null 
+		tar xf $p 2>/dev/null 
 		cd $PNAME
 		cat *.spec* >> $SFSROOT/root/.packages/woof-installed-packages
 		rm -f *.sh *.spec* 2>/dev/null
@@ -1018,6 +1018,24 @@ if [ $? -ne 0 ]; then
 else
 	echo "Patched connectwizard_2nd for frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	rm -f usr/sbin/connectwizard_2nd.orig
+fi
+;;
+racy)
+if [ "`ls $extra_pets | grep 'frisbee-1.0'`" != "" ] ; then
+	BACK="`pwd`"
+	cd $SFSROOT
+	rm -f etc/frisbee/.frisbee_mode
+	rm -f etc/frisbee/.notify_mode
+	rm -f etc/frisbee/.signal_mode
+	rm -f etc/frisbee/.wpa_log_mode
+	if [ ! -h usr/libexec/dhcpcd-hooks -a -d usr/libexec/dhcpcd-hooks ];then
+		ln -snf lib/dhcpcd/dhcpcd-hooks/99-down usr/libexec/dhcpcd-hooks/99-down
+		ln -snf lib/dhcpcd/dhcpcd-hooks/99-ifup usr/libexec/dhcpcd-hooks/99-ifup
+		ln -snf lib/dhcpcd/dhcpcd-hooks/99-release usr/libexec/dhcpcd-hooks/99-release
+		ln -snf lib/dhcpcd/dhcpcd-hooks/99-timeout usr/libexec/dhcpcd-hooks/99-timeout
+		ln -snf lib/dhcpcd/dhcpcd-hooks/99-up usr/libexec/dhcpcd-hooks/99-up
+	fi
+	cd $BACK
 fi
 ;;
 arch)
