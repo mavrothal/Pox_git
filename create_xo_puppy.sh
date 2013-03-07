@@ -813,6 +813,26 @@ fi
 # Fix driver spacing to fit SDcard long name
 sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/eventmanager
 
+# Check if we installed Frisbee and make it default
+if [ "`ls $extra_pets | grep risbee`" != "" ] ; then
+	chmod 000 $SFSROOT/root/Startup/network_tray
+	cat << EOF > $SFSROOT/usr/local/bin/defaultconnect
+#!/bin/sh
+exec Frisbee
+EOF
+
+	# ...and patch connectwizard_2nd
+	echo "patching connectwizard_2nd for Frisbee"
+	patch -p1 < $patches/connectwizard_2nd.patch
+	if [ $? -ne 0 ]; then
+		echo "Failed to patch connectwizard_2nd for Frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		rm -f usr/sbin/connectwizard_2nd.rej
+		mv -f usr/sbin/connectwizard_2nd.orig usr/sbin/connectwizard_2nd
+	else
+		echo "Patched connectwizard_2nd for frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		rm -f usr/sbin/connectwizard_2nd.orig
+	fi
+fi
 #============================= Pupplet specific fixes ========================
 case "$DISTRO_FILE_PREFIX" in
 
@@ -999,26 +1019,6 @@ precise)
 rm -f $SFSROOT/puninstall.sh
 # Remove libLLVM
 rm -f $SFSROOT/usr/lib/libLLVM*
-# Check if we installed Frisbee and make it default
-if [ "`ls $extra_pets | grep risbee`" != "" ] ; then
-	chmod 000 $SFSROOT/root/Startup/network_tray
-	cat << EOF > $SFSROOT/usr/local/bin/defaultconnect
-#!/bin/sh
-exec Frisbee
-EOF
-fi
-
-# ...and patch connectwizard_2nd
-echo "patching connectwizard_2nd for Frisbee"
-patch -p1 < $patches/connectwizard_2nd.patch
-if [ $? -ne 0 ]; then
-	echo "Failed to patch connectwizard_2nd for Frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/sbin/connectwizard_2nd.rej
-	mv -f usr/sbin/connectwizard_2nd.orig usr/sbin/connectwizard_2nd
-else
-	echo "Patched connectwizard_2nd for frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/sbin/connectwizard_2nd.orig
-fi
 ;;
 arch)
 # Fix xorg for XO-1.5
