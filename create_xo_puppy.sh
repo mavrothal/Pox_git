@@ -813,24 +813,28 @@ fi
 # Fix driver spacing to fit SDcard long name
 sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/eventmanager
 
-# Check if we installed Frisbee and make it default
-if [ "`ls $extra_pets | grep risbee`" != "" ] ; then
-	chmod 000 $SFSROOT/root/Startup/network_tray
-	cat << EOF > $SFSROOT/usr/local/bin/defaultconnect
+# Check if we installed original Frisbee and make it default
+if [ "`ls $extra_pets | grep Frisbee`" != "" ] ; then
+	if [ "`cat $SFSROOT/usr/sbin/connectwizard_2nd | grep '/bin/frisbee'`" != "" ] ; then
+		sed -i 's/frisbee/Frisbee/g' $SFSROOT/usr/sbin/connectwizard_2nd
+	else
+		chmod 000 $SFSROOT/root/Startup/network_tray
+		cat << EOF > $SFSROOT/usr/local/bin/defaultconnect
 #!/bin/sh
 exec Frisbee
 EOF
 
-	# ...and patch connectwizard_2nd
-	echo "patching connectwizard_2nd for Frisbee"
-	patch -p1 < $patches/connectwizard_2nd.patch
-	if [ $? -ne 0 ]; then
-		echo "Failed to patch connectwizard_2nd for Frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		rm -f usr/sbin/connectwizard_2nd.rej
-		mv -f usr/sbin/connectwizard_2nd.orig usr/sbin/connectwizard_2nd
-	else
-		echo "Patched connectwizard_2nd for frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		rm -f usr/sbin/connectwizard_2nd.orig
+		# ...and patch connectwizard_2nd
+		echo "patching connectwizard_2nd for Frisbee"
+		patch -p1 < $patches/connectwizard_2nd.patch
+		if [ $? -ne 0 ]; then
+			echo "Failed to patch connectwizard_2nd for Frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			rm -f usr/sbin/connectwizard_2nd.rej
+			mv -f usr/sbin/connectwizard_2nd.orig usr/sbin/connectwizard_2nd
+		else
+			echo "Patched connectwizard_2nd for frisbee. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			rm -f usr/sbin/connectwizard_2nd.orig
+		fi
 	fi
 fi
 #============================= Pupplet specific fixes ========================

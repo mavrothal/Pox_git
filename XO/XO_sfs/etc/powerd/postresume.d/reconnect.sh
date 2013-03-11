@@ -4,21 +4,27 @@
 
 # First test if eth0 is up so if we do agressive suspend will not try to reconnect all the time
 TestEth=`ifconfig | grep wlan`
-if [  "$TestEth"  != "" ] ; then
+if [  "$TestEth"  != "" ] && [  "`iwgetid -a`"  != "" ] ; then
    exit 0
 fi
 
-CHKFRISBEE=`cat /usr/local/bin/defaultconnect | grep Frisbee`
+CHKFRISBEE=`cat /usr/local/bin/defaultconnect | grep -i Frisbee`
 if [ "$CHKFRISBEE" != "" ] ; then
-	sleep 5
-    killall -9 dhcpcd
-	killall wpa_cli
-	/usr/local/Frisbee/start-dhcp
-	killall -9 wpa_supplicant
-	rm -rf /var/run/wpa_supplicant/*
-	rm /tmp/wpa_supplicant.log
-	/usr/local/Frisbee/start-wpa
-	/usr/local/Frisbee/connect
+	if [ -f /usr/local/bin/Frisbee ] ; then
+		sleep 5
+		killall -9 dhcpcd
+		killall wpa_cli
+		/usr/local/Frisbee/start-dhcp
+		killall -9 wpa_supplicant
+		rm -rf /var/run/wpa_supplicant/*
+		rm /tmp/wpa_supplicant.log
+		/usr/local/Frisbee/start-wpa
+		/usr/local/Frisbee/connect
+	fi
+	if [ -f /usr/local/bin/frisbee ] ; then
+		reset-wpa &
+		rreset-dhcp &
+	fi
 else
 ###################FROM SETUP SERVICES################
 
