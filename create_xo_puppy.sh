@@ -817,6 +817,14 @@ sed -i 's/ICON_PLACE_SPACING=[0-9][0-9]/ICON_PLACE_SPACING=108/' $SFSROOT/etc/ev
 if [ "`ls $extra_pets | grep Frisbee`" != "" ] ; then
 	if [ "`cat $SFSROOT/usr/sbin/connectwizard_2nd | grep '/bin/frisbee'`" != "" ] ; then
 		sed -i 's/frisbee/Frisbee/g' $SFSROOT/usr/sbin/connectwizard_2nd
+		sed -i 's/frisbee/Frisbee/g' $SFSROOT/usr/sbin/connectwizard
+		#This should not be necessary but somehow connectwizard_2nd needs
+		#a Frisbee "network restart" to set it as a defaultconnect :-? 
+		#Is still problematic even with this hack
+		cat << EOF > $SFSROOT/usr/local/bin/defaultconnect
+#!/bin/sh
+exec Frisbee
+EOF
 	else
 		chmod 000 $SFSROOT/root/Startup/network_tray
 		cat << EOF > $SFSROOT/usr/local/bin/defaultconnect
