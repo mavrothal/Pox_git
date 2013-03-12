@@ -22,8 +22,21 @@ if [ "$CHKFRISBEE" != "" ] ; then
 		/usr/local/Frisbee/connect
 	fi
 	if [ -f /usr/local/bin/frisbee ] ; then
-		reset-wpa &
-		rreset-dhcp &
+		INTERFACE=`cat /etc/frisbee/interface 2>/dev/null`
+		dhcpcd -k
+		killall -9 dhcpcd
+		killall wpa_cli 2>/dev/null
+		setsid dhcpcd -b -d $(dhcpcd_dropwait_option) -f /etc/frisbee/dhcpcd.conf
+		sleep 2
+		killall -9 wpa_supplicant 2>/dev/null
+		rm -rf /var/run/wpa_supplicant/*
+		rm -f /tmp/wpa_supplicant.log
+		ifconfig $INTERFACE up
+		if [ -f /etc/frisbee/.wpa_log_mode ] ; then
+			setsid wpa_supplicant -B -d -Dwext -i$INTERFACE -c/etc/frisbee/wpa_supplicant.conf > /tmp/wpa_supplicant.log
+		else
+			setsid wpa_supplicant -B -Dwext -i$INTERFACE -c/etc/frisbee/wpa_supplicant.conf > /tmp/wpa_supplicant.log
+		fi
 	fi
 else
 ###################FROM SETUP SERVICES################
