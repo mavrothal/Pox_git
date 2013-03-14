@@ -3,7 +3,7 @@
 PACKAGES_REM="grub grub4dos 915resolution floppy_format makebootfat \
 powerapplet_tray xserver_xvesa_t2 acpid acpitool vattery vattery_acpitool3x \
 sven tempicon lm_sensors flsynclient flSynclient wcpufreq wcpufreq ntfs-3g \
-ntfsprogs radeon_ucode ycalc pavrecord-precise laptop_tools_all-precise"
+ntfsprogs radeon_ucode ycalc pavrecord pavrecord-precise laptop_tools_all-precise"
 
 #PACKAGES to move into an "extras.sfs"
 PACKAGES_MOVE="bones bacon cdrkit cups didiwiki dvdauthor dvd+rwtools ffconvert \
