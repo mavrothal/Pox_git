@@ -131,7 +131,7 @@ fi
 
 # Test if eth0 is realy up since some times fails after soft sleep
 sleep 20
-if [  "$TestEth"  != "" ] ; then
+if [  "$TestEth"  != "" ] && [  "`iwgetid -a`"  != "" ] ; then
    exit 0
 else
    cd /etc/powerd/postresume.d/
