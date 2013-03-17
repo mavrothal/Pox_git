@@ -846,9 +846,9 @@ EOF
 	fi
 fi
 
-#frisbee-1.0 has some issues on first connection. This hack fixes it till a better solution
-if [ -f $SFSROOT/usr/local/frisbee/func ] ; then
-	sed -i 's/\-z \"\$STATE\" \-o //' $SFSROOT/usr/local/frisbee/func
+#Set frisbee-1.0 to autostart WiFi (till the default is changed).
+if [ -f $SFSROOT/usr/bin/frisbee ] ; then
+	touch $SFSROOT/etc/frisbee/.wireless_autostart
 fi	
 #============================= Pupplet specific fixes ========================
 case "$DISTRO_FILE_PREFIX" in
