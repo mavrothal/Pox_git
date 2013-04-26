@@ -283,7 +283,7 @@ fi
 # driver freezes the mouse/keyboard in the XO-1.5. Get them.
 . $SFSROOT/etc/DISTRO_SPECS
 case "$DISTRO_FILE_PREFIX" in
-wary|racy|luki|lina|arch) 
+wary|racy|luki|lina) 
 	if [ ! -f $extra_pets/udev_luki_racy-167-i486.pet ] ; then 
 		wget -c -P $extra_pets\
 	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/udev_luki_racy-167-i486.pet
@@ -306,19 +306,6 @@ wary|racy|luki|lina|arch)
 			fi
 		else 
 			echo "The jwm-578-deco-luki-2-i486.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		fi
-	fi
-	if [ "$DISTRO_FILE_PREFIX" = "arch" ] ; then
-		if [ ! -f $extra_pets/archdialogs-1.pet ] ; then 
-			wget -c -P $extra_pets\
-	http://ftp.cc.uoc.gr/mirrors/linux/XOpup/XOpets/archdialogs-1.pet
-			if [ $? -ne 0 ]; then
-				echo "Failed to download archdialogs-1.pet. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-			else
-				echo "The archdialogs-1.pet was added in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-			fi
-		else 
-			echo "The archdialogs-1.pet was in the extra_pets folder. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	fi
 	;;
@@ -1036,87 +1023,6 @@ precise)
 rm -f $SFSROOT/puninstall.sh
 # Remove libLLVM
 rm -f $SFSROOT/usr/lib/libLLVM*
-;;
-arch)
-# Fix xorg for XO-1.5
-cat << EOF >$SFSROOT/usr/local/share/xorg_1.5_arch
-
-Section "Monitor"
-       Identifier       "LCD"
-       Option  "PanelSize"     "1200x900"
-       DisplaySize 152 114
-       VertRefresh 49-51 
-       Option "DiPort" "DFP_HIGHLOW,DVP1"
-EndSection
-	
-Section "Modes"
-	Identifier "Modes0"
-	#modes0modeline0
-EndSection
-
-Section "Device"
-	#BusID       "PCI:0:1:0"
-	Driver      "chrome"
-	VendorName  "VIA Tech"
-	BoardName   "VX855"
-    Identifier      "Configured Video Device"
-    # Option "MigrationHeuristic" "greedy"
-    # Option "SWCursor"
-EndSection
-
-Section "Screen"
-	Identifier "Screen0"
-	Device     "Card0"
-	Monitor    "Monitor0"
-	DefaultDepth 24
-	#Option         "metamodes" "1200x900_60 +0+0" #METAMODES_0
-	Subsection "Display"
-		Virtual     1200 1200
-		Depth       24
-		Modes       "1200x900"
-	EndSubsection
-EndSection
-
-EOF
-
-patch -p1 < $patches/archpupx.patch
-if [ $? -ne 0 ]; then
-	echo "Failed to patch archpupx. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/bin/archpupx.rej
-	mv -f usr/bin/archpupx.orig etc/rc.d/archpupx
-else
-	echo "Patched archpupx. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	rm -f usr/bin/archpupx.orig
-fi
-
-
-# Add XO apps in start and fix .start
-sed -i '/^conky/d' $SFSROOT/root/.start
-sed -i '/^numlockx/d' $SFSROOT/root/.start
-sed -i '/^rdate/d' $SFSROOT/root/.start
-sed -i '/^exit/d' $SFSROOT/root/.start
-cat << EOF >> $SFSROOT/root/.start
-for i in `ls /root/Startup`
-do 
- exec /root/Startup/$i &
- sleep 0.5s 
-done
-rdate -s tick.greyware.com &
-exit
-
-EOF
-
-#Fix conky if we do not use it be default ;)
-sed -i 's/eth0/wlan0/g' $SFSROOT/root/.conkyrc
-
-# Remove custom puppy Xdefaults/Xresources. Fix Xdefaults
-rm -f $XOSFS/root/.X*
-sed -i 's/17/19/' $SFSROOT/root/.Xdefaults
-sed -i 's/86/108/' $SFSROOT/root/.Xdefaults
-
-# Remove udev-175 libudev
-rm -f $SFSROOT/lib/libudev.so.0.13.0
-echo "ln -sf /lib/libudev.so.0.11.1 /lib/libudev.so.1" >> $XOSFS/etc/rc.d/rc.local
 ;;
 *) echo "Nothing Special" ;;
 esac
