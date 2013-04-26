@@ -24,18 +24,18 @@ if [[ $WIFISTATE = 0 ]];then
    sleep 1
    ifconfig wlan0 up 2>/dev/null
    sleep 1
-   /usr/local/apps/Connect/AppRun --connect &
+   exec /etc/powerd/postresume.d/reconnect.sh &
    Xdialog --timeout 5 --msgbox "$(gettext 'Wireless conectivity is on \n If your connection failed \nright click the network tray icon \n and select "Reconnect to Network"')" 0 0 0
       else Xdialog --timeout 5 --msgbox "$(gettext 'Your wireless conectivity is already on')" 0 0 0
 fi
 }
 export -f startwifi
 if [[ $WIFISTATE = 1 ]];then TEXT1="Click the button to turn
-off your wireless device."
+your wireless device OFF."
       TEXT2="<text><label>Turn Off</label></text>"
       BUTTON="<button><input file>/usr/local/lib/X11/mini-icons/networkdead.xpm</input><action>killwifi &</action><action>EXIT:wifioff</action></button>"
    else TEXT1="Click the button to turn
-on your wireless device."
+your wireless device ON."
          TEXT2="<text><label>Turn On</label></text>"
          BUTTON="<button><input file>/usr/local/lib/X11/mini-icons/networkboth.xpm</input><action>startwifi &</action><action>EXIT:wifion</action></button>"
 fi
@@ -60,7 +60,7 @@ export RFKILLSCRIPT="
   </hbox>
   </frame>
   <hbox homogeneous=\"true\">
-   <button ok></button>
+   <button cancel></button>
   </hbox>
  </vbox>
 </window>"
