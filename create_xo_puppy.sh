@@ -640,9 +640,17 @@ fi
 echo "patching pup_event_frontend_d"
 patch -p1 < $patches/frontend_d.patch
 if [ $? -ne 0 ]; then
-	echo "Failed to patch pup_event_frontend_d. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	rm -f sbin/pup_event_frontend_d.rej
 	mv -f sbin/pup_event_frontend_d.orig sbin/pup_event_frontend_d
+	patch -p1 < $patches/frontend_d.patch2
+	if [ $? -ne 0 ]; then
+		echo "Failed to patch pup_event_frontend_d. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		rm -f sbin/pup_event_frontend_d.rej
+		mv -f sbin/pup_event_frontend_d.orig sbin/pup_event_frontend_d
+	else
+		echo "Patched pup_event_frontend_d. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		rm -f sbin/pup_event_frontend_d.orig
+	fi
 else
 	echo "Patched pup_event_frontend_d. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	rm -f sbin/pup_event_frontend_d.orig
