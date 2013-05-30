@@ -426,12 +426,12 @@ get_binaries()
 {	
 	mkdir -p $output/lib/firmware
 	mkdir -p $output/usr/sbin
-	if [ "`ls $CWD/boot1* | grep '3.3'`" != "" ] ; then
+	if [ "`ls $CWD/boot1* | grep '3\.3'`" != "" ] ; then
 		mkdir $output/lib/firmware/libertas
 	fi
 	echo "Getting the wireless firmware etc from OLPC"
 	rsync --list-only rsync://updates.laptop.org/ > /tmp/avail_builds
-	if [ "`ls $CWD/boot1* | grep '2.6'`" != "" ] ; then
+	if [ "`ls $CWD/boot1* | grep '2\.6'`" != "" ] ; then
 	if [ "`cat /tmp/avail_builds | grep 'xo1-885'`" = "" ] || [ "`cat /tmp/avail_builds | grep 'xo1.5-885'`" = "" ] ; then
 		echo "The builds are not currently in the rsync server. "
 		echo "Will take 5 to 10 minutes to be pulled in the server." 
@@ -478,7 +478,7 @@ get_binaries()
 		fi
 		fi
 		
-		if [ "`ls $CWD/boot1* | grep '2.6'`" != "" ] ; then
+	if [ "`ls $CWD/boot1* | grep '3\.3'`" != "" ] ; then
 	if [ "`cat /tmp/avail_builds | grep 'xo1-36'`" = "" ] || [ "`cat /tmp/avail_builds | grep 'xo1.5-36'`" = "" ] ; then
 		echo "The builds are not currently in the rsync server. "
 		echo "Will take 5 to 10 minutes to be pulled in the server." 
@@ -505,7 +505,7 @@ get_binaries()
 			echo "Downloaded usb8388_olpc.bin. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	rsync -a rsync://updates.laptop.org/build-13.1.0_xo1.5-36/root/lib/firmware/libertas/sd8686* \
-		"$output"/lib/firmware/
+		"$output"/lib/firmware/libertas
 		if [ $? -ne 0 ]; then
 			echo -e "\\0033[1;31m"
 			echo "Error: failed to download the XO-1.5 firmware."
