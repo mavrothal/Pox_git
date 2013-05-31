@@ -409,8 +409,20 @@ bld_chrome()
 	fi
 	make
 	if [ $? -ne 0 ]; then
-		echo "Chrome compilation failed. Try co compile from within the " >> $CWD/build.log
-		echo ".../XO_sfs_sources/xf86-video-chrome directory to check. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		# Latest chrome will not build on older xserver
+		make clean distclean
+		git reset --hard HEAD
+		git clean -xdf
+		patch -p1 < $patches/chrome-ARRAY_SIZE.patch
+		chmod 755 autogen.sh
+		./autogen.sh
+		make
+		if [ $? -ne 0 ]; then
+			echo "Chrome compilation failed. Try co compile from within the " >> $CWD/build.log
+			echo ".../XO_sfs_sources/xf86-video-chrome directory to check. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		else
+			echo "chrome_drv.so was compiled successfully. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		fi
 	else
 		echo "chrome_drv.so was compiled successfully. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi

@@ -1,0 +1,12 @@
+--- a/src/via_hw.h
++++ b/src/via_hw.h
+@@ -32,6 +32,9 @@
+ #ifndef __HW_H__
+ #define __HW_H__ 1
+ 
++/* MISC */
++#define ARRAY_SIZE(x)   (sizeof(x)/sizeof(*(x)))
++
+ /* Sequencer Registers */
+ #define SR01    0x01
+ #define SR10    0x10
