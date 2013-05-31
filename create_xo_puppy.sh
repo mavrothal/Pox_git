@@ -841,6 +841,31 @@ EOF
 	fi
 fi
 
+# adjust for shift to 96dpi in newer puppies
+if [ "`cat $SFSROOT/root/.Xresources | grep 96`" != "" ] ; then
+	cat << EOF >> $SFSROOT/root/.gtkrc.mine
+
+# -- Adjust font size for XO screen
+style "font"
+{
+font_name = "DejaVu Sans 12"
+}
+widget_class "*" style "font"
+gtk-font-name = "DejaVu Sans 12" 
+
+EOF
+
+	sed -i 's/DejaVu Sans Bold 10/DejaVu Sans Bold 12/' \
+		$SFSROOT/root/.config/rox.sourceforge.net/ROX-Filer/Options
+		
+	for RC in `ls $SFSROOT/root/.jwm/themes/*-jwmrc`
+	do
+		sed -i 's/DejaVu Sans-10/DejaVu Sans-12/g' $RC
+	done
+	
+	sed -i 's/DejaVu Sans-10/DejaVu Sans-12/g' $SFSROOT/root/.jwm/jwmrc-theme
+fi
+
 #============================= Pupplet specific fixes ========================
 case "$DISTRO_FILE_PREFIX" in
 
