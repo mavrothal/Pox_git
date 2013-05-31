@@ -841,10 +841,6 @@ EOF
 	fi
 fi
 
-#Set frisbee-1.0 to autostart WiFi (till the default is changed).
-if [ -f $SFSROOT/usr/local/bin/frisbee ] ; then
-	touch $SFSROOT/etc/frisbee/.wireless_autostart
-fi	
 #============================= Pupplet specific fixes ========================
 case "$DISTRO_FILE_PREFIX" in
 
