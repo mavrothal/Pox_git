@@ -395,10 +395,11 @@ bld_chrome()
 	fi
 
 	if [ "$DISTRO_FILE_PREFIX" != "" ] ; then 
-		mkdir -p $BASEDIR/"$DISTRO_FILE_PREFIX"/xorg/modules/drivers
+		LOCATION="$DISTRO_FILE_PREFIX"
 	else 
-		mkdir -p $BASEDIR/CHROME_DRIVER/xorg/modules/drivers
+		LOCATION="CHROME_DRIVER"
 	fi
+	mkdir -p $BASEDIR/$LOCATION/xorg/modules/drivers
 	
 	git reset --hard HEAD@{1}
 	make clean
@@ -428,7 +429,7 @@ bld_chrome()
 	fi
 	strip -s src/.libs/chrome_drv.so	
 	sync
-	cp -a src/.libs/chrome_drv.so $BASEDIR/$DISTRO_FILE_PREFIX/xorg/modules/drivers
+	cp -a src/.libs/chrome_drv.so $BASEDIR/$LOCATION/xorg/modules/drivers
 	BLDCHROME="yes"
 }
 export -f  bld_chrome
