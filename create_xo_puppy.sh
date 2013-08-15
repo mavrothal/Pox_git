@@ -871,6 +871,15 @@ EOF
 	sed -i 's/DejaVu Sans 10/DejaVu Sans 12/g' $SFSROOT/root/.jwm/jwmrc-theme
 fi
 
+# Add support for toggle_color and xcalib if we install it
+if [ -f $SFSROOT/usr/bin/toggle_color.sh ] ; then
+	sed -i 's/<Key key=\"Escape\">escape<\/Key>/<Key key=\"Escape\">escape<\/Key> \
+\t<Key key=\"F13\">exec:xcalib -i -a<\/Key> \
+\t<Key key=\"F14\">exec:toggle_color.sh<\/Key>/' $SFSROOT/etc/xdg/templates/_root_.jwmrc 
+	echo "keycode 121 = F13
+keycode 158 = F14" >> $SFSROOT/root/.Xmodmap
+fi
+
 #============================= Pupplet specific fixes ========================
 case "$DISTRO_FILE_PREFIX" in
 
