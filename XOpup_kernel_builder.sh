@@ -180,6 +180,8 @@ get_sources()
 			echo -en "\\0033[0;39m"
 			echo "OLPC-2.6 kernel source dowanload failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			exit 1
+		else 
+			echo "Downloaded OLPC-2.6 kernel source. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	else 
 		cd $git_clone
@@ -200,6 +202,8 @@ get_sources()
 			else
 				exit 0
 			fi
+		else
+			echo "Updated OLPC-2.6 git. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	fi
 	sync
@@ -214,9 +218,11 @@ get_sources()
 				echo "Error: failed to download the Aufs sources."
 				echo "Check the connection and try again"
 				echo -en "\\0033[0;39m"
-				echo "Aufs source dowanload failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				echo "Aufs2 source dowanload failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
 			fi
+		else
+			echo "Downloaded Aufs2 sources. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	else  
 		cd $git_clone_aufs2
@@ -233,10 +239,12 @@ get_sources()
 			echo -en "\\0033[0;39m"
 			read CONTINUE
 			if [ "$CONTINUE" = "c" ];then
-				echo "Aufs git update failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				echo "Aufs2 git update failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
 				exit 0
 			fi
+		else
+			echo "Updated Aufs2 git. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi	
 	fi
 	sync 
@@ -249,8 +257,10 @@ get_sources()
 			echo "Error: failed to download the Aufs sources."
 			echo "Check the connection and try again"
 			echo -en "\\0033[0;39m"
-			echo "Aufs source dowanload failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			echo "Aufs3 source dowanload failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			exit 1
+		else
+			echo "Downloaded Aufs3 sources. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	else  
 		cd $git_clone_aufs3
@@ -271,6 +281,9 @@ get_sources()
 			else
 				exit 0
 			fi
+		else
+			echo "Updated Aufs3 git. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		
 		fi	
 	fi
 	sync 
@@ -309,7 +322,8 @@ patch_sources()
 		cp -aR $git_clone_aufs3/fs .
 		cp -aR $git_clone_aufs3/Documentation .
 		cp -a $git_clone_aufs3/include/linux/aufs_type.h include/linux/
-		 
+		echo "Copied Aufs-3.3 files into the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		
 		for patch in $git_clone_aufs3/patches/*; do
 			echo "Applying $patch"
 			patch -p1 < $patch
@@ -320,8 +334,8 @@ patch_sources()
 				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
 			else
-				echo "Building kernel 3.x with Aufs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-					LAYERFS="Aufs"
+				echo "Applied $patch on the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				LAYERFS="Aufs"
 			fi
 		done
 
@@ -335,8 +349,11 @@ patch_sources()
 				echo -en "\\0033[0;39m"
 				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
+			else
+				echo "Applied $patch on the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			fi
 		done
+		echo "Building kernel 3.3 with Aufs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	else	
 		# Point aufs git to kernel version 2.6.35
 		cd $git_clone_aufs2
@@ -357,7 +374,8 @@ patch_sources()
 		cp -aR $git_clone_aufs2/fs .
 		cp -aR $git_clone_aufs2/Documentation .
 		cp -a $git_clone_aufs2/include/linux/aufs_type.h include/linux/
-	 
+		echo "Copied Aufs-2.6.35 files into the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		
 		for patch in $git_clone_aufs2/patches/*; do
 			echo "Applying $patch"
 			patch -p1 < $patch
@@ -368,7 +386,7 @@ patch_sources()
 				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
 			else
-				echo "Building kernel 2.6.x with Aufs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				echo "Applied $patch on the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				LAYERFS="Aufs"
 			fi
 		done
@@ -383,6 +401,8 @@ patch_sources()
 				echo -en "\\0033[0;39m"
 				echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
+			else
+				echo "Applied $patch on the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			fi
 		done
 		
@@ -395,8 +415,11 @@ patch_sources()
 				echo -en "\\0033[0;39m"
 				echo "Failed to apply gcc47x.patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 				exit 1
+			else
+				echo "Applied gcc47x.patch on the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			fi
 		fi
+		echo "Building kernel 2.6.35 with Aufs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
 	
 	# Apply puppy patches
@@ -409,6 +432,8 @@ patch_sources()
 			echo -en "\\0033[0;39m"
 			echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			exit 1
+		else
+			echo "Applied $patch on the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	done
 		
@@ -461,6 +486,7 @@ make_XO1_kernel()
 	mkdir -p $output_k/kernel-headers-$kernel_ver/usr 
 	make INSTALL_HDR_PATH=$output_k/kernel-headers-$kernel_ver/usr headers_install
 	find $output_k/kernel-headers-$kernel_ver/usr/include \( -name .install -o -name ..install.cmd \) -delete
+	echo "Made kernel headers. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	make -j $CPUs bzImage modules
 	cp .config $output/boot10/config-$kernel_ver
 	cp arch/x86/boot/bzImage $output/boot10/vmlinuz
@@ -477,6 +503,7 @@ make_XO1_kernel()
 	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/source
 	make clean distclean
 	sync
+	echo "Made kernel and modules. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	package_source
 	cd $output_k/
 	dir_2_pet kernel-headers-$kernel_ver/
@@ -527,6 +554,7 @@ make_XO15_kernel()
 	mkdir -p $output_k/kernel-headers-$kernel_ver/usr
 	make INSTALL_HDR_PATH=$output_k/kernel-headers-$kernel_ver/usr headers_install
 	find $output_k/kernel-headers-$kernel_ver/usr/include \( -name .install -o -name ..install.cmd \) -delete
+	echo "Made kernel headers. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	make -j $CPUs bzImage modules
 	cp .config $output/boot15/config-$kernel_ver
 	cp arch/x86/boot/bzImage $output/boot15/vmlinuz
@@ -543,6 +571,7 @@ make_XO15_kernel()
 	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/source
 	make clean distclean
 	sync
+	echo "Made kernel and modules. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	package_source
 	cd $output_k/
 	dir_2_pet kernel-headers-$kernel_ver/
@@ -551,7 +580,7 @@ make_XO15_kernel()
 }
 export -f make_XO15_kernel
 
-build_ARM()
+build_ARM_175()
 {
 	# Point aufs git to kernel version 3.0
 	cd $git_clone_aufs3
@@ -572,7 +601,7 @@ build_ARM()
 		echo "Error: failed to apply $patch on the kernel sources."
 		echo -en "\\0033[0;39m"
 		echo "Failed to apply $patch on aufs3. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-			exit 1
+		exit 1
 	else
 			echo "Patched aufs3-loopback.patch. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
@@ -589,6 +618,7 @@ build_ARM()
 	cp -aR $git_clone_aufs3/fs .
 	cp -aR $git_clone_aufs3/Documentation .
 	cp -a $git_clone_aufs3/include/linux/aufs_type.h include/linux/
+	echo "Copied Aufs-3.0 files into the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		 
 	for patch in $git_clone_aufs3/patches/*; do
 		echo "Applying $patch"
@@ -600,7 +630,7 @@ build_ARM()
 			echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			exit 1
 		else
-			echo "Building ARM kernel 3.x with Aufs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			echo "Applied $patch on the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			LAYERFS="Aufs"
 		fi
 	done
@@ -614,7 +644,9 @@ build_ARM()
 			echo "Error: failed to apply $patch on the kernel sources."
 			echo -en "\\0033[0;39m"
 			echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-					exit 1
+			exit 1
+		else
+			echo "Applied $patch on the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	done
 	
@@ -628,6 +660,8 @@ build_ARM()
 			echo -en "\\0033[0;39m"
 			echo "Failed to apply $patch on the kernel sources. Kernel build aborted $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			exit 1
+		else
+			echo "Applied $patch on the kernel sources $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 		fi
 	done
 		
@@ -636,6 +670,8 @@ build_ARM()
 	# Cahnge "dirty" to "Aufs" in case we build in Fedora
 	sed -rie 's/\-dirty/\.olpc\.\"\$\(date \"+\%Y\%m\%d\.\%H\%M\"\)\"\.armv7\.Aufs/g' scripts/setlocalversion
 
+	echo "Building ARM kernel 3.0 with Aufs. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	
 	sync
 
 ################ (cross) compile  the XO-1.75 ARM kernel  ####################
@@ -705,8 +741,13 @@ build_ARM()
 	make clean distclean
 	make mrproper
 	cp arch/arm/configs/xo_175_defconfig .config
-	make -j $CPUs zImage modules
+        make headers_check
 	kernel_ver=`cat include/config/kernel.release`
+	mkdir -p $output_k/kernel-headers-$kernel_ver/usr 
+	make INSTALL_HDR_PATH=$output_k/kernel-headers-$kernel_ver/usr headers_install
+	find $output_k/kernel-headers-$kernel_ver/usr/include \( -name .install -o -name ..install.cmd \) -delete
+	echo "Made kernel headers. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	make -j $CPUs zImage modules
 	cp .config $output/boot175/config-$kernel_ver
 	cp arch/arm/boot/zImage $output/boot175/vmlinuz
 	make INSTALL_MOD_PATH=$output_k/ modules_install
@@ -720,19 +761,16 @@ build_ARM()
 	rm $output_k/lib/modules/$kernel_ver/source 
 	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/build
 	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/source
-	make headers_check
-	mkdir -p $output_k/kernel-headers-$kernel_ver/usr
-	make INSTALL_HDR_PATH=$output_k/kernel-headers-$kernel_ver/usr headers_install
-	find $output_k/kernel-headers-$kernel_ver/usr/include \( -name .install -o -name ..install.cmd \) -delete
 	make clean distclean
 	sync
+	echo "Made kernel and modules. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	package_source
 	cd $output_k/
 	dir_2_pet kernel-headers-$kernel_ver/
 	cd $git_clone
 	echo "XO-1.75 kernel build finished. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
 }
-export -f build_ARM
+export -f build_ARM_175
 
 package_source()
 {
@@ -750,6 +788,7 @@ package_source()
 	mksquashfs "$kernel_ver".source/ $output_k/$kernel_ver.source.sfs
 	sync
 	rm -rf "$kernel_ver".source
+	echo "Packed the kernel source into an SFS. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log 
 }
 export -f package_source
 
@@ -841,7 +880,7 @@ case $1 in
 -5|--xo15)check_dev && check_space && get_sources
 		patch_sources && make_XO15_kernel && finished ;;
 -7|--xo175)check_dev && check_space && get_sources
-		build_ARM && finished ;;
+		build_ARM_175 && finished ;;
 -b|--build)check_dev && check_space && get_sources
 		patch_sources && make_XO1_kernel
 		make_XO15_kernel && finished ;;
