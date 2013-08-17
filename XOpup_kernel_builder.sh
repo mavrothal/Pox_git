@@ -744,16 +744,17 @@ build_ARM_175()
 	make clean distclean
 	make mrproper
 	cp arch/arm/configs/xo_175_defconfig .config
-        make headers_check
+        make -j $CPUs zImage modules
+	cp arch/arm/boot/zImage $output/boot175/vmlinuz
+	make INSTALL_MOD_PATH=$output_k/ modules_install
+	echo "Made kernel and modules. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	kernel_ver=`cat include/config/kernel.release`
+	cp .config $output/boot175/config-$kernel_ver
+	make headers_check
 	mkdir -p $output_k/kernel-headers-$kernel_ver/usr 
 	make INSTALL_HDR_PATH=$output_k/kernel-headers-$kernel_ver/usr headers_install
 	find $output_k/kernel-headers-$kernel_ver/usr/include \( -name .install -o -name ..install.cmd \) -delete
 	echo "Made kernel headers. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	make -j $CPUs zImage modules
-	cp .config $output/boot175/config-$kernel_ver
-	cp arch/arm/boot/zImage $output/boot175/vmlinuz
-	make INSTALL_MOD_PATH=$output_k/ modules_install
 	# Pack kernel firmware with kernel headers
 	mkdir -p $output_k/kernel-headers-$kernel_ver/lib
 	mv $output_k/lib/firmware $output_k/kernel-headers-$kernel_ver/lib/
@@ -766,7 +767,6 @@ build_ARM_175()
 	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/source
 	make clean distclean
 	sync
-	echo "Made kernel and modules. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	package_source
 	cd $output_k/
 	dir_2_pet kernel-headers-$kernel_ver/
@@ -925,16 +925,17 @@ build_ARM_4()
 	make clean distclean
 	make mrproper
 	cp arch/arm/configs/xo_4_defconfig .config
-        make headers_check
+        make -j $CPUs zImage modules
+	cp arch/arm/boot/zImage $output/boot40/vmlinuz
+	make INSTALL_MOD_PATH=$output_k/ modules_install
+	echo "Made kernel and modules. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	kernel_ver=`cat include/config/kernel.release`
+	cp .config $output/boot40/config-$kernel_ver
+	make headers_check
 	mkdir -p $output_k/kernel-headers-$kernel_ver/usr 
 	make INSTALL_HDR_PATH=$output_k/kernel-headers-$kernel_ver/usr headers_install
 	find $output_k/kernel-headers-$kernel_ver/usr/include \( -name .install -o -name ..install.cmd \) -delete
 	echo "Made kernel headers. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	make -j $CPUs zImage modules
-	cp .config $output/boot40/config-$kernel_ver
-	cp arch/arm/boot/zImage $output/boot40/vmlinuz
-	make INSTALL_MOD_PATH=$output_k/ modules_install
 	# Pack kernel firmware with kernel headers
 	mkdir -p $output_k/kernel-headers-$kernel_ver/lib
 	mv $output_k/lib/firmware $output_k/kernel-headers-$kernel_ver/lib/
@@ -947,7 +948,7 @@ build_ARM_4()
 	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/source
 	make clean distclean
 	sync
-	echo "Made kernel and modules. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	build.log
 	package_source
 	cd $output_k/
 	dir_2_pet kernel-headers-$kernel_ver/
