@@ -1,18 +1,18 @@
 #!/bin/bash
 # 
 # This script will build a kernel capable of running puppylinux
-# on the OLPC XO-1, XO-1.5 and XO-1.75 laptops.
+# on the OLPC XO-1, XO-1.5, XO-1.75 and XO-4 laptops.
 # Use in combination with the create_xo_puppy script to make any
 # flavor XOpup running an updated 2.6.35 OLPC kernel or the new
-# (and for now experimental) OLPC 3.3.0 kernel or the armv7 3.0 kernel
-# You'll need Fedora 16/17 or an armv7 or an x86_64 machine 
-# for ARM kernel building
+# (and for now experimental) OLPC 3.3.0 kernel or the armv7 3.0 and 
+# 3.5 kernels. You'll need Fedora 16-18 or an armv7 or an x86_64 
+# machine for ARM kernel building
 #
 # GPL2 (see /usr/share/doc) (c) mavrothal, 01micko
 # NO WARRANTY
 
 #ver
-VER=15 
+VER=16 
 
 # fail-safe switch in case someone clicks the script in ROX 
 #echo -e "\\0033[1;34m"
