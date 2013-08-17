@@ -744,7 +744,7 @@ build_ARM_175()
 	make clean distclean
 	make mrproper
 	cp arch/arm/configs/xo_175_defconfig .config
-        make -j $CPUs zImage modules
+	make -j $CPUs zImage modules
 	cp arch/arm/boot/zImage $output/boot175/vmlinuz
 	make INSTALL_MOD_PATH=$output_k/ modules_install
 	echo "Made kernel and modules. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
@@ -925,7 +925,7 @@ build_ARM_4()
 	make clean distclean
 	make mrproper
 	cp arch/arm/configs/xo_4_defconfig .config
-        make -j $CPUs zImage modules
+	make -j $CPUs zImage modules
 	cp arch/arm/boot/zImage $output/boot40/vmlinuz
 	make INSTALL_MOD_PATH=$output_k/ modules_install
 	echo "Made kernel and modules. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
@@ -948,7 +948,6 @@ build_ARM_4()
 	ln -sf /usr/src/linux  $output_k/lib/modules/$kernel_ver/source
 	make clean distclean
 	sync
-	build.log
 	package_source
 	cd $output_k/
 	dir_2_pet kernel-headers-$kernel_ver/
