@@ -1,5 +1,14 @@
 --- a/patches/aufs3-loopback.patch	2012-06-07 19:01:38.253120001 +0300
 +++ b/patches/aufs3-loopback.patch	2012-06-07 18:57:27.836120001 +0300
+@@ -99,7 +95,7 @@
+  	fput(old_file);
+ +	if (old_virt_file)
+ +		fput(old_virt_file);
+- 	if (max_part > 0)
++ 	if (lo->lo_flags & LO_FLAGS_PARTSCAN)
+  		ioctl_by_bdev(bdev, BLKRRPART, 0);
+  	return 0;
+  
 @@ -166,13 +166,13 @@
   
   	if (lo->lo_state != Lo_bound)
