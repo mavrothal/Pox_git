@@ -152,7 +152,7 @@ run_all()
 {
 	# Run the build scripts
 	echo "Starting kernel build. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
-	./XOpup_kernel_builder.sh -b
+	./XOpup_kernel_builder.sh -x
 	sync; sync
 	if [ ! -f $WDIR/boot10/vmlinuz ] && [ ! -f $WDIR/boot15/vmlinuz ] ; then
 		echo -e "\\0033[1;31m"
