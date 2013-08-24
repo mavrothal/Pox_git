@@ -758,8 +758,6 @@ build_ARM_175()
 	# Pack kernel firmware with kernel headers
 	mkdir -p $output_k/kernel-headers-$kernel_ver/lib
 	mv $output_k/lib/firmware $output_k/kernel-headers-$kernel_ver/lib/
-	# Fix the modules.dep since without full path do not work in puppy's initrd
-	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output_k/lib/modules/$kernel_ver/modules.dep
 	# Fix symlinks
 	rm $output_k/lib/modules/$kernel_ver/build
 	rm $output_k/lib/modules/$kernel_ver/source 
@@ -939,8 +937,6 @@ build_ARM_4()
 	# Pack kernel firmware with kernel headers
 	mkdir -p $output_k/kernel-headers-$kernel_ver/lib
 	mv $output_k/lib/firmware $output_k/kernel-headers-$kernel_ver/lib/
-	# Fix the modules.dep since without full path do not work in puppy's initrd
-	sed -i "s/kernel\//\/lib\/modules\/"$kernel_ver"\/kernel\//g" $output_k/lib/modules/$kernel_ver/modules.dep
 	# Fix symlinks
 	rm $output_k/lib/modules/$kernel_ver/build
 	rm $output_k/lib/modules/$kernel_ver/source 
