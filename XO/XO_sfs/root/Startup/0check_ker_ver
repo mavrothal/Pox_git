@@ -4,7 +4,7 @@ if [ "`uname -r | cut -c 1`" = "3" ] ; then
 else 
  rm -f /root/Startup/powerapplet3_xo
 fi
-
+rm -f /root/Startup/powerappletARM_xo
 sleep 0.1
 rm -f /root/Startup/0check_ker_ver
 

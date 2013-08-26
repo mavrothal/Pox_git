@@ -30,8 +30,10 @@ Usage:
 	
 	-h|--help	display this usage
 	-v|--version	display script version
-	-b|--build-iso [path/to/iso]	the FULL pathname of the Puppy iso
+	-b|--build-iso [path/to/iso]	the FULL pathname of the x86 Puppy iso
+	-ba|--build-ARM [path/to/img]	the FULL pathname of the ARM Puppy image
 	-i|--iso [path/to/iso]	like "-b" nut NO kernel building. Must have one
+	-ia|--img [path/to/img]	like "-ba" nut NO kernel building. Must have one
 	
 	NOTE: This script must be run from one level above the "Pox_git" folder
 	eg:\`exec Pox_git/make_build -b <path>', \`./Pox_git/make_build -i <path>' 
@@ -53,12 +55,14 @@ if [ -f /etc/rc.d/BOOTCONFIG ] ; then
 	. /etc/rc.d/BOOTCONFIG
 	DEVX=`echo "$EXTRASFSLIST" | grep devx` 
 	if [ "$DEVX" = "" ] ; then
-		echo -e "\\0033[1;31m"
-		echo "You _must_ have devx loaded for this script to run properly"
-		echo "Please load the devx SFS and try again"
-		echo -en "\\0033[0;39m"
-		xoolpcfunc
-		exit 0
+		if [ "$(uname -m)" != "x86_64" -o "$(uname -m | grep -i armv7)" != "" ]; then
+			echo -e "\\0033[1;31m"
+			echo "You _must_ have devx loaded or run an x86_64 or ARMv7 distribution"
+			echo "with devel files, for this script to run properly. Exiting"
+			echo -en "\\0033[0;39m"
+			xoolpcfunc
+			exit 0
+		fi
 	fi
 else
 	if [ "`which gcc | grep no\ `" != "" ] || [ "`which gcc`" = "" ] \
@@ -179,6 +183,36 @@ run_all()
 }
 export -f run_all
 
+run_all_arm ()
+{
+	# Run the build scripts
+	echo "Starting kernel build. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+	./XOpup_kernel_builder.sh -a
+	sync; sync
+	if [ ! -f $WDIR/boot175/vmlinuz ] && [ ! -f $WDIR/boot40/vmlinuz ] ; then
+		echo -e "\\0033[1;31m"
+		echo "Aborting! XO kernel build failed"
+		echo "Check $WDIR/build.log for more."
+		echo -en "\\0033[0;39m"
+		echo "Kernel build failed. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+		exit 1
+	else
+		echo "Finished kernel build. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+	fi
+	sleep 5
+	echo "Building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+	./build_ARM_from_OLPC_git.sh -b
+	sync; sync
+	./build_aufs_util.sh
+	sync; sync
+	echo "Finished building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+	sleep 5
+	echo "Building $BUILDNAME-XO . $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+	./build_ARMedDog_XO.sh -i "$IMGPATH"
+	sync; sync
+	echo "Finished building $BUILDNAME-XO . $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+}
+export -f run_all_arm
 
 no_kernel()
 {
@@ -206,6 +240,32 @@ no_kernel()
 }
 export -f no_kernel
 
+no_ARM_kernel ()
+{
+	# Use an existing kernel
+	if [ ! -f $WDIR/boot40/vmlinuz ] && [ ! -f $WDIR/boot175/vmlinuz ] ; then
+		echo -e "\\0033[1;31m"
+		echo " You do not have the XO kernels in the"
+		echo " $WDIR directory."
+		echo " Copy them over or run this script with the -b option"
+		echo -en "\\0033[0;39m"
+		exit 0
+	fi
+	
+	echo "Building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+	./build_ARM_from_OLPC_git.sh -b
+	sync; sync
+	./build_aufs_util.sh
+	sync; sync
+	echo "Finished building XO_sfs files. $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+	sleep 5
+	echo "Building $BUILDNAME-XO . $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+	./build_ARMedDog_XO.sh -i "$IMGPATH"
+	sync; sync
+	echo "Finished building $BUILDNAME-XO . $(date "+%Y-%m-%d %H:%M")" >> $WDIR/build.log
+}
+export -f no_ARM_kernel
+
 case "$#" in
 0) usagefunc ;;
 [3-9])echo "too many arguments"; usagefunc ;;
@@ -221,7 +281,7 @@ case $1 in
 		# Need this to check if chrome driver is build correctly
 		export BUILDNAME 
 		prepare
-		run_all;;
+		run_all ;;
 -i|--iso) [ ! $2 ] && usagefunc
 		ISOPATH=$2 
 		ISO="`basename $ISOPATH`"
@@ -229,5 +289,19 @@ case $1 in
 		# Need this to check if chrome driver is build correctly
 		export BUILDNAME  
 		prepare
-		no_kernel;;
+		no_kernel ;;
+-ba|--build-ARM) [ ! $2 ] && usagefunc
+		IMGPATH=$2 
+		IMG="`basename $IMGPATH`"
+		BUILDNAME=`echo $IMG | sed 's/.img//'`
+		export BUILDNAME 
+		prepare
+		run_all_arm ;;
+-ia|--img) [ ! $2 ] && usagefunc
+		IMGPATH=$2 
+		IMG="`basename $IMGPATH`"
+		BUILDNAME=`echo $IMG | sed 's/.img//'`
+		export BUILDNAME 
+		prepare
+		no_ARM_kernel ;;
 esac
