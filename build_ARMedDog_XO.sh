@@ -187,8 +187,7 @@ EOF
 	sed -i 's/240/256/g' $SFSROOT/etc/xdg/rox.sourceforge.net/ROX-Filer/PuppyPin
 	sed -i 's/\<size\>10/\<size\>12/g' $SFSROOT/etc/xdg/openbox/rc.xml
 	sed -i 's/\<size\>8/\<size\>11/g' $SFSROOT/etc/xdg/openbox/rc.xml
-	sed -i 's/X\=64/X\=96/g' $SFSROOT/etc/eventmanager
-	sed -i 's/Y\=64/Y\=32/g' $SFSROOT/etc/eventmanager
+	sed -i 's/X\=64/X\=128/g' $SFSROOT/etc/eventmanager
 }
 export -f mod_fd-arm
  
