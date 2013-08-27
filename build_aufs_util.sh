@@ -162,7 +162,11 @@ bld_utils ()
 	# Install in XO_sfs
 	export output 
 	sed -i 's/DESTDIR/output/g' Makefile
-	sed -i 's/DESTDIR/output/g' libau/Makefile		
+	sed -i 's/DESTDIR/output/g' libau/Makefile
+	if [ "`uname -m | grep -i armv7`" != "" ] ; then
+		export CFLAGS="$CFLAGS -fPIC"
+		export CXXFLAGS="$CXXFLAGS -fPIC"
+	fi	
 	make
 	if [ $? -ne 0 ]; then 
 		echo "Building Aufs utilities failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
@@ -173,10 +177,6 @@ bld_utils ()
 	else 
 		echo "Aufs utilities were build sucessfully. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi
-	if [ "`uname -m | grep -i armv7`" != "" ] ; then
-		export CFLAGS="$CFLAGS -fPIC"
-		export CXXFLAGS="$CXXFLAGS -fPIC"
-	fi	
 	make install
 	make clean
 }
