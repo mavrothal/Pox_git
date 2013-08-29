@@ -163,7 +163,10 @@ mod_fd-arm ()
 /dev/mmcblk0p2		/.intSD	    ext4	defaults,noauto	  0 0
 EOF
 	# link gtkdialog to gtkdialog
-	ln -sf $SFSROOT/usr/bin/gtkdialog $SFSROOT/usr/bin/gtkdialog3
+	ln -sf /usr/bin/gtkdialog $SFSROOT/usr/bin/gtkdialog3
+	# Fix clock
+	sed -i 's/localtime/utc/' $SFSROOT/erc/rc.d/rc.sysinit
+	sed -i 's/hctosys/systohc/' $SFSROOT/erc/rc.d/rc.sysinit
 	# adjust for the 200dpi XO screens
 	cat << EOF >> $SFSROOT/root/.gtkrc.mine
 
