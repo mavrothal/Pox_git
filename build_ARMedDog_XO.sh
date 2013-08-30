@@ -97,7 +97,7 @@ SQDIR="$XODIR/squashdir"
 SFSROOT="$SQDIR/squashfs-root"
 INITDIR="$XODIR"
 XOSFS="$XODIR/XO_sfs"
-extra_pets="$XODIR/extra_pets"
+extra_packs="$XODIR/extra_packs"
 MNTDIR=""
 
 # Make Build directory
@@ -154,8 +154,50 @@ fi
 }
 export -f Get_files_from_img 
 
+extra_packages ()
+{
+	if [ "$(ls $extra_packs)" != "" ]; then
+		echo "The following packages were included in the build" >> $CWD/build.log
+		cd $extra_packs
+		for p in $(ls *.pet) 
+		do 
+			PNAME=`echo $p | sed 's/\.pet//'`
+			tar xf $p 2>/dev/null
+			cd $PNAME
+			rm -f *.sh *.spec* 2>/dev/null
+			cp -aR * $SFSROOT
+			if [ $? -ne 0 ]; then
+				echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			else
+				echo "$p was added in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			fi
+			cd $extra_packs
+			rm -rf $PNAME
+		done
+		for p in $(ls *.tbz)
+		do 
+			PNAME=`echo $p | sed 's/\.tbz//'`
+			mkdir $PNAME
+			tar xf $p -C $PNAME 2>/dev/null 
+			cd $PNAME
+			rm -rf install 2>/dev/null
+			cp -aR * $SFSROOT
+			if [ $? -ne 0 ]; then
+				echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			else
+				echo "$p was added in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			fi
+			cd $extra_packs
+			rm -rf $PNAME
+		done
+	fi		
+}
+export -f extra_packages
+
 mod_fd-arm ()
 {
+	extra_packages
+
 	# add /run and /run/udev directories for newer udev and didtros
 	mkdir -p $SFSROOT/tmp/udev
 	# Add support for the XO internal drives in fstab
