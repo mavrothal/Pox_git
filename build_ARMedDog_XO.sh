@@ -233,6 +233,14 @@ EOF
 	sed -i 's/\<size\>10/\<size\>12/g' $SFSROOT/etc/xdg/openbox/rc.xml
 	sed -i 's/\<size\>8/\<size\>11/g' $SFSROOT/etc/xdg/openbox/rc.xml
 	sed -i 's/X\=64/X\=128/g' $SFSROOT/etc/eventmanager
+	#Default to net-setup if present
+	if [ "$(ls $extra_packs/net_setup*)" != "" ]; then
+		cat << EOF > $SFSROOT/usr/local/bin/defaultconnect
+#!/bin/sh
+exec net-setup.sh
+EOF
+	    chmof 755 $SFSROOT/usr/local/bin/defaultconnect
+	fi
 }
 export -f mod_fd-arm
  
