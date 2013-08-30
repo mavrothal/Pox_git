@@ -300,6 +300,11 @@ mod_initrd ()
 	rm -rf kernel-modules/lib/modules/*
 	if [ -d $CWD/XO175kernel/lib/modules/ ]; then
 		cp -aR $CWD/XO175kernel/lib/modules/* kernel-modules/lib/modules/
+		echo "Added XO-1.75 kernel modules in initrd" >> $CWD/build.log
+		if [ -d $CWD/175aufs_utils ]; then
+		    cp -a --remove-destination $CWD/175aufs_utils/* kernel-modules/
+		    echo "Added XO-1.75 aufs_utils in initrd" >> $CWD/build.log
+		fi
 		sync
 		rm -f kernel-modules.sfs
 		mksquashfs kernel-modules/ kernel-modules.sfs
@@ -314,6 +319,17 @@ mod_initrd ()
 		unsquashfs -d kernel-modules kernel-modules.sfs
 		rm -rf kernel-modules/lib/modules/*
 		cp -aR $CWD/XO4kernel/lib/modules/* kernel-modules/lib/modules/
+		echo "Added XO-4 kernel modules in initrd" >> $CWD/build.log
+		if [ -d $CWD/175aufs_utils -a ! -d $CWD/40aufs_utils ]; then
+			echo -e "\\0033[1;34m"
+			echo  "Please build also aufs_utils for the XO-4 kernel"
+			echo  "and then run the script again. Aborting."
+			echo -en "\\0033[0;39m"
+			exit 1
+		else
+		    cp -a --remove-destination $CWD/40aufs_utils/* kernel-modules/
+		    echo "Added XO-4 aufs_utils in initrd" >> $CWD/build.log
+		fi
 		sync
 		rm -f kernel-modules.sfs
 		mksquashfs kernel-modules/ kernel-modules.sfs
