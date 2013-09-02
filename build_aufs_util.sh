@@ -57,9 +57,12 @@ if [ ! -f /usr/include/linux/aufs_type.h ] ; then
 fi
 
 #Warn if we build in another kernel
-if [ "`ls $CWD/boot10 | grep 'config' | sed 's/config\-//'`" != "`uname -r`" ] && [ "`ls $CWD/boot15 | grep 'config' | sed 's/config\-//'`" != "`uname -r`" ] ; then
+if [ "`ls /mnt/home/boot10 | grep 'config' | sed 's/config\-//'`" != "`uname -r`" ] \
+	&& [ "`ls /mnt/home/boot15 | grep 'config' | sed 's/config\-//'`" != "`uname -r`" ] \
+	&& [ "`ls /mnt/home/boot175 | grep 'config' | sed 's/config\-//'`" != "`uname -r`" ] \
+	&& [ "`ls /mnt/home/boot40 | grep 'config' | sed 's/config\-//'`" != "`uname -r`" ]; then
 	echo -e "\\0033[1;34m"
-	echo "You are not building Aufs-utils against an XO kernel"
+	echo "You are not building Aufs-utils against an XO-puppy kernel"
 	echo "Hit \"c\"  and then  \"enter\" to take your chances"
 	echo "or just \"enter\" to quit building aufs utils"	
 	echo -en "\\0033[0;39m"
@@ -69,16 +72,14 @@ if [ "`ls $CWD/boot10 | grep 'config' | sed 's/config\-//'`" != "`uname -r`" ] &
 	else
 		exit 0
 	fi
+else
+	echo "Build Aufs-util against the `uname -r` kernel. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 fi
 
 if [ ! -d $BASEDIR/XO_SFS_sources ] ; then 
 	mkdir $BASEDIR/XO_SFS_sources
 fi
 XO_sources="$BASEDIR/XO_SFS_sources"
-if [ ! -d $BASEDIR/XO_sfs ] ; then 
-	mkdir $BASEDIR/XO_sfs
-fi
-output="$BASEDIR/XO_sfs"
 
 KMAJ=`uname -r | cut -f 1 -d '.'`
 
@@ -159,8 +160,19 @@ bld_utils ()
 {
 	# Do not build statically
 	sed -i 's/static/shared/' Makefile
-	# Install in XO_sfs
-	export output 
+	#check where we build and set output folder
+	if [ "echo $(cat /proc/devise-tree/compatible | grep '1.75')" != "" ]; then
+		output="$CWD/175aufs_utils"
+		mkdir -p $CWD/175aufs_utils
+	elif [ "echo $(cat /proc/devise-tree/compatible | grep 4)" != "" ]; then
+		output="$CWD/40aufs_utils"
+		mkdir -p $CWD/40aufs_utils
+	else 
+		output="$CWD/XO_sfs"
+		mkdir -p $CWD/XO_sfs		
+	fi
+	export output
+	
 	sed -i 's/DESTDIR/output/g' Makefile
 	sed -i 's/DESTDIR/output/g' libau/Makefile
 	if [ "`uname -m | grep -i armv7`" != "" ] ; then
