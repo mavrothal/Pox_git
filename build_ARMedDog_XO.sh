@@ -239,7 +239,7 @@ EOF
 #!/bin/sh
 exec net-setup.sh
 EOF
-	    chmof 755 $SFSROOT/usr/local/bin/defaultconnect
+	    chmod 755 $SFSROOT/usr/local/bin/defaultconnect
 	fi
 }
 export -f mod_fd-arm
@@ -270,9 +270,16 @@ udevadm settle
 	-A /var/run/powerevents &
 /usr/sbin/olpc-switchd -f -l -p 10 -F /var/run/powerevents &
 /usr/sbin/powerd &
-sleep 1
-echo F9 > /var/run/olpc-kbdshim_command
 EOF
+	# Fix kbdshim
+	cat << EOF > $XOSFS/root/Startup/kbdshimfix
+#!/bin/sh
+RUNNING=\$(ps aux | grep kbdshim | grep volume)
+if [ "\$RUNNING" != "" ]; then
+	echo F9 > /var/run/olpc-kbdshim_command
+fi
+EOF
+	chmod 755 $XOSFS/root/Startup/kbdshimfix
 }
 export -f mod_XO_sfs
 
