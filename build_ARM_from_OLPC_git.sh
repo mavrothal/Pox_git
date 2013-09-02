@@ -8,7 +8,7 @@
 # NO WARRANTY
 
 #ver
-VER=0.1 
+VER=0.2 
 
 BASEDIR=`pwd`
 CWD="$BASEDIR" 
@@ -59,6 +59,7 @@ Usage:
 	-b|--build 	download and build everything
 	-k|--kbdshim 	download and build olpc-kbdshim
 	-p|--powerd 	download and build olpc-powerd
+	-f|--dovefb	download and build dovefb driver
 	
 	(c) Created by mavrothal and 01micko @murga-linux puppy forum	
 	GPLv2. See /usr/share/doc/legal/
@@ -153,6 +154,45 @@ dnld_powerd()
 	fi	
 }
 export -f dnld_powerd
+
+# Download/update xf86-video-dove
+dnld_dove()
+{
+	cd $XO_sources
+	if [ ! -d "xf86-video-dove" ] ; then
+		git clone git://dev.laptop.org/users/jnettlet/xf86-video-dove 2>&1
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed to download xf86-video-dove sources."
+			echo "Check the connection and try again"
+			echo -en "\\0033[0;39m"
+			exit 1
+		fi
+		sync
+	else 
+		cd xf86-video-dove
+		git reset --hard HEAD@{1}
+		git clean -fdx
+		git fetch
+		if [ $? -ne 0 ]; then
+			echo -e "\\0033[1;31m"
+			echo "Error: failed to update xf86-video-dove sources."
+			echo -e "\\0033[1;34m"
+			echo "Hit \"c\"  and then  \"enter\" to continue"
+			echo "with the old sources or just \"enter\" to quit,"
+			echo "check the connection and try latter."
+			echo -en "\\0033[0;39m"
+			read CONTINUE
+			if [ "$CONTINUE" = "c" ];then
+				echo "xf86-video-dove git update failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			else
+				exit 0
+			fi
+		fi
+		sync
+	fi	
+}
+export -f dnld_dove
 
 # Check if we have development tools installed
 check_dev()
@@ -378,6 +418,61 @@ bld_powerd()
 }
 export -f bld_powerd
 
+bld_dove()
+{
+	. /etc/DISTRO_SPECS
+	BLDDOVE=""
+	cd $XO_sources/xf86-video-dove
+	git reset --hard HEAD@{1}
+	[ "$BUILDNAME" = "" ] && BUILDNAME=`pwd`
+	CORRECT=`echo $BUILDNAME | grep $DISTRO_FILE_PREFIX`
+	if [ "$CORRECT" = "" ] ; then
+		echo -e "\\0033[1;34m"
+		echo "The dove driver is NOT compatible with all puppies."
+		echo "You MUST be running the puppy version you want to"
+		echo "adapt for the OLPC XO-ARMs, to make a functional driver"
+		echo ""
+		echo "Hit \"c\"  and then  \"enter\" to continue"
+		echo "with compilation or just \"enter\" to skip dove,"
+		echo "load the appropriate puppy version and run the script again."
+		echo -en "\\0033[0;39m"
+		read CONTINUE
+		if [ "$CONTINUE" = "c" ];then 
+			echo "Dove driver may have not been compiled in a compatible distro. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+		else
+			echo "User did not build the XO-ARM dove video driver. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			fix_mod
+			finished
+		fi
+	fi
+
+	if [ "$DISTRO_FILE_PREFIX" != "" ] ; then 
+		LOCATION="$DISTRO_FILE_PREFIX"
+	else 
+		LOCATION="DOVE_DRIVER"
+	fi
+	mkdir -p $BASEDIR/$LOCATION/xorg/modules/drivers
+	
+	git reset --hard HEAD@{1}
+	make clean
+	sed -i 's/aclocal/\#aclocal/' build_no_dpkg_env.sh
+	./build_no_dpkg_env.sh
+	if [ $? -ne 0 ]; then
+		echo "dove compilation failed. Looks like you miss some dependencies. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
+	make
+	if [ $? -ne 0 ]; then
+		echo "Dove compilation failed. Try co compile from within the " >> $CWD/build.log
+		echo ".../XO_sfs_sources/xf86-video-dove directory to check. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	else
+		echo "dovefb_drv.so was compiled successfully. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+	fi
+	strip -s src/.libs/dovefb_drv.so	
+	sync
+	cp -a src/.libs/dovefb_drv.so $BASEDIR/$LOCATION/xorg/modules/drivers
+	BLDDOVE="yes"
+}
+export -f  bld_dove
 
 # Get binary files from OLPC builds
 get_binaries()
@@ -496,14 +591,16 @@ case $1 in
 -v|--version) echo "$VER" && exit 0 ;;
 -xh|--extended-help) echo "Coming soon..." 
 					xoolpcfunc && exit 0 ;;	
--d|--download) check_dev && dnld_kbd	&& dnld_powerd && dnld_chrome ;;
+-d|--download) check_dev && dnld_kbd && dnld_powerd && dnld_dove ;;
 -g|--get) check_dev && get_binaries && finished ;;
 # -s|--pets) get_pets && finished ;;
--b|--build) check_dev && dnld_kbd && dnld_powerd && dnld_chrome
-			 bld_kbd  && bld_powerd && get_binaries
-			 fix_mod && finished ;; # && get_pets
+-b|--build) check_dev && dnld_kbd && dnld_powerd && dnld_dove
+		bld_kbd  && bld_powerd && bld_dove && get_binaries
+		fix_mod && finished ;; # && get_pets
 -k|--kbdshim) check_dev && dnld_kbd && bld_kbd && fix_mod && finished ;;	
 -p|--powerd) check_dev && dnld_powerd  && bld_powerd && fix_mod && finished ;;
+-f|--dovefb) check_dev && dnld_dove && bld_dove && fix_mod && finished ;;
 esac
+
 
 		
