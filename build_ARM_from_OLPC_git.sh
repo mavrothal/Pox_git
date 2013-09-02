@@ -525,27 +525,6 @@ get_binaries()
 	else 
 		echo "Downloaded sd8787_uapsta. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	fi	
-		
-	# Get the full version of rtcwake
-	rsync -a rsync://updates.laptop.org/build-13.2.0_xo4-13/root/usr/sbin/rtcwake \
-		"$output"/usr/sbin/
-	if [ $? -ne 0 ]; then
-		echo -e "\\0033[1;31m"
-		echo "Error: failed to download rtcwake."
-		echo -e "\\0033[1;34m"
-		echo "Hit \"c\"  and then  \"enter\" to continue"
-		echo "(power management may not work)  or just \"enter\" to quit,"
-		echo "check the connection and try latter."
-		echo -en "\\0033[0;39m"
-		read CONTINUE
-		if [ "$CONTINUE" = "c" ];then
-			echo "rtcwake download failed. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-		else
-			exit 0
-		fi
-	else
-		echo "Downloaded rtcwake. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-	fi
 	sync; sync
 }
 export -f get_binaries
