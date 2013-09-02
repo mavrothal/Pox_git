@@ -270,6 +270,8 @@ udevadm settle
 	-A /var/run/powerevents &
 /usr/sbin/olpc-switchd -f -l -p 10 -F /var/run/powerevents &
 /usr/sbin/powerd &
+sleep 1
+echo F9 > /var/run/olpc-kbdshim_command
 EOF
 }
 export -f mod_XO_sfs
