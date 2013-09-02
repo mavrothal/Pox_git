@@ -166,6 +166,7 @@ extra_packages ()
 			cd $PNAME
 			rm -f *.sh *.spec* 2>/dev/null
 			cp -aR * $SFSROOT
+			sync
 			if [ $? -ne 0 ]; then
 				echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
@@ -182,6 +183,7 @@ extra_packages ()
 			cd $PNAME
 			rm -rf install 2>/dev/null
 			cp -aR * $SFSROOT
+			sync
 			if [ $? -ne 0 ]; then
 				echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else

@@ -148,6 +148,7 @@ chmod 755 *.sh
 sync
 # and remove the .gitignore files
 rm -f $WDIR/extra_pets/.gitignore
+rm -f $WDIR/extra_packs/.gitignore
 rm -f $WDIR/XO_sfs/.*/.gitignore
 }
 export -f prepare
