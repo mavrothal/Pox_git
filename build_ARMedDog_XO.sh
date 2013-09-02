@@ -243,6 +243,7 @@ exec net-setup.sh
 EOF
 	    chmod 755 $SFSROOT/usr/local/bin/defaultconnect
 	fi
+	rm -f $SFSROOT/etc/asound.conf
 }
 export -f mod_fd-arm
  
@@ -256,7 +257,7 @@ mod_XO_sfs ()
 	#Start power managenet
 	cat << EOF > $XOSFS/etc/rc.d/rc.local
 #!/bin/ash
-
+modprobe zforce
 # Make sure that needed devices are added
 udevadm trigger  --action=add --subsystem-match="input" --subsystem-match="sound" \\
 --subsystem-match="usb" --subsystem-match="sdio" --subsystem-match="net" \\
@@ -272,6 +273,10 @@ udevadm settle
 	-A /var/run/powerevents &
 /usr/sbin/olpc-switchd -f -l -p 10 -F /var/run/powerevents &
 /usr/sbin/powerd &
+EOF
+	cat << EOF >> $XOSFS/etc/rc.d/rc.local.shutdown
+rm -f /var/log/powerd.trace.old
+mv /var/log/powerd.trace /var/log/powerd.trace.old
 EOF
 	# Fix kbdshim
 	cat << EOF > $XOSFS/root/Startup/kbdshimfix
