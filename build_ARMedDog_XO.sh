@@ -205,6 +205,22 @@ EOF
 	cat << EOF > $SFSROOT/etc/hwclock.conf
 HWCLOCKPARM='--utc --rtc -f /dev/rtc1'
 EOF
+	# Add 3-button emulation
+	cat << EOF >> $SFSROOT/etc/X11/xorg.conf.d/20-olpc-mouse.conf
+Section "InputClass"
+        Identifier "evdev emulate 3 buttons"
+        MatchIsPointer "on"
+        MatchDevicePath "/dev/input/event*"
+        Option "Emulate3Buttons" "true"
+EndSection
+EOF
+	# Support game keys
+	cat << EOF >> $SFSROOT/root/.Xmodmap
+keycode 225 = KP_Prior
+keycode 181 = KP_Home
+keycode 136 = KP_End
+keycode 164 = KP_Next
+EOF
 	# adjust for the 200dpi XO screens
 	cat << EOF >> $SFSROOT/root/.gtkrc.mine
 
