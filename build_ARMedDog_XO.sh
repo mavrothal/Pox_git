@@ -177,20 +177,13 @@ extra_packages ()
 		done
 		for p in $(ls *.tbz)
 		do 
-			PNAME=`echo $p | sed 's/\.tbz//'`
-			mkdir $PNAME
-			tar xf $p -C $PNAME 2>/dev/null 
-			cd $PNAME
-			rm -rf install 2>/dev/null
-			cp -aR * $SFSROOT
+			tar xvf $p --exclude='install' --exclude='install/*' -C $SFSROOT
 			sync
 			if [ $? -ne 0 ]; then
 				echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
 				echo "$p was added in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			fi
-			cd $extra_packs
-			rm -rf $PNAME
 		done
 	fi		
 }
