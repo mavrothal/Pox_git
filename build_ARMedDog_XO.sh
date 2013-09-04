@@ -253,7 +253,10 @@ exec net-setup.sh
 EOF
 	    chmod 755 $SFSROOT/usr/local/bin/defaultconnect
 	fi
+	# Fix sound
 	rm -f $SFSROOT/etc/asound.conf
+	# Remove synaptics driver. Is usually touble
+	rm -f $SFSROOT/usr/lib/xorg/modules/input/synaptics_drv.*
 }
 export -f mod_fd-arm
  
