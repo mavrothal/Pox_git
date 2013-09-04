@@ -202,8 +202,9 @@ EOF
 	# link gtkdialog to gtkdialog
 	ln -sf /usr/bin/gtkdialog $SFSROOT/usr/bin/gtkdialog3
 	# Fix clock
-	sed -i 's/localtime/utc/' $SFSROOT/etc/rc.d/rc.sysinit
-	sed -i 's/hctosys/systohc/' $SFSROOT/etc/rc.d/rc.sysinit
+	cat << EOF > $SFSROOT/etc/hwclock.conf
+HWCLOCKPARM='--utc --rtc -f /dev/rtc1'
+EOF
 	# adjust for the 200dpi XO screens
 	cat << EOF >> $SFSROOT/root/.gtkrc.mine
 
