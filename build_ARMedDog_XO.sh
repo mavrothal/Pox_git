@@ -477,9 +477,10 @@ copy_to_device ()
 		echo "if not, hit enter to finish and transfer the files manually"
 		read TRANSFER
 			if [ "$TRANSFER" = "t" ];then
-				rm -rf $DEVICE/boot*
+				rm -rf $DEVICE/boot
 				cp -aR --remove-destination build/* $DEVICE/
-				sync
+				sync; sync
+				umount $DEVICE
 			else
 				echo "Copy all files in the ./build directory to USB media/SD card"
 				echo " Done!"
