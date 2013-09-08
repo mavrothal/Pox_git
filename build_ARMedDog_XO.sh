@@ -203,7 +203,7 @@ EOF
 	ln -sf /usr/bin/gtkdialog $SFSROOT/usr/bin/gtkdialog3
 	# Fix clock
 	cat << EOF > $SFSROOT/etc/hwclock.conf
-HWCLOCKPARM='--utc --rtc -f /dev/rtc1'
+HWCLOCKPARM='--utc -f /dev/rtc1'
 EOF
 	# Add 3-button emulation
 	cat << EOF >> $SFSROOT/etc/X11/xorg.conf.d/20-olpc-mouse.conf
