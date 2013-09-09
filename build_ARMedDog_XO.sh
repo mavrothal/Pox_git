@@ -257,6 +257,11 @@ EOF
 	rm -f $SFSROOT/etc/asound.conf
 	# Remove synaptics driver. Is usually touble
 	rm -f $SFSROOT/usr/lib/xorg/modules/input/synaptics_drv.*
+	# Remove battery monitor from panel
+	tac $SFSROOT//usr/share/lxpanel/profile/default/panels/panel |\
+		sed '/type \= batt/{N;s/\n.*//;}' | tac |  sed '/type \= batt/,+12d' > /tmp/newpanel
+	cp -a --remove-destination /tmp/newpanel $SFSROOT//usr/share/lxpanel/profile/default/panels/panel
+	rm -f /tmp/newpanel
 }
 export -f mod_fd-arm
  
