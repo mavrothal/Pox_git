@@ -331,7 +331,6 @@ bld_powerd()
 	cd $XO_sources/powerd
 	git reset --hard HEAD@{1}
 	git checkout origin/master
-	cp $patches/powerd_master.patch $patches/powerd.patch
 
 	# Cross compile if needed
 	if [ "`uname -m | grep -i armv7`" = "" ] ; then
@@ -388,7 +387,7 @@ bld_powerd()
 			echo "Compiled usblist. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
 		fi
 	fi
-	patch -p1 < $patches/powerd.patch 
+	patch -p1 < $patches/powerd_arm.patch 
 	if [ $? -ne 0 ]; then
 		echo "Failed to patch powerd. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	else
