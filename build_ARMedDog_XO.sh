@@ -177,7 +177,7 @@ extra_packages ()
 		done
 		for p in $(ls *.tbz)
 		do 
-			tar xvf $p --exclude='install' --exclude='install/*' -C $SFSROOT
+			tar xf $p --exclude='install' --exclude='install/*' -C $SFSROOT
 			sync
 			if [ $? -ne 0 ]; then
 				echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
@@ -253,6 +253,16 @@ EOF
 exec net-setup.sh
 EOF
 	    chmod 755 $SFSROOT/usr/local/bin/defaultconnect
+	    #... and add a menu entry
+	    cat << EOF > $SFSROOT/usr/share/applications/net-setup.desktop
+[Desktop Entry]
+Name=Classic Network wizard
+Exec=net-setup.sh
+Icon=network24
+X-FullPathIcon=/usr/share/pixmaps/midi-icons/network24.png
+Type=Application
+Categories=Network;
+EOF
 	fi
 	# Fix sound
 	rm -f $SFSROOT/etc/asound.conf
@@ -268,6 +278,9 @@ EOF
 		sed '/type \= batt/{N;s/\n.*//;}' | tac |  sed '/type \= batt/,+12d' > /tmp/newpanel
 	cp -a --remove-destination /tmp/newpanel $SFSROOT//usr/share/lxpanel/profile/default/panels/panel
 	rm -f /tmp/newpanel
+	# Start networks latter
+	sed -i 's/\/etc\/rc\.d\/rc\.network start \&//' $SFSROOT/etc/rc.sysinit/rc.sysinit
+	sed -i 's/echo \$\! > \$RC_NETWORK_PID//' $SFSROOT/etc/rc.sysinit/rc.sysinit
 }
 export -f mod_fd-arm
  
@@ -289,6 +302,10 @@ udevadm trigger  --action=add --subsystem-match="input" --subsystem-match="sound
 --subsystem-match="mmc" --subsystem-match="rtc"
 udevadm settle
 
+# Start Networking
+/etc/rc.d/rc.network start &
+echo \$! > /tmp/rc.network.pid
+
 # start kbdshim and powerd
 /usr/sbin/olpc-kbdshim-udev -f -l \\
 	-b /usr/bin/olpc-brightness \\
@@ -308,6 +325,8 @@ if [ "\$RUNNING" != "" ]; then
 fi
 EOF
 	chmod 755 $XOSFS/root/Startup/kbdshimfix
+	# XO-4 has mlan
+	sed -i 's/wlan/mlan/' $XOSFS/etc/powerd/postresume.d/reconnect.sh
 }
 export -f mod_XO_sfs
 

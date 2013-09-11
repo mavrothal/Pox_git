@@ -91,6 +91,9 @@ case $DEFAULTCONNECT in
      NETCHOICE='net-setup.sh'
     else
      [ -f /usr/local/Pwireless2/interface ] && NETCHOICE='Pwireless2' #100304
+     if [ -f /etc/wifi.db ]; then
+      NETCHOICE='wifi.sh'
+     fi
     fi
    fi
   fi
@@ -117,6 +120,10 @@ case $NETCHOICE in
   /etc/rc.d/rc.network_basic #this only sets up interface 'lo'.
   /usr/local/simple_network_setup/rc.network &
  ;;
+ wifi.sh)
+  sleep 1
+  wifi.sh -a &
+ ;;
  *)
   #100628 shinobar: launch rc.network if eth0 is usable
   #this only sets up interface 'lo'...
@@ -134,6 +141,5 @@ sleep 20
 if [  "$TestEth"  != "" ] && [  "`iwgetid -a`"  != "" ] ; then
    exit 0
 else
-   cd /etc/powerd/postresume.d/
-   ./reconnect.sh
+   exec /etc/powerd/postresume.d/reconnect.sh
 fi
