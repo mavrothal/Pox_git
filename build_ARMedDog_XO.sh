@@ -242,6 +242,7 @@ EOF
 	sed -i 's/208/258/g' $SFSROOT/etc/xdg/rox.sourceforge.net/ROX-Filer/PuppyPin
 	sed -i 's/46/48/g' $SFSROOT/etc/xdg/rox.sourceforge.net/ROX-Filer/PuppyPin
 	sed -i 's/240/256/g' $SFSROOT/etc/xdg/rox.sourceforge.net/ROX-Filer/PuppyPin
+	sed -i 's/298/370/g' $SFSROOT/etc/xdg/rox.sourceforge.net/ROX-Filer/PuppyPin
 	sed -i 's/\<size\>10/\<size\>12/g' $SFSROOT/etc/xdg/openbox/rc.xml
 	sed -i 's/\<size\>8/\<size\>11/g' $SFSROOT/etc/xdg/openbox/rc.xml
 	sed -i 's/X\=64/X\=128/g' $SFSROOT/etc/eventmanager
@@ -255,6 +256,11 @@ EOF
 	fi
 	# Fix sound
 	rm -f $SFSROOT/etc/asound.conf
+	#Rotate powerd.trace
+	cat << EOF >> $SFSROOT/etc/rc.d/rc.local.shutdown
+rm -f /var/log/powerd.trace.old
+mv /var/log/powerd.trace /var/log/powerd.trace.old
+EOF
 	# Remove synaptics driver. Is usually touble
 	rm -f $SFSROOT/usr/lib/xorg/modules/input/synaptics_drv.*
 	# Remove battery monitor from panel
@@ -292,10 +298,6 @@ udevadm settle
 	-A /var/run/powerevents &
 /usr/sbin/olpc-switchd -f -l -p 10 -F /var/run/powerevents &
 /usr/sbin/powerd &
-EOF
-	cat << EOF >> $XOSFS/etc/rc.d/rc.local.shutdown
-rm -f /var/log/powerd.trace.old
-mv /var/log/powerd.trace /var/log/powerd.trace.old
 EOF
 	# Fix kbdshim
 	cat << EOF > $XOSFS/root/Startup/kbdshimfix
@@ -435,12 +437,12 @@ extract_initrd ()
 {
 	cd $CWD
 	rm -rf initrdfs
-	dd if=uInitrd of=initrd.img bs=64 skip=1
+	dd if=uInitrd-a10 of=initrd.img bs=64 skip=1
 	mkdir -p initrdfs
 	cd initrdfs
 	cat ../initrd.img | cpio -i
 	cd $CWD
-	rm -f uInitrd initrd.img
+	rm -f uInitrd-a10 initrd.img
 }
 export -f
 
