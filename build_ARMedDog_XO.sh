@@ -302,7 +302,6 @@ mod_XO_sfs ()
 	rm -rf $XOSFS/usr/local
 	rm -f $XOSFS/root/Startup/{0check_ker_ver,freeramdaemon.sh,powerapplet_xo,powerapplet3_xo}
 	rm -f $XOSFS/root/{.freeramdaemon.rc,.guvcviewrc}
-	sed -i 's/wlan/mlan/' $XOSFS/etc/powerd/postresume.d/reconnect.sh
 	#Start power managenet
 	cat << EOF > $XOSFS/etc/rc.d/rc.local
 #!/bin/ash
@@ -512,6 +511,7 @@ copy_to_device ()
 		echo "if not, hit enter to finish and transfer the files manually"
 		read TRANSFER
 			if [ "$TRANSFER" = "t" ];then
+				echo "Transferring... Will take some time..."
 				rm -rf $DEVICE/boot
 				cp -aR --remove-destination build/* $DEVICE/
 				sync; sync
