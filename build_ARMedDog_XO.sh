@@ -281,6 +281,17 @@ EOF
 	# Start networks latter
 	sed -i 's/\/etc\/rc\.d\/rc\.network start \&//' $SFSROOT/etc/rc.sysinit/rc.sysinit
 	sed -i 's/echo \$\! > \$RC_NETWORK_PID//' $SFSROOT/etc/rc.sysinit/rc.sysinit
+	# Rename mlan
+	cat << EOF >>$SFSROOT/lib/udev/rules.d/70-olpc-net.rules
+SUBSYSTEM!="net", GOTO="olpc_net_end"
+ACTION!="add", GOTO="olpc_net_end"
+
+# XO-4 hardware: fix to wlan0
+DRIVERS=="mwifiex_sdio", KERNEL=="mlan*", NAME="wlan0", GOTO="olpc_net_end"
+
+LABEL="olpc_net_end"
+EOF
+	cp -a $SFSROOT/lib/udev/rules.d/70-olpc-net.rules $SFSROOT/etc/udev/rules.d/70-olpc-net.rules
 }
 export -f mod_fd-arm
  
@@ -325,8 +336,6 @@ if [ "\$RUNNING" != "" ]; then
 fi
 EOF
 	chmod 755 $XOSFS/root/Startup/kbdshimfix
-	# XO-4 has mlan
-	sed -i 's/wlan/mlan/' $XOSFS/etc/powerd/postresume.d/reconnect.sh
 }
 export -f mod_XO_sfs
 
