@@ -254,7 +254,7 @@ exec net-setup.sh
 EOF
 	    chmod 755 $SFSROOT/usr/local/bin/defaultconnect
 	    #... and add a menu entry
-	    cat << EOF > $SFSROOT/usr/share/applications/net-setup.desktop
+	    cat << EOF > $SFSROOT/usr/share/applications/Network-Wizard.desktop
 [Desktop Entry]
 Name=Classic Network wizard
 Exec=net-setup.sh
