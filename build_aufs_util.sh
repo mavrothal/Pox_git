@@ -165,8 +165,8 @@ bld_utils ()
 		output="$CWD/175aufs_utils"
 		mkdir -p $CWD/175aufs_utils
 	elif [ "echo $(cat /proc/devise-tree/compatible | grep 4)" != "" ]; then
-		output="$CWD/40aufs_utils"
-		mkdir -p $CWD/40aufs_utils
+		output="$CWD/4aufs_utils"
+		mkdir -p $CWD/4aufs_utils
 	else 
 		output="$CWD/XO_sfs"
 		mkdir -p $CWD/XO_sfs		

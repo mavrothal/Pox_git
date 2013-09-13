@@ -19,7 +19,7 @@ export -f xoolpcfunc
 xoolpcfunc
 
 # version
-VER=0.1
+VER=0.2
 
 # workdir
 PWD="`pwd`"
@@ -409,40 +409,20 @@ mod_initrd ()
 		echo -en "\\0033[0;39m"
 		exit 1
 	fi
+	
+	for XV in 175 4
+	do
 	cd $CWD/initrdfs
 	unsquashfs -d kernel-modules kernel-modules.sfs
-	rm -rf kernel-modules/lib/modules/*
-	if [ -d $CWD/XO175kernel/lib/modules/ ]; then
-		cp -aR $CWD/XO175kernel/lib/modules/* kernel-modules/lib/modules/
-		echo "Added XO-1.75 kernel modules in initrd" >> $CWD/build.log
-		if [ -d $CWD/175aufs_utils ]; then
-		    cp -a --remove-destination $CWD/175aufs_utils/* kernel-modules/
-		    echo "Added XO-1.75 aufs_utils in initrd" >> $CWD/build.log
-		fi
-		sync
-		rm -f kernel-modules.sfs
-		mksquashfs kernel-modules/ kernel-modules.sfs
-		cp -aR kernel-modules/* .
-		rm -rf kernel-modules
-		sync
-		find . -print | cpio -H newc -o | gzip -9 > $CWD/build/boot/initrd.arm.2
-		echo "Modified the XO-1.75 initrd" >> $CWD/build.log
-	fi
-	if [ -d $CWD/XO4kernel/lib/modules/ ]; then 
-		rm -rf lib/modules/*
-		unsquashfs -d kernel-modules kernel-modules.sfs
+	if [ -d $CWD/XO"$XV"kernel/lib/modules/ ]; then
 		rm -rf kernel-modules/lib/modules/*
-		cp -aR $CWD/XO4kernel/lib/modules/* kernel-modules/lib/modules/
-		echo "Added XO-4 kernel modules in initrd" >> $CWD/build.log
-		if [ -d $CWD/175aufs_utils -a ! -d $CWD/40aufs_utils ]; then
-			echo -e "\\0033[1;34m"
-			echo  "Please build also aufs_utils for the XO-4 kernel"
-			echo  "and then run the script again. Aborting."
-			echo -en "\\0033[0;39m"
-			exit 1
-		else
-		    cp -a --remove-destination $CWD/40aufs_utils/* kernel-modules/
-		    echo "Added XO-4 aufs_utils in initrd" >> $CWD/build.log
+		rm -rf lib/modules/*
+		cp -aR $CWD/XO"$XV"kernel/lib/modules/* kernel-modules/lib/modules/
+		echo "Added XO-"$XV" kernel modules in initrd" >> $CWD/build.log
+		# Add aufs-utils for this kernel if present
+		if [ -d $CWD/"$XV"aufs_utils ]; then
+		    cp -a --remove-destination $CWD/"$XV"aufs_utils/* kernel-modules/
+		    echo "Added XO-"$XV" aufs_utils in initrd" >> $CWD/build.log
 		fi
 		sync
 		rm -f kernel-modules.sfs
@@ -450,13 +430,24 @@ mod_initrd ()
 		cp -aR kernel-modules/* .
 		rm -rf kernel-modules
 		sync
-		find . -print | cpio -H newc -o | gzip -9 > $CWD/build/boot/initrd.arm.4
-		echo "Modified the XO-4 initrd" >> $CWD/build.log
+		# Add kernel headers for this kernel
+		tar xf $CWD/XO"$XV"kernel/kernel-headers-*.pet 2>/dev/null
+		cp -aR kernel-headers-*/usr/* usr/
+		rm -rf kernel-headers-*
+		sync
+		if [ "$XV" = "175" ]; then
+			IV=2
+		else
+			IV=4
+		fi
+		find . -print| cpio -H newc -o | gzip -9 > $CWD/build/boot/initrd.arm."$IV"
+		echo "Modified the XO-"$XV" initrd" >> $CWD/build.log
 	fi
+	done
 	cd $CWD 
 	rm -rf initrdfs
 	# Add olpc.fth to the build
-	cp -a boot_ARM/olpc.fth build/boot
+	cp -a boot_ARM/olpc.fth build/boot 
 }
 export -f mod_initrd
 
