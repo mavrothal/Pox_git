@@ -440,7 +440,7 @@ mod_initrd ()
 		else
 			IV=4
 		fi
-		find . -print| cpio -H newc -o | gzip -9 > $CWD/build/boot/initrd.arm."$IV"
+		find . -print| cpio -H newc -o | gzip -9 > $CWD/build/boot/initrd."$IV"
 		echo "Modified the XO-"$XV" initrd" >> $CWD/build.log
 	fi
 	done
