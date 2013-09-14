@@ -43,7 +43,7 @@ bundle-suffix$     " MACHINE"      $set-macro
    " PD" $set-macro
    
 \ set kernel command line
-" fbcon=font:SUN12x22 console=ttys2,115200 debuginitrd console=tty0 waitdev=5 basesfs=device:${PD}:/fd-arm.sfs"                           expand$ to boot-file
+" fbcon=font:SUN12x22 console=ttys2,115200 console=tty0 waitdev=5 basesfs=device:${PD}:/fd-arm.sfs"  expand$ to boot-file
 
 \ choose initramfs
 " ${DN}\boot\initrd.${MACHINE}"   expand$ to ramdisk
