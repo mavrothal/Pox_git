@@ -205,6 +205,7 @@ EOF
 	cat << EOF > $SFSROOT/etc/hwclock.conf
 HWCLOCKPARM='--utc -f /dev/rtc1'
 EOF
+	sed -i "s/HWCLOCKPARM}'/HWCLOCKPARM} -f \/dev\/rtc1'/" $SFSROOT/sbin/hwclockconf.sh
 	# Add 3-button emulation
 	cat << EOF >> $SFSROOT/etc/X11/xorg.conf.d/20-olpc-mouse.conf
 Section "InputClass"
