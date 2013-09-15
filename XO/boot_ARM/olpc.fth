@@ -34,9 +34,9 @@ bundle-suffix$     " MACHINE"      $set-macro
    else
    	sd?  if
          slot1?  if
-            " mmcblk1p1"  \ external SD card
+            " mmcblk0p1"  \ external SD card
          else
-            " mmcblk0p1"  \ Internal SD card
+            " mmcblk1p1"  \ Internal SD card
          then
       then
    then
