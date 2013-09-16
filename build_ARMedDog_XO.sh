@@ -206,8 +206,8 @@ EOF
 HWCLOCKPARM='--utc -f /dev/rtc1'
 EOF
 	sed -i "s/HWCLOCKPARM}'/HWCLOCKPARM} -f \/dev\/rtc1'/" $SFSROOT/sbin/hwclockconf.sh
-	sed -i 's/loaltime/utc/' $SFSROOT/etc/rc.d/tnit.d/60-ntpd-client
-	sed -i 's/30/90/' $SFSROOT/etc/rc.d/tnit.d/60-ntpd-client
+	sed -i 's/loaltime/utc/' $SFSROOT/etc/rc.d/init.d/60-ntpd-client
+	sed -i 's/30/130/' $SFSROOT/etc/rc.d/init.d/60-ntpd-client
 	# Add 3-button emulation
 	cat << EOF >> $SFSROOT/etc/X11/xorg.conf.d/20-olpc-mouse.conf
 Section "InputClass"
