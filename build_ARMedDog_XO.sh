@@ -217,13 +217,6 @@ Section "InputClass"
         Option "Emulate3Buttons" "true"
 EndSection
 EOF
-	# Support game keys
-	cat << EOF >> $SFSROOT/root/.Xmodmap
-keycode 225 = KP_Prior
-keycode 181 = KP_Home
-keycode 136 = KP_End
-keycode 164 = KP_Next
-EOF
 	# adjust for the 200dpi XO screens
 	cat << EOF >> $SFSROOT/root/.gtkrc.mine
 
@@ -340,6 +333,27 @@ if [ "\$RUNNING" != "" ]; then
 fi
 EOF
 	chmod 755 $XOSFS/root/Startup/kbdshimfix
+	# Fix keyboard
+	cat << EOF > $XOSFS/etc/udev/rules.d/96-olpckeymap.rules
+# Use device tree to identify XO-1.75/4 and apply OLPC keymap
+ACTION=="remove", GOTO="olpc_keyboard_end"
+KERNEL!="event*", GOTO="olpc_keyboard_end"
+ENV{ID_INPUT_KEY}=="", GOTO="olpc_keyboard_end"
+SUBSYSTEMS=="bluetooth", GOTO="olpc_keyboard_end"
+SUBSYSTEMS=="usb", GOTO="olpc_keyboard_end"
+IMPORT{file}="/etc/X11/keyboard"
+IMPORT{program}="device-tree-val DEVTREE_COMPAT compatible"
+ENV{DEVTREE_COMPAT}=="olpc,xo-1*", RUN+="keymap $name olpc-xo"
+ENV{DEVTREE_COMPAT}=="olpc,xo-cl*", RUN+="keymap $name olpc-xo"
+LABEL="olpc_keyboard_end"
+EOF
+	cp -a $XOSFS/etc/udev/rules.d/96-olpckeymap.rules \
+		$XOSFS/lib/udev/rules.d/96-olpckeymap.rules
+	cat << EOF > $XOSFS/etc/X11/keyboard
+XKBMODEL="olpcm"
+XKBLAYOUT="us"
+XKBVARIANT="olpc"
+EOF
 }
 export -f mod_XO_sfs
 
