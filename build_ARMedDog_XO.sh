@@ -157,6 +157,7 @@ export -f Get_files_from_img
 extra_packages ()
 {
 	if [ "$(ls $extra_packs)" != "" ]; then
+		. $SFSROOT/etc/DISTRO_SPECS
 		echo "The following packages were included in the build" >> $CWD/build.log
 		cd $extra_packs
 		for p in $(ls *.pet) 
@@ -165,8 +166,7 @@ extra_packages ()
 			tar xf $p 2>/dev/null
 			cd $PNAME
 			rm -f *.sh *.spec* 2>/dev/null
-			cp -aR * $SFSROOT
-			sync
+			cp -aR * $SFSROOT			
 			if [ $? -ne 0 ]; then
 				echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 			else
@@ -174,17 +174,24 @@ extra_packages ()
 			fi
 			cd $extra_packs
 			rm -rf $PNAME
-		done
-		for p in $(ls *.tbz)
-		do 
-			tar xf $p --exclude='install' --exclude='install/*' -C $SFSROOT
 			sync
-			if [ $? -ne 0 ]; then
-				echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-			else
-				echo "$p was added in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
-			fi
 		done
+		case "$DISTRO_FILE_PREFIX" in 
+		fd-arm)
+			for p in $(ls *.tbz)
+			do 
+				( cd $SFSROOT 
+				ROOT=$SFSROOT sbin/installpkg $extra_packs/$p 
+				if [ $? -ne 0 ]; then
+					echo "Failed to add $p in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				else
+					echo "$p was added in the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+				fi
+				sync
+				cd $CWD )
+			done
+		;;
+		esac		
 	fi		
 }
 export -f extra_packages
