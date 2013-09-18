@@ -1,25 +1,26 @@
-Pox_git (Puppylinux_Olpc_Xo_git), is a collection of scripts and files needed to 
-build Puppy linux for the OLPC XO laptops, starting from a 
+Pox_git (Puppylinux_Olpc_Xo_git), is a collection of scripts and files 
+needed to build Puppy linux for the OLPC XO laptops, starting from a 
 puppy ISO image and public sources
 
-There are 5 build scripts and several modified puppy-scripts.
+There are 7 build scripts and several modified puppy-scripts.
   
 `XOpup_kernel_builder.sh' will build the 2.6.35.x or the 3.3.x  kernels for
 the XO-1 and/or the XO-1.5, the 3.0-wip kernel for the XO-1.75 and the
-3.5.7 kernel for the XO-4 from the olpc-2.6 and the Aufs gits, with  
+3.5.7 kernel for the XO-4, from the olpc-2.6 and the Aufs gits, with  
 puppy-specific config files.
  
-`build_from_OLPC_git.sh' will download sources from the OLPC git patch them
-as needed and make the files relating to the XO power management, fetch the 
-wireless firmware from recent OLPC builds and download and compile the XO-1.5
-chrome video driver.
+`build_from_OLPC_git.sh' and `build_ARM_from_OLPC_git.sh' will download 
+sources from the OLPC git, patch them as needed and make the files relating 
+to the XO power management, fetch the wireless firmware from recent OLPC 
+builds and download and compile the XO-1.5 chrome video driver.
 
-`create_xo_puppy.sh' will use the kernel and sfs sources to modify a puppy 
-ISO image and make the XO-compatible files, transfer them in a USB/SDcard
-and make it ready to boot the XO-1 and/or XO-1.5
+`create_xo_puppy.sh' and `build_ARMedDog_XO.sh' will use the XO-kernels and 
+sfs sources to modify a puppy ISO or IMG file, make the XO-compatible changes
+for the XO-1/XO-1.5 and XO-1.75/XO-4, respectively, transfer them in a 
+USB/SDcard and make it ready to boot the XOs.
 The associated `pkgs_remrc' files has the instructions for the files and 
 packages that will be either totally removed or moved from the main sfs 
-to an `extras.sfs'. It can be edited as needed.
+to an `extras.sfs' in x86 builds. It can be edited as needed.
 
 `build_aufs_util.sh' will download the sources and build auf2-util or
 aufs3-util (aufs utilities in puppies are pretty dated). Chances are that 
@@ -27,29 +28,33 @@ will fail to compile in a lot of puppies since they are using the old aufs-2.1
 branch or have unionfs instead of aufs. In this case just run the script 
 from within your XO build to make the new files.
 
-`make_build' is the master script that calls the other 4 but the previous
-scripts can run also independent of each other, to make a kernel  or repackage
-a build, for example.
+`make_build' is the master script that calls the other scripts. The other 
+scripts can run also independent of each other and/or make_build. 
+For example, to make the kernels, aufs-utils or repackage a build.
 
 The files in XO/XO_sfs folder are either modified puppy scripts or new ones 
 appropriate for OLPC's XOs needed to suit XOs special characteristics.
 
-The XO/extra_pets folder can be used to included additional pets in 
-the build. Just add them in the folder 
+The XO/extra_pets (for x86 builds) and XO/extra_packs (for ARM builds) folders 
+can be used to included additional packages in the build. Just add them in the 
+corresponding folder. 
 
 The build scripts can run in any linux distro to build an XO-puppy, however 
 is highly suggested to use either the puppy version you want to build for 
 the XOs or a binary-compatible distro as building environment. On another 
 distro you may need to run as root to mount the sfs or run mksquashfs.
+For the ARM versions you can use a cross-compiler but an ARM-native build  
+system is highly recommended.
 
 It is suggested to use a recent puppy build as base, as older ones may not
 have the geode driver and fail to compile the chrome driver.
 It is also advised to add the full udev-151+ package from a compatible 
 distro in the build to get full power management and keyboard functionality.
 
+Quick start: Clone or download Pox_git and from a level above the folder run
+`./Pox_git_foldername/make_build -b /full_path_to/puppy.iso' for x86 builds or
+`./Pox_git_foldername/make_build -ba /full_path_to/puppy.img' for ARM builds. 
+Make sure you have at least 3GB of free space if you are building everything.
+
 We welcome patches and addition that will suit the XOs, either in the scripts 
 or the XO/XO_sfs/* files.
-
-Quick start: Clone or download Pox_git and from a level above the folder run
-`./Pox_git_foldername/make_build -b /full_path_to/puppy.iso'. 
-Make sure you have at least 1GB of free space if you are building the kernels.
