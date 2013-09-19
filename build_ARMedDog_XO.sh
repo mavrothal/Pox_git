@@ -201,6 +201,7 @@ delete_packages ()
 	. $SFSROOT/etc/DISTRO_SPECS
 	case "$DISTRO_FILE_PREFIX" in 
 	fd-arm)
+		echo "The following packages were removed from the fd-arm.sfs" >> $CWD/build.log
 		for a in $FDARM
 		do 
 			( cd $SFSROOT 
@@ -477,6 +478,7 @@ mod_initrd ()
 		mksquashfs kernel-modules/ kernel-modules.sfs
 		cp -aR kernel-modules/* .
 		rm -rf kernel-modules
+		echo "Added XO-"$XV" kernel headers in initrd" >> $CWD/build.log
 		sync
 		# Add kernel headers for this kernel
 		tar xf $CWD/XO"$XV"kernel/kernel-headers-*.pet 2>/dev/null
