@@ -371,12 +371,13 @@ SUBSYSTEMS=="bluetooth", GOTO="olpc_keyboard_end"
 SUBSYSTEMS=="usb", GOTO="olpc_keyboard_end"
 IMPORT{file}="/etc/X11/keyboard"
 IMPORT{program}="device-tree-val DEVTREE_COMPAT compatible"
-ENV{DEVTREE_COMPAT}=="olpc,xo-1*", RUN+="keymap $name olpc-xo"
-ENV{DEVTREE_COMPAT}=="olpc,xo-cl*", RUN+="keymap $name olpc-xo"
+ENV{DEVTREE_COMPAT}=="olpc,xo-1*", RUN+="keymap \$name olpc-xo"
+ENV{DEVTREE_COMPAT}=="olpc,xo-cl*", RUN+="keymap \$name olpc-xo"
 LABEL="olpc_keyboard_end"
 EOF
 	cp -a $XOSFS/etc/udev/rules.d/96-olpckeymap.rules \
 		$XOSFS/lib/udev/rules.d/96-olpckeymap.rules
+	mkdir -p $XOSFS/etc/X11
 	cat << EOF > $XOSFS/etc/X11/keyboard
 XKBMODEL="olpcm"
 XKBLAYOUT="us"
