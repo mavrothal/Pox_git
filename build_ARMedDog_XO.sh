@@ -478,12 +478,12 @@ mod_initrd ()
 		mksquashfs kernel-modules/ kernel-modules.sfs
 		cp -aR kernel-modules/* .
 		rm -rf kernel-modules
-		echo "Added XO-"$XV" kernel headers in initrd" >> $CWD/build.log
 		sync
 		# Add kernel headers for this kernel
 		tar xf $CWD/XO"$XV"kernel/kernel-headers-*.pet 2>/dev/null
 		cp -aR kernel-headers-*/usr/* usr/
 		rm -rf kernel-headers-*
+		echo "Added XO-"$XV" kernel headers in initrd" >> $CWD/build.log
 		sync
 		if [ "$XV" = "175" ]; then
 			IV=2
