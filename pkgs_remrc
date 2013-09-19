@@ -29,3 +29,6 @@ XTRA="libIntelXvMC.* libI810XvMC.* libdrm_* dri/*"
 # /root/Startup
 OTHER="*touchpad* *acpi* *vattery* xbindkeys"
 
+# fd-arm packages
+FDARM="xf86-input-synaptics-1.7.1-armhf-1 xf86-input-tslib-0.0.6-armhf-1 \
+tslib-20130815-armhf-1"

@@ -36,7 +36,7 @@ if [ "$INSIDE" != "" ] ; then
 fi
 
 # read config
-#. $CWD/pkgs_remrc
+. $CWD/pkgs_remrc
 
 #ok, we exit on most errors, error function
 statusfunc()
@@ -196,9 +196,33 @@ extra_packages ()
 }
 export -f extra_packages
 
+delete_packages ()
+{
+	. $SFSROOT/etc/DISTRO_SPECS
+	case "$DISTRO_FILE_PREFIX" in 
+	fd-arm)
+		for a in $FDARM
+		do 
+			( cd $SFSROOT 
+			ROOT=$SFSROOT sbin/removepkg $a 
+			if [ $? -ne 0 ]; then
+				echo "Failed to remove $a from the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			else
+				echo "$a was removed from the build. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
+			fi
+			sync
+			cd $CWD )
+		done
+	;;
+	esac		
+}
+export -f delete_packages
+
 mod_fd-arm ()
 {
 	extra_packages
+
+	delete_packages
 
 	# add /run and /run/udev directories for newer udev and didtros
 	mkdir -p $SFSROOT/tmp/udev
@@ -274,8 +298,6 @@ EOF
 rm -f /var/log/powerd.trace.old
 mv /var/log/powerd.trace /var/log/powerd.trace.old
 EOF
-	# Remove synaptics driver. Is usually touble
-	rm -f $SFSROOT/usr/lib/xorg/modules/input/synaptics_drv.*
 	# Remove battery monitor from panel
 	tac $SFSROOT//usr/share/lxpanel/profile/default/panels/panel |\
 		sed '/type \= batt/{N;s/\n.*//;}' | tac |  sed '/type \= batt/,+12d' > /tmp/newpanel
