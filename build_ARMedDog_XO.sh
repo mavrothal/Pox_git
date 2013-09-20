@@ -297,6 +297,8 @@ EOF
 	rm -f $SFSROOT/etc/asound.conf
 	#Rotate powerd.trace
 	cat << EOF >> $SFSROOT/etc/rc.d/rc.local.shutdown
+kill -9 $(pidof powerd)
+rm -f /etc/adjtime
 rm -f /var/log/powerd.trace.old
 mv /var/log/powerd.trace /var/log/powerd.trace.old
 EOF
