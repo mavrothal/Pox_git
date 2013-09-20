@@ -595,8 +595,7 @@ case $1 in
 	-i|--img) [ ! $2 ] && usagefunc
 		IMGPATH=$2 
 		IMG="`basename $IMGPATH`" 
-		Get_files_from_img 
-		extract_main_sfs && mod_sfs
-		extract_initrd && mod_initrd 
-		add_kernels && copy_to_device ;;
+		Get_files_from_img
+		extract_initrd && mod_initrd && add_kernels
+		extract_main_sfs && mod_sfs && copy_to_device ;;
 esac
