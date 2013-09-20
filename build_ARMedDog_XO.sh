@@ -478,6 +478,10 @@ mod_initrd ()
 		fi
 		sync
 		rm -f kernel-modules.sfs
+		rm -f kernel-modules/usr/bin/a10disp
+		rm -f usr/bin/a10disp
+		rm -f bin/a10disp
+
 		mksquashfs kernel-modules/ kernel-modules.sfs
 		cp -aR kernel-modules/* .
 		rm -rf kernel-modules
