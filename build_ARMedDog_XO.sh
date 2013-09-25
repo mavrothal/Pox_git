@@ -221,9 +221,9 @@ export -f delete_packages
 
 mod_fd-arm ()
 {
-	extra_packages
-
 	delete_packages
+
+	extra_packages
 
 	# add /run and /run/udev directories for newer udev and didtros
 	mkdir -p $SFSROOT/tmp/udev
