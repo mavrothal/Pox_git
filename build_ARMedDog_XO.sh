@@ -387,6 +387,9 @@ XKBMODEL="olpcm"
 XKBLAYOUT="us"
 XKBVARIANT="olpc"
 EOF
+	# Move Startup to /etc/xdg/
+	mkdir -p $XOSFS/etc/xdg
+	mv $XOSFS/root/Startup $XOSFS/etc/xdg/
 }
 export -f mod_XO_sfs
 
