@@ -329,7 +329,8 @@ mod_XO_sfs ()
 	rm -rf $XOSFS/.xo-nand
 	rm -rf $XOSFS/etc/{modprobe.d,X11}
 	rm -rf $XOSFS/usr/local
-	rm -f $XOSFS/root/Startup/{0check_ker_ver,freeramdaemon.sh,powerapplet_xo,powerapplet3_xo}
+	rm -f $XOSFS/root/Startup/{0check_ker_ver,freeramdaemon.sh,powerapplet_xo,\
+	powerapplet3_xo,fix_card_pin,pup_ver.sh,udev_check.sh}
 	rm -f $XOSFS/root/{.freeramdaemon.rc,.guvcviewrc}
 	#Start power managenet
 	cat << EOF > $XOSFS/etc/rc.d/rc.local
