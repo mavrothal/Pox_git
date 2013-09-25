@@ -304,7 +304,7 @@ bld_kbd()
 		echo "Compiled olpc-kbdshim-udev. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log			
 	fi
 	strip -s olpc-kbdshim-udev
-	patch -p1 < $patches/olpc-rotate.patch
+	patch -p1 < $patches/olpc-rotate_fd.patch
 	if [ $? -ne 0 ]; then
 		echo "Failed to patch olpc-rotate. $(date "+%Y-%m-%d %H:%M")" >> $CWD/build.log
 	else

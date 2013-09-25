@@ -1,0 +1,9 @@
+--- a/olpc-rotate	2011-08-28 17:07:01.000000000 +0000
++++ b/olpc-rotate	2011-02-17 17:21:40.000000000 +0000
+@@ -88,4 +95,5 @@
+ xrandr --output $output --rotate $scrnew && \
+     test -e $CMD_FIFO && echo $new >$CMD_FIFO
+ 
+-
++#fix drive icons
++/usr/sbin/fatdog-drive-icon-redraw.sh 
