@@ -104,6 +104,17 @@
  # CONFIG_IP_NF_RAW is not set
  # CONFIG_IP_NF_ARPTABLES is not set
 
+@@ -865,8 +865,8 @@
+ # CONFIG_PARPORT is not set
+ CONFIG_BLK_DEV=y
+ # CONFIG_BLK_DEV_COW_COMMON is not set
+-CONFIG_BLK_DEV_LOOP=m
+-CONFIG_BLK_DEV_CRYPTOLOOP=m
++CONFIG_BLK_DEV_LOOP=y
++CONFIG_BLK_DEV_CRYPTOLOOP=y
+ 
+ #
+ # DRBD disabled because PROC_FS, INET or CONNECTOR not selected
 @@ -2191,7 +2199,7 @@
  # CONFIG_EFS_FS is not set
  # CONFIG_LOGFS is not set

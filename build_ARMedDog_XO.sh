@@ -487,7 +487,6 @@ mod_initrd ()
 		rm -f bin/a10disp
 
 		mksquashfs kernel-modules/ kernel-modules.sfs
-		cp -aR kernel-modules/* .
 		rm -rf kernel-modules
 		sync
 		# Add kernel headers for this kernel
