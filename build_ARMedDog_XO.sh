@@ -308,8 +308,8 @@ EOF
 	cp -a --remove-destination /tmp/newpanel $SFSROOT//usr/share/lxpanel/profile/default/panels/panel
 	rm -f /tmp/newpanel
 	# Start networks latter
-	sed -i 's/\/etc\/rc\.d\/rc\.network start \&//' $SFSROOT/etc/rc.sysinit/rc.sysinit
-	sed -i 's/echo \$\! > \$RC_NETWORK_PID//' $SFSROOT/etc/rc.sysinit/rc.sysinit
+	sed -i 's/\/etc\/rc\.d\/rc\.network start \&//' $SFSROOT/etc/rc.d/rc.sysinit
+	sed -i 's/echo \$\! > \$RC_NETWORK_PID//' $SFSROOT/etc/rc.d/rc.sysinit
 	# Rename mlan
 	cat << EOF >>$SFSROOT/lib/udev/rules.d/70-olpc-net.rules
 SUBSYSTEM!="net", GOTO="olpc_net_end"
