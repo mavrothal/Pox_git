@@ -208,9 +208,10 @@ if [ "$ISOPATH" != "" ];then
 	statusfunc $?
 	
 	SFSTHERE=`ls|grep "sfs$"`
-	MAINSFS="`ls $SFSTHERE|grep "sfs$" | grep -v "^zdrv"|grep -v "^adrv"`"
+	MAINSFS="`ls $SFSTHERE|grep "sfs$" | grep -v "^zdrv"|grep -v "^adrv" | grep -v "^zl[0-9]"`"
 	ZSFS=`echo $SFSTHERE|grep "zdrv"`
-	if [ "$ZSFS" != "" ];then
+	LZSFS=`echo $SFSTHERE|grep "zl[0-9]"` #lupu-mini spcial...
+	if [ "$ZSFS" != "" -o "$LZSFS" != "" ];then
 		echo -e "\\0033[1;34m"
 		echo  "A zdrv is present. You can manually search it for stuff needed "
 		echo  "but is STRONGLY suggested to delete it. Hit \"d\" and enter to delete"
@@ -455,6 +456,14 @@ wary|racy|luki|lina)   XORGDIR="$SFSROOT/usr/X11R7/lib/xorg/modules/drivers"
 		XORGLIBDIR="$SFSROOT/usr/X11R7/lib/"	
 		cp -af $XODIR/{wary,racy,luki,lina,CHROME_DRIVER}/xorg/modules/drivers/* \
 		$SFSROOT/usr/X11R7/lib/xorg/modules/drivers/
+		;;
+lupu) #has most drivers elsehwere
+		cp $SFSROOT/usr/lib/xorg/modules/drivers-*/* \
+		$SFSROOT/usr/lib/xorg/modules/drivers/
+		XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
+		XORGLIBDIR="$SFSROOT/usr/lib/"
+		cp -af $XODIR/{"$DISTRO_FILE_PREFIX",CHROME_DRIVER}/xorg/modules/drivers/* \
+		$SFSROOT/usr/lib/xorg/modules/drivers/ 
 		;; 
 *) 
 		XORGDIR="$SFSROOT/usr/lib/xorg/modules/drivers"
