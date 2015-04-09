@@ -2,6 +2,9 @@
 
 visible
 
+\ Do not power off sd card
+dev /sd  patch 2drop cb! sdhci-card-power-off  dend
+
 \ set machine macros
 bundle-suffix$     " MACHINE"      $set-macro
 

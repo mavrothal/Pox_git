@@ -2,6 +2,9 @@
 
 visible
 
+\ Do not power off sd card
+dev /sd  patch 2drop cb! sdhci-card-power-off  dend
+
 \ Returns a number identifying the XO version - 2 for XO-1, 3 for XO-1.5
 : xo-version  ( -- n )  fw-version$ drop 1+ c@ [char] 0 -  ;
 
